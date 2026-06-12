@@ -1,0 +1,89 @@
+import { Input } from '@/components/ui/input'
+
+interface TextFieldProps {
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+  disabled?: boolean
+}
+
+export function TextField({ value, onChange, placeholder, disabled }: TextFieldProps) {
+  return (
+    <Input
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      disabled={disabled}
+      className="text-xs h-8"
+    />
+  )
+}
+
+interface NumberFieldProps {
+  value: number | undefined
+  onChange: (value: number | undefined) => void
+  placeholder?: string
+  min?: number
+  max?: number
+  disabled?: boolean
+}
+
+export function NumberField({ value, onChange, placeholder, min, max, disabled }: NumberFieldProps) {
+  return (
+    <Input
+      type="number"
+      value={value ?? ''}
+      onChange={(e) => {
+        const v = e.target.value
+        onChange(v === '' ? undefined : Number(v))
+      }}
+      placeholder={placeholder}
+      min={min}
+      max={max}
+      disabled={disabled}
+      className="text-xs h-8"
+    />
+  )
+}
+
+interface SelectFieldProps {
+  value: string
+  onChange: (value: string) => void
+  options: readonly string[]
+  placeholder?: string
+  disabled?: boolean
+}
+
+export function SelectField({ value, onChange, options, placeholder, disabled }: SelectFieldProps) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      disabled={disabled}
+      className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      {placeholder && <option value="">{placeholder}</option>}
+      {options.map((opt) => (
+        <option key={opt} value={opt}>{opt}</option>
+      ))}
+    </select>
+  )
+}
+
+interface BoolFieldProps {
+  value: boolean
+  onChange: (value: boolean) => void
+  disabled?: boolean
+}
+
+export function BoolField({ value, onChange, disabled }: BoolFieldProps) {
+  return (
+    <input
+      type="checkbox"
+      checked={value}
+      onChange={(e) => onChange(e.target.checked)}
+      disabled={disabled}
+      className="size-4 rounded border-input"
+    />
+  )
+}
