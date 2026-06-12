@@ -9,7 +9,7 @@ import { RULE_TYPES } from '@/lib/constants'
 
 const RULE_TARGETS = ['DIRECT', 'REJECT', 'REJECT-DROP', 'COMPATIBLE', 'PASS']
 
-function SortableRuleItem({ id, className = '', children }: { id: string; className?: string; children: React.ReactNode }) {
+function SortableRuleItem({ id, className = '', onClick, children }: { id: string; className?: string; onClick?: () => void; children: React.ReactNode }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
 
   const style = {
@@ -20,7 +20,7 @@ function SortableRuleItem({ id, className = '', children }: { id: string; classN
 
   return (
     <div ref={setNodeRef} style={style} className={`border-b border-border last:border-b-0 ${className}`}>
-      <div className="flex items-center gap-2 px-2 py-1.5 hover:bg-accent cursor-pointer">
+      <div onClick={onClick} className="flex items-center gap-2 px-2 py-1.5 hover:bg-accent cursor-pointer">
         <button {...attributes} {...listeners} className="shrink-0 cursor-grab touch-none">
           <GripVertical className="size-3 text-muted-foreground" />
         </button>
@@ -209,7 +209,7 @@ export function RulesEditor() {
               }
 
               return (
-                <SortableRuleItem key={ids[i]} id={ids[i]} className={isMatchAfter ? 'bg-yellow-500/5' : ''}>
+                <SortableRuleItem key={ids[i]} id={ids[i]} className={isMatchAfter ? 'bg-yellow-500/5' : ''} onClick={() => setEditingIdx(i)}>
                   <span className="text-[10px] w-8 shrink-0 text-muted-foreground">{i + 1}</span>
                   <span className="text-xs font-mono font-medium text-primary">{type}</span>
                   <span className="text-xs flex-1 truncate">{payload || ''}</span>
