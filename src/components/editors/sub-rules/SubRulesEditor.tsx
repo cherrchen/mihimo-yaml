@@ -74,7 +74,7 @@ export function SubRulesEditor() {
                         next[i] = `${e.target.value},${parts.slice(1).join(',')}`
                         setSubRule(selectedName, next)
                       }}
-                      className="w-32 h-7 rounded border border-input bg-background px-1 text-xs"
+                      className="w-32 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {RULE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                     </select>
@@ -87,7 +87,7 @@ export function SubRulesEditor() {
                         setSubRule(selectedName, next)
                       }}
                       placeholder="payload"
-                      className="flex-1 h-7 rounded border border-input bg-background px-1 text-xs"
+                      className="flex-1 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                     />
                     <input
                       type="text"
@@ -98,7 +98,7 @@ export function SubRulesEditor() {
                         setSubRule(selectedName, next)
                       }}
                       placeholder="target"
-                      className="w-24 h-7 rounded border border-input bg-background px-1 text-xs"
+                      className="w-24 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                     />
                     <button
                       onClick={() => {

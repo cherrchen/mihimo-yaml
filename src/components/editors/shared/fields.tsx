@@ -14,7 +14,7 @@ export function TextField({ value, onChange, placeholder, disabled }: TextFieldP
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       disabled={disabled}
-      className="text-xs h-8"
+      className="text-xs h-8 bg-background"
     />
   )
 }
@@ -41,7 +41,7 @@ export function NumberField({ value, onChange, placeholder, min, max, disabled }
       min={min}
       max={max}
       disabled={disabled}
-      className="text-xs h-8"
+      className="text-xs h-8 bg-background"
     />
   )
 }

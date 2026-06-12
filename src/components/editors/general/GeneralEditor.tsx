@@ -51,7 +51,7 @@ export function GeneralEditor() {
               type="checkbox"
               checked={config.ipv6 ?? true}
               onChange={(e) => set('ipv6', e.target.checked)}
-              className="size-4"
+              className="size-4 rounded border-input"
             />
             <span className="text-xs text-muted-foreground">{config.ipv6 !== false ? '已启用' : '已禁用'}</span>
           </div>
@@ -140,7 +140,7 @@ export function GeneralEditor() {
               type="checkbox"
               checked={config['disable-keep-alive'] || false}
               onChange={(e) => set('disable-keep-alive', e.target.checked)}
-              className="size-4"
+              className="size-4 rounded border-input"
             />
           </div>
         </FieldWrapper>
@@ -151,7 +151,7 @@ export function GeneralEditor() {
               type="checkbox"
               checked={config['tcp-concurrent'] || false}
               onChange={(e) => set('tcp-concurrent', e.target.checked)}
-              className="size-4"
+              className="size-4 rounded border-input"
             />
           </div>
         </FieldWrapper>
@@ -162,7 +162,7 @@ export function GeneralEditor() {
               type="checkbox"
               checked={config['unified-delay'] || false}
               onChange={(e) => set('unified-delay', e.target.checked)}
-              className="size-4"
+              className="size-4 rounded border-input"
             />
           </div>
         </FieldWrapper>
@@ -176,7 +176,7 @@ export function GeneralEditor() {
               type="checkbox"
               checked={config['geodata-mode'] || false}
               onChange={(e) => set('geodata-mode', e.target.checked)}
-              className="size-4"
+              className="size-4 rounded border-input"
             />
             <span className="text-xs text-muted-foreground">{config['geodata-mode'] ? 'dat 格式' : 'mmdb 格式'}</span>
           </div>
@@ -197,7 +197,7 @@ export function GeneralEditor() {
               type="checkbox"
               checked={config['geo-auto-update'] || false}
               onChange={(e) => set('geo-auto-update', e.target.checked)}
-              className="size-4"
+              className="size-4 rounded border-input"
             />
           </div>
         </FieldWrapper>
@@ -220,7 +220,7 @@ export function GeneralEditor() {
               type="checkbox"
               checked={config.profile?.['store-selected'] ?? true}
               onChange={(e) => set('profile.store-selected', e.target.checked)}
-              className="size-4"
+              className="size-4 rounded border-input"
             />
           </div>
         </FieldWrapper>
@@ -231,7 +231,7 @@ export function GeneralEditor() {
               type="checkbox"
               checked={config.profile?.['store-fake-ip'] || false}
               onChange={(e) => set('profile.store-fake-ip', e.target.checked)}
-              className="size-4"
+              className="size-4 rounded border-input"
             />
           </div>
         </FieldWrapper>
