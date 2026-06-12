@@ -86,7 +86,7 @@ export function ProxiesEditor() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="搜索节点..."
-            className="w-full h-7 pl-7 pr-2 rounded border border-input bg-background text-xs"
+            className="w-full h-7 pl-7 pr-2 rounded-md border border-border bg-background text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
           />
         </div>
 

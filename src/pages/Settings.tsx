@@ -53,7 +53,7 @@ export function SettingsPage() {
             value={corsProxy}
             onChange={(e) => { setCorsProxy(e.target.value); saveSetting('mihomo-yaml-cors-proxy', e.target.value) }}
             placeholder="https://cors-proxy.example.com/"
-            className="w-full h-8 rounded border border-input bg-background px-2 py-1 text-xs"
+            className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
           />
           <p className="text-[10px] text-red-500 mt-1">
             隐私风险提示：CORS 代理可以查看你的完整配置文件内容。
@@ -74,7 +74,7 @@ export function SettingsPage() {
                 value={controllerUrl}
                 onChange={(e) => { setControllerUrl(e.target.value); saveSetting('mihomo-yaml-controller', e.target.value) }}
                 placeholder="http://127.0.0.1:9090"
-                className="w-full h-8 rounded border border-input bg-background px-2 py-1 text-xs"
+                className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
             <div>
@@ -84,7 +84,7 @@ export function SettingsPage() {
                 value={controllerSecret}
                 onChange={(e) => { setControllerSecret(e.target.value); saveSetting('mihomo-yaml-controller-secret', e.target.value) }}
                 placeholder="可选"
-                className="w-full h-8 rounded border border-input bg-background px-2 py-1 text-xs"
+                className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
           </div>

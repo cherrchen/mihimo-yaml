@@ -26,7 +26,7 @@ export function DnsEditor() {
               type="checkbox"
               checked={dns.enable ?? false}
               onChange={(e) => setDns('enable', e.target.checked)}
-              className="size-4"
+              className="size-4 rounded border-input"
             />
           </div>
         </FieldWrapper>
@@ -60,7 +60,7 @@ export function DnsEditor() {
               type="checkbox"
               checked={dns.ipv6 ?? false}
               onChange={(e) => setDns('ipv6', e.target.checked)}
-              className="size-4"
+              className="size-4 rounded border-input"
             />
           </div>
         </FieldWrapper>
@@ -84,7 +84,7 @@ export function DnsEditor() {
               type="checkbox"
               checked={dns['prefer-h3'] ?? false}
               onChange={(e) => setDns('prefer-h3', e.target.checked)}
-              className="size-4"
+              className="size-4 rounded border-input"
             />
           </div>
         </FieldWrapper>
@@ -192,7 +192,7 @@ export function DnsEditor() {
                   onChange={(e) => {
                     setDns('fallback-filter', { ...dns['fallback-filter'], geoip: e.target.checked })
                   }}
-                  className="size-4"
+                  className="size-4 rounded border-input"
                 />
               </div>
             </FieldWrapper>

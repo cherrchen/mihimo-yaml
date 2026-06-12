@@ -45,7 +45,7 @@ export function HostsEditor() {
                 setEntry(e.target.value, ip)
               }}
               placeholder="domain.com"
-              className="w-40 h-7 rounded border border-input bg-background px-2 text-xs"
+              className="w-40 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
             />
             <input
               type="text"
@@ -56,7 +56,7 @@ export function HostsEditor() {
                 setEntry(domain, commaParts.length <= 1 ? val : commaParts)
               }}
               placeholder="127.0.0.1"
-              className="flex-1 h-7 rounded border border-input bg-background px-2 text-xs"
+              className="flex-1 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
             />
             <button onClick={() => setEntry(domain, undefined)} className="text-muted-foreground hover:text-destructive">
               <Trash2 className="size-3.5" />

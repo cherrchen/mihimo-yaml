@@ -68,7 +68,7 @@ export function ProxyGroupsEditor() {
           <Search className="size-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text" value={search} onChange={(e) => setSearch(e.target.value)}
-            placeholder="搜索组..." className="w-full h-7 pl-7 pr-2 rounded border border-input bg-background text-xs"
+            placeholder="搜索组..." className="w-full h-7 pl-7 pr-2 rounded-md border border-border bg-background text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
           />
         </div>
         <button onClick={addGroup} className="mb-2 flex items-center gap-1 px-2 py-1 rounded bg-primary text-primary-foreground text-xs">
@@ -150,7 +150,7 @@ function GroupDetailEditor({
                   if (!g.proxies) g.proxies = []
                   g.proxies[i] = e.target.value
                 })}
-                className="flex-1 h-7 rounded border border-input bg-background px-1 text-xs"
+                className="flex-1 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {allRefs.map((r) => <option key={r} value={r}>{r}</option>)}
               </select>
