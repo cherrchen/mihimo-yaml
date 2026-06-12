@@ -79,7 +79,7 @@ export function NavTree() {
   }
 
   return (
-    <div className="p-2 h-full">
+    <div className="relative p-2 h-full">
       <div className="mb-3 px-2 py-1">
         <input
           type="text"
@@ -134,7 +134,7 @@ export function NavTree() {
 
       {/* Bottom links */}
       <div className="absolute bottom-2 left-2 right-2">
-        <div className="border-t border-border pt-2 px-2 space-y-0.5">
+        <div className="pt-2 px-2 space-y-0.5">
           <button
             onClick={() => setActiveSection('settings')}
             className="w-full text-left text-[10px] text-muted-foreground hover:text-foreground block"
