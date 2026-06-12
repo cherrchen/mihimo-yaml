@@ -132,16 +132,21 @@ export function NavTree() {
         ))}
       </nav>
 
-      {/* Bottom info */}
+      {/* Bottom links */}
       <div className="absolute bottom-2 left-2 right-2">
-        <div className="border-t border-border pt-2 px-2">
-          <a
-            href="#/about"
-            onClick={(e) => { e.preventDefault(); setActiveSection('dashboard') }}
-            className="text-[10px] text-muted-foreground hover:text-foreground"
+        <div className="border-t border-border pt-2 px-2 space-y-0.5">
+          <button
+            onClick={() => setActiveSection('settings')}
+            className="w-full text-left text-[10px] text-muted-foreground hover:text-foreground block"
+          >
+            设置
+          </button>
+          <button
+            onClick={() => setActiveSection('about')}
+            className="w-full text-left text-[10px] text-muted-foreground hover:text-foreground block"
           >
             About / 关于 · CC BY-NC 4.0
-          </a>
+          </button>
         </div>
       </div>
     </div>

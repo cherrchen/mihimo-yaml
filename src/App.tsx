@@ -14,15 +14,23 @@ import { ProxiesEditor } from '@/components/editors/proxies/ProxiesEditor'
 import { ProxyGroupsEditor } from '@/components/editors/proxy-groups/ProxyGroupsEditor'
 import { RulesEditor } from '@/components/editors/rules/RulesEditor'
 import { RuleProvidersEditor } from '@/components/editors/rule-providers/RuleProvidersEditor'
-import { PlaceholderEditor } from '@/components/editors/shared/PlaceholderEditor'
+import { ProxyProvidersEditor } from '@/components/editors/proxy-providers/ProxyProvidersEditor'
+import { InboundsEditor } from '@/components/editors/inbounds/InboundsEditor'
+import { TunEditor } from '@/components/editors/tun/TunEditor'
+import { SnifferEditor } from '@/components/editors/sniffer/SnifferEditor'
+import { SubRulesEditor } from '@/components/editors/sub-rules/SubRulesEditor'
+import { TunnelsEditor } from '@/components/editors/tunnels/TunnelsEditor'
+import { NtpEditor } from '@/components/editors/ntp/NtpEditor'
+import { ExperimentalEditor } from '@/components/editors/experimental/ExperimentalEditor'
+import { ChainBuilderEditor } from '@/components/editors/chain-builder/ChainBuilderEditor'
+import { AboutPage } from '@/pages/About'
+import { SettingsPage } from '@/pages/Settings'
 
 export default function App() {
   const { activeSection, sidebarWidth, sidebarOpen } = useUiStore()
 
-  // Auto-save
   useAutoSave()
 
-  // Keyboard shortcuts
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
       e.preventDefault()
@@ -34,8 +42,6 @@ export default function App() {
     }
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
       e.preventDefault()
-      const store = useConfigStore.getState()
-      store.setConfigYaml('')
     }
   }, [])
 
@@ -50,19 +56,21 @@ export default function App() {
       case 'general': return <GeneralEditor />
       case 'dns': return <DnsEditor />
       case 'hosts': return <HostsEditor />
-      case 'inbounds': return <PlaceholderEditor title="Inbounds / 入站配置" />
-      case 'tun': return <PlaceholderEditor title="TUN 配置" />
-      case 'sniffer': return <PlaceholderEditor title="Sniffer / 域名嗅探" />
+      case 'inbounds': return <InboundsEditor />
+      case 'tun': return <TunEditor />
+      case 'sniffer': return <SnifferEditor />
       case 'proxies': return <ProxiesEditor />
-      case 'proxy-providers': return <PlaceholderEditor title="Proxy Providers" />
+      case 'proxy-providers': return <ProxyProvidersEditor />
       case 'proxy-groups': return <ProxyGroupsEditor />
-      case 'chain-builder': return <PlaceholderEditor title="链路构建器" />
+      case 'chain-builder': return <ChainBuilderEditor />
       case 'rule-providers': return <RuleProvidersEditor />
       case 'rules': return <RulesEditor />
-      case 'sub-rules': return <PlaceholderEditor title="Sub-rules" />
-      case 'tunnels': return <PlaceholderEditor title="Tunnels" />
-      case 'ntp': return <PlaceholderEditor title="NTP 配置" />
-      case 'experimental': return <PlaceholderEditor title="Experimental 配置" />
+      case 'sub-rules': return <SubRulesEditor />
+      case 'tunnels': return <TunnelsEditor />
+      case 'ntp': return <NtpEditor />
+      case 'experimental': return <ExperimentalEditor />
+      case 'about': return <AboutPage />
+      case 'settings': return <SettingsPage />
       default: return <DashboardPage />
     }
   }

@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useConfigStore } from '@/store/config-store'
-import { Plus, Trash2, Search, GripVertical } from 'lucide-react'
+import { Plus, Trash2, Search, GripVertical, GitGraph } from 'lucide-react'
 import { SelectField, TextField, NumberField, BoolField } from '@/components/editors/shared/fields'
 import { FieldWrapper } from '@/components/editors/shared/FieldWrapper'
+import { ProxyGroupTopology } from './ProxyGroupTopology'
 import type { ProxyGroupConfig } from '@/schema/model'
 import { PROXY_GROUP_TYPES, LOAD_BALANCE_STRATEGIES } from '@/lib/constants'
 
@@ -44,6 +45,21 @@ export function ProxyGroupsEditor() {
 
   const proxyNames = (config.proxies || []).map((p) => p.name)
   const groupNames = (config['proxy-groups'] || []).map((g) => g.name)
+  const [view, setView] = useState<'list' | 'topology'>('list')
+
+  if (view === 'topology') {
+    return (
+      <div className="h-full flex flex-col">
+        <div className="flex items-center gap-2 px-4 py-2 border-b border-border">
+          <button onClick={() => setView('list')} className="text-xs text-muted-foreground hover:text-foreground">&larr; 返回列表</button>
+          <span className="text-xs font-medium">代理组拓扑图</span>
+        </div>
+        <div className="flex-1">
+          <ProxyGroupTopology />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="p-4 flex h-full">
@@ -57,6 +73,9 @@ export function ProxyGroupsEditor() {
         </div>
         <button onClick={addGroup} className="mb-2 flex items-center gap-1 px-2 py-1 rounded bg-primary text-primary-foreground text-xs">
           <Plus className="size-3.5" /> 添加代理组
+        </button>
+        <button onClick={() => setView('topology')} className="mb-2 flex items-center gap-1 px-2 py-1 rounded border border-border text-xs hover:bg-accent">
+          <GitGraph className="size-3.5" /> 拓扑图
         </button>
         <div className="flex-1 overflow-y-auto space-y-0.5">
           {filtered.map((g, i) => (
