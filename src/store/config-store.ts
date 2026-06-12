@@ -24,6 +24,7 @@ interface ConfigState {
   // save state
   hasUnsavedChanges: boolean
   saveTrigger: number
+  currentDraftId: number | null
 
   // validation
   integrityReport: IntegrityReport | null
@@ -44,6 +45,7 @@ interface ConfigState {
   runCompatibility: () => void
   setHasUnsavedChanges: (v: boolean) => void
   triggerSave: () => void
+  setCurrentDraftId: (id: number | null) => void
 }
 
 export const useConfigStore = create<ConfigState>((set, get) => ({
@@ -55,6 +57,7 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
   maxHistory: 50,
   hasUnsavedChanges: false,
   saveTrigger: 0,
+  currentDraftId: null,
   integrityReport: null,
   compatibilityReport: null,
 
@@ -62,6 +65,7 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
     set(() => ({
       config,
       hasUnsavedChanges: false,
+      currentDraftId: null,
       integrityReport: runIntegrityCheck(config),
       compatibilityReport: generateMihomoReport(config),
     }))
@@ -97,6 +101,7 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
       history: [{ config: defaults }],
       historyIndex: 0,
       hasUnsavedChanges: false,
+      currentDraftId: null,
       integrityReport: null,
       compatibilityReport: null,
     })
@@ -162,5 +167,9 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
 
   triggerSave: () => {
     set((s) => ({ saveTrigger: s.saveTrigger + 1 }))
+  },
+
+  setCurrentDraftId: (id) => {
+    set({ currentDraftId: id })
   },
 }))

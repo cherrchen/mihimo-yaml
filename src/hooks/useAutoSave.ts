@@ -12,6 +12,8 @@ export function useAutoSave() {
   const setConfigYaml = useConfigStore((s) => s.setConfigYaml)
   const setHasUnsavedChanges = useConfigStore((s) => s.setHasUnsavedChanges)
   const saveTrigger = useConfigStore((s) => s.saveTrigger)
+  const currentDraftId = useConfigStore((s) => s.currentDraftId)
+  const setCurrentDraftId = useConfigStore((s) => s.setCurrentDraftId)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastSavedRef = useRef<string>('')
 
@@ -30,23 +32,33 @@ export function useAutoSave() {
     }
 
     try {
-      const existing = await db.drafts.where('name').equals(configName).first()
-      if (existing) {
-        await db.drafts.update(existing.id!, {
+      if (currentDraftId) {
+        await db.drafts.update(currentDraftId, {
           yaml,
           config: config,
           name: configName,
           updatedAt: Date.now(),
         })
       } else {
-        const draft: Draft = {
-          name: configName,
-          yaml,
-          config,
-          updatedAt: Date.now(),
-          createdAt: Date.now(),
+        const existing = await db.drafts.where('name').equals(configName).first()
+        if (existing) {
+          await db.drafts.update(existing.id!, {
+            yaml,
+            config: config,
+            name: configName,
+            updatedAt: Date.now(),
+          })
+          setCurrentDraftId(existing.id!)
+        } else {
+          const id = await db.drafts.put({
+            name: configName,
+            yaml,
+            config,
+            updatedAt: Date.now(),
+            createdAt: Date.now(),
+          } as Draft)
+          setCurrentDraftId(id as number)
         }
-        await db.drafts.put(draft)
       }
     } catch {
       // Ignore Dexie errors
