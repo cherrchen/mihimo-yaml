@@ -150,7 +150,7 @@ function GroupDetailEditor({
                   if (!g.proxies) g.proxies = []
                   g.proxies[i] = e.target.value
                 })}
-                className="flex-1 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
               >
                 {allRefs.map((r) => <option key={r} value={r}>{r}</option>)}
               </select>
