@@ -157,19 +157,16 @@ export function DashboardPage() {
                       {new Date(draft.updatedAt).toLocaleString('zh-CN')}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDeleteDraft(draft)
-                      }}
-                      className="p-1 rounded hover:text-destructive"
-                      title="删除"
-                    >
-                      <Trash2 className="size-4" />
-                    </button>
-                    <FileText className="size-4 text-muted-foreground" />
-                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDeleteDraft(draft)
+                    }}
+                    className="p-1 rounded hover:text-destructive"
+                    title="删除"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
                 </div>
               ))}
             </div>
