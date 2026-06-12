@@ -1,9 +1,12 @@
-import { useState } from 'react'
+import { useState, useId, useMemo } from 'react'
 import { useConfigStore } from '@/store/config-store'
 import { Plus, Trash2, Search, GripVertical, GitGraph } from 'lucide-react'
 import { SelectField, TextField, NumberField, BoolField } from '@/components/editors/shared/fields'
 import { FieldWrapper } from '@/components/editors/shared/FieldWrapper'
 import { ProxyGroupTopology } from './ProxyGroupTopology'
+import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import type { ProxyGroupConfig } from '@/schema/model'
 import { PROXY_GROUP_TYPES, LOAD_BALANCE_STRATEGIES } from '@/lib/constants'
 
@@ -108,6 +111,40 @@ export function ProxyGroupsEditor() {
   )
 }
 
+function SortableMemberItem({ id, selected, onSelect, onDelete, refNames }: {
+  id: string
+  selected: string
+  onSelect: (value: string) => void
+  onDelete: () => void
+  refNames: string[]
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : undefined,
+  }
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex items-center gap-1">
+      <button {...attributes} {...listeners} className="shrink-0 cursor-grab touch-none">
+        <GripVertical className="size-3 text-muted-foreground" />
+      </button>
+      <select
+        value={selected}
+        onChange={(e) => onSelect(e.target.value)}
+        className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
+      >
+        {refNames.map((r) => <option key={r} value={r}>{r}</option>)}
+      </select>
+      <button onClick={onDelete} className="text-muted-foreground hover:text-destructive">
+        <Trash2 className="size-3" />
+      </button>
+    </div>
+  )
+}
+
 function GroupDetailEditor({
   group, onChange, onDelete,
   proxyNames, groupNames,
@@ -119,6 +156,19 @@ function GroupDetailEditor({
   groupNames: string[]
 }) {
   const allRefs = ['DIRECT', 'REJECT', 'REJECT-DROP', 'COMPATIBLE', 'PASS', ...proxyNames, ...groupNames.filter((n) => n !== group.name)]
+  const proxies = group.proxies || []
+  const idPrefix = useId()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const ids = useMemo(() => proxies.map((_, i) => `${idPrefix}-${i}`), [group.proxies, idPrefix])
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (over && active.id !== over.id) {
+      const oldIndex = ids.indexOf(active.id as string)
+      const newIndex = ids.indexOf(over.id as string)
+      onChange((g) => { g.proxies = arrayMove(g.proxies || [], oldIndex, newIndex) })
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -139,36 +189,32 @@ function GroupDetailEditor({
       </div>
 
       {/* Proxies list */}
-      <FieldWrapper label="代理成员" description="proxies (支持拖拽排序)">
-        <div className="space-y-0.5 border border-border rounded-md p-2 max-h-48 overflow-y-auto">
-          {(group.proxies || []).map((ref, i) => (
-            <div key={i} className="flex items-center gap-1">
-              <GripVertical className="size-3 text-muted-foreground shrink-0 cursor-grab" />
-              <select
-                value={ref}
-                onChange={(e) => onChange((g) => {
-                  if (!g.proxies) g.proxies = []
-                  g.proxies[i] = e.target.value
-                })}
-                className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
-              >
-                {allRefs.map((r) => <option key={r} value={r}>{r}</option>)}
-              </select>
+      <FieldWrapper label="代理成员" description="proxies (拖拽调整顺序)">
+        <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+            <div className="space-y-0.5 border border-border rounded-md p-2 max-h-48 overflow-y-auto">
+              {proxies.map((ref, i) => (
+                <SortableMemberItem
+                  key={ids[i]}
+                  id={ids[i]}
+                  selected={ref}
+                  onSelect={(v) => onChange((g) => {
+                    if (!g.proxies) g.proxies = []
+                    g.proxies[i] = v
+                  })}
+                  onDelete={() => onChange((g) => { g.proxies = g.proxies?.filter((_, j) => j !== i) })}
+                  refNames={allRefs}
+                />
+              ))}
               <button
-                onClick={() => onChange((g) => { g.proxies = g.proxies?.filter((_, j) => j !== i) })}
-                className="text-muted-foreground hover:text-destructive"
+                onClick={() => onChange((g) => { if (!g.proxies) g.proxies = []; g.proxies.push('DIRECT') })}
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
               >
-                <Trash2 className="size-3" />
+                <Plus className="size-3" /> 添加
               </button>
             </div>
-          ))}
-          <button
-            onClick={() => onChange((g) => { if (!g.proxies) g.proxies = []; g.proxies.push('DIRECT') })}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-          >
-            <Plus className="size-3" /> 添加
-          </button>
-        </div>
+          </SortableContext>
+        </DndContext>
       </FieldWrapper>
 
       {/* Group-specific fields */}
