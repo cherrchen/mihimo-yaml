@@ -1,8 +1,12 @@
+import { useId, useMemo } from 'react'
 import { useConfigStore } from '@/store/config-store'
 import { FieldWrapper } from '@/components/editors/shared/FieldWrapper'
 import { TextField, NumberField } from '@/components/editors/shared/fields'
 import { DNS_ENHANCED_MODES, DNS_CACHE_ALGORITHMS, DNS_FAKE_IP_FILTER_MODES } from '@/lib/constants'
 import { Plus, Trash2, GripVertical } from 'lucide-react'
+import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 export function DnsEditor() {
   const config = useConfigStore((s) => s.config)
@@ -225,44 +229,94 @@ export function DnsEditor() {
 
 // === Helper sub-components ===
 
+function SortableItem({
+  id,
+  item,
+  placeholder,
+  onChange,
+  onDelete,
+}: {
+  id: string
+  item: string
+  placeholder?: string
+  onChange: (value: string) => void
+  onDelete: () => void
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : undefined,
+  }
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex items-center gap-1">
+      <button {...attributes} {...listeners} className="shrink-0 cursor-grab touch-none">
+        <GripVertical className="size-3 text-muted-foreground" />
+      </button>
+      <TextField
+        value={item}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="flex-1"
+      />
+      <button onClick={onDelete} className="text-muted-foreground hover:text-destructive">
+        <Trash2 className="size-3.5" />
+      </button>
+    </div>
+  )
+}
+
 function StringListEditor({
   value,
   onChange,
+  placeholder,
 }: {
   value: string[]
   onChange: (value: string[]) => void
   placeholder?: string
 }) {
+  const idPrefix = useId()
+  const ids = useMemo(() => value.map((_, i) => `${idPrefix}-${i}`), [value, idPrefix])
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (over && active.id !== over.id) {
+      const oldIndex = ids.indexOf(active.id as string)
+      const newIndex = ids.indexOf(over.id as string)
+      onChange(arrayMove(value, oldIndex, newIndex))
+    }
+  }
+
   return (
-    <div className="space-y-1">
-      {value.map((item, i) => (
-        <div key={i} className="flex items-center gap-1">
-          <GripVertical className="size-3 text-muted-foreground shrink-0 cursor-grab" />
-          <TextField
-            value={item}
-            onChange={(e) => {
-              const next = [...value]
-              next[i] = e
-              onChange(next)
-            }}
-            className="flex-1"
-          />
+    <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+        <div className="space-y-1">
+          {value.map((item, i) => (
+            <SortableItem
+              key={ids[i]}
+              id={ids[i]}
+              item={item}
+              placeholder={placeholder}
+              onChange={(v) => {
+                const next = [...value]
+                next[i] = v
+                onChange(next)
+              }}
+              onDelete={() => onChange(value.filter((_, j) => j !== i))}
+            />
+          ))}
           <button
-            onClick={() => onChange(value.filter((_, j) => j !== i))}
-            className="text-muted-foreground hover:text-destructive"
+            onClick={() => onChange([...value, ''])}
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
           >
-            <Trash2 className="size-3.5" />
+            <Plus className="size-3" />
+            添加
           </button>
         </div>
-      ))}
-      <button
-        onClick={() => onChange([...value, ''])}
-        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <Plus className="size-3" />
-        添加
-      </button>
-    </div>
+      </SortableContext>
+    </DndContext>
   )
 }
 
