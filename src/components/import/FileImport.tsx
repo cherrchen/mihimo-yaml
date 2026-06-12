@@ -14,7 +14,8 @@ export function FileImport({ onClose }: FileImportProps) {
   const [error, setError] = useState<string>('')
   const [dragOver, setDragOver] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
-  const { setConfig, setConfigYaml } = useConfigStore()
+  const fileNameRef = useRef<string>('')
+  const { setConfig, setConfigYaml, setConfigName } = useConfigStore()
   const { setActiveSection } = useUiStore()
 
   const handleFile = useCallback((file: File) => {
@@ -23,6 +24,7 @@ export function FileImport({ onClose }: FileImportProps) {
       return
     }
     setError('')
+    fileNameRef.current = file.name
     const reader = new FileReader()
     reader.onload = (e) => {
       const text = e.target?.result as string
@@ -43,6 +45,7 @@ export function FileImport({ onClose }: FileImportProps) {
       const config = parseYaml(preview)
       setConfig(config)
       setConfigYaml(preview)
+      setConfigName(fileNameRef.current || '导入的配置')
       setActiveSection('general')
       setPreview('')
       setError('')

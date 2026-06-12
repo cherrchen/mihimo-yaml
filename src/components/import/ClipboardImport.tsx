@@ -12,7 +12,7 @@ interface ClipboardImportProps {
 export function ClipboardImport({ onClose }: ClipboardImportProps) {
   const [text, setText] = useState('')
   const [error, setError] = useState('')
-  const { setConfig, setConfigYaml } = useConfigStore()
+  const { setConfig, setConfigYaml, setConfigName } = useConfigStore()
   const { setActiveSection } = useUiStore()
 
   const handlePaste = async () => {
@@ -34,6 +34,7 @@ export function ClipboardImport({ onClose }: ClipboardImportProps) {
       const config = parseYaml(text)
       setConfig(config)
       setConfigYaml(text)
+      setConfigName('从剪贴板导入')
       setActiveSection('general')
       setText('')
       onClose()

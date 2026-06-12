@@ -18,7 +18,7 @@ export function UrlImport({ onClose }: UrlImportProps) {
   const [manualInput, setManualInput] = useState(false)
   const [manualYaml, setManualYaml] = useState('')
   const [proxyUrl, setProxyUrl] = useState('')
-  const { setConfig, setConfigYaml } = useConfigStore()
+  const { setConfig, setConfigYaml, setConfigName } = useConfigStore()
   const { setActiveSection } = useUiStore()
 
   const handleFetch = async () => {
@@ -53,6 +53,7 @@ export function UrlImport({ onClose }: UrlImportProps) {
       const config = parseYaml(manualYaml)
       setConfig(config)
       setConfigYaml(manualYaml)
+      setConfigName('从URL导入')
       setActiveSection('general')
       onClose()
     } catch (e) {
@@ -65,6 +66,7 @@ export function UrlImport({ onClose }: UrlImportProps) {
       const config = parseYaml(content)
       setConfig(config)
       setConfigYaml(content)
+      setConfigName('从URL导入')
       setActiveSection('general')
       onClose()
     } catch (e) {
