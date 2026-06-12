@@ -1,4 +1,5 @@
 import { useConfigStore } from '@/store/config-store'
+import { TextField } from '@/components/editors/shared/fields'
 import { Plus, Trash2 } from 'lucide-react'
 
 export function HostsEditor() {
@@ -37,26 +38,23 @@ export function HostsEditor() {
       <div className="space-y-1">
         {Object.entries(hosts).map(([domain, ip], i) => (
           <div key={i} className="flex items-center gap-1">
-            <input
-              type="text"
+            <TextField
               value={domain}
-              onChange={(e) => {
+              onChange={(v) => {
                 setEntry(domain, undefined)
-                setEntry(e.target.value, ip)
+                setEntry(v, ip)
               }}
               placeholder="domain.com"
-              className="w-40 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
+              className="w-40"
             />
-            <input
-              type="text"
+            <TextField
               value={typeof ip === 'string' ? ip : ip.join(', ')}
-              onChange={(e) => {
-                const val = e.target.value
-                const commaParts = val.split(',').map((s) => s.trim()).filter(Boolean)
-                setEntry(domain, commaParts.length <= 1 ? val : commaParts)
+              onChange={(v) => {
+                const commaParts = v.split(',').map((s) => s.trim()).filter(Boolean)
+                setEntry(domain, commaParts.length <= 1 ? v : commaParts)
               }}
               placeholder="127.0.0.1"
-              className="flex-1 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
+              className="flex-1"
             />
             <button onClick={() => setEntry(domain, undefined)} className="text-muted-foreground hover:text-destructive">
               <Trash2 className="size-3.5" />

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { TextField } from '@/components/editors/shared/fields'
 import { useConfigStore } from '@/store/config-store'
 import { useUiStore } from '@/store/ui-store'
 import { parseYaml } from '@/schema/yaml'
@@ -79,13 +80,11 @@ export function UrlImport({ onClose }: UrlImportProps) {
       <div className="space-y-2">
         <label className="text-xs font-medium">订阅 URL 或配置链接</label>
         <div className="flex gap-1">
-          <input
-            type="text"
+          <TextField
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(v) => setUrl(v)}
             placeholder="https://example.com/sub.yaml"
-            className="flex-1 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
-            onKeyDown={(e) => e.key === 'Enter' && handleFetch()}
+            className="flex-1"
           />
           <Button size="sm" onClick={handleFetch} disabled={loading}>
             {loading ? '拉取中...' : '拉取'}
@@ -113,12 +112,10 @@ export function UrlImport({ onClose }: UrlImportProps) {
           <details className="text-xs">
             <summary className="text-muted-foreground cursor-pointer">配置 CORS 代理 URL</summary>
             <div className="mt-2 flex gap-1">
-              <input
-                type="text"
+              <TextField
                 value={proxyUrl}
-                onChange={(e) => setProxyUrl(e.target.value)}
+                onChange={(v) => setProxyUrl(v)}
                 placeholder="https://cors-proxy.example.com/"
-                className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
               />
               <Button size="sm" variant="outline" onClick={handleFetch} disabled={loading}>
                 重试

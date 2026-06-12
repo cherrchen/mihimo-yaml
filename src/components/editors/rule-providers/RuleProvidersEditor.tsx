@@ -1,6 +1,6 @@
 import { useConfigStore } from '@/store/config-store'
 import { FieldWrapper } from '@/components/editors/shared/FieldWrapper'
-import { TextField, SelectField } from '@/components/editors/shared/fields'
+import { TextField, NumberField, SelectField } from '@/components/editors/shared/fields'
 import { PROVIDER_TYPES, RULE_PROVIDER_BEHAVIORS, RULE_PROVIDER_FORMATS } from '@/lib/constants'
 import { Plus, Trash2 } from 'lucide-react'
 import type { RuleProviderConfig } from '@/schema/model'
@@ -109,12 +109,10 @@ export function RuleProvidersEditor() {
               </FieldWrapper>
 
               <FieldWrapper label="更新间隔 (秒)" advanced>
-                <input
-                  type="number"
-                  value={provider.interval ?? ''}
-                  onChange={(e) => setProvider(name, { ...provider, interval: Number(e.target.value) })}
+                <NumberField
+                  value={provider.interval}
+                  onChange={(v) => setProvider(name, { ...provider, interval: v })}
                   placeholder="86400"
-                  className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
                 />
               </FieldWrapper>
             </div>

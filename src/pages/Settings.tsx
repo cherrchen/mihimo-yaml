@@ -1,5 +1,7 @@
 import { useUiStore } from '@/store/ui-store'
 import { Button } from '@/components/ui/button'
+import { TextField } from '@/components/editors/shared/fields'
+import { SensitiveField } from '@/components/editors/shared/SensitiveField'
 import { useState } from 'react'
 
 export function SettingsPage() {
@@ -48,12 +50,10 @@ export function SettingsPage() {
           <p className="text-xs text-muted-foreground mb-2">
             用于绕过 URL 拉取时的 CORS 限制。仅在你信任代理服务时使用。
           </p>
-          <input
-            type="text"
+          <TextField
             value={corsProxy}
-            onChange={(e) => { setCorsProxy(e.target.value); saveSetting('mihomo-yaml-cors-proxy', e.target.value) }}
+            onChange={(v) => { setCorsProxy(v); saveSetting('mihomo-yaml-cors-proxy', v) }}
             placeholder="https://cors-proxy.example.com/"
-            className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
           />
           <p className="text-[10px] text-red-500 mt-1">
             隐私风险提示：CORS 代理可以查看你的完整配置文件内容。
@@ -69,22 +69,19 @@ export function SettingsPage() {
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="text-[10px] text-muted-foreground">API 地址</label>
-              <input
-                type="text"
+              <TextField
                 value={controllerUrl}
-                onChange={(e) => { setControllerUrl(e.target.value); saveSetting('mihomo-yaml-controller', e.target.value) }}
+                onChange={(v) => { setControllerUrl(v); saveSetting('mihomo-yaml-controller', v) }}
                 placeholder="http://127.0.0.1:9090"
-                className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
               />
             </div>
             <div>
               <label className="text-[10px] text-muted-foreground">Secret</label>
-              <input
-                type="password"
+              <SensitiveField
                 value={controllerSecret}
-                onChange={(e) => { setControllerSecret(e.target.value); saveSetting('mihomo-yaml-controller-secret', e.target.value) }}
+                onChange={(v) => { setControllerSecret(v); saveSetting('mihomo-yaml-controller-secret', v) }}
+                label="Secret"
                 placeholder="可选"
-                className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
               />
             </div>
           </div>
