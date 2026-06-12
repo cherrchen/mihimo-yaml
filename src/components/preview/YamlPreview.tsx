@@ -22,7 +22,9 @@ export function YamlPreview() {
   ]
 
   return (
-    <div className="h-full flex flex-col">
+    <>
+      <style>{'.yaml-preview .cm-editor{height:100%}'}</style>
+      <div className="h-full flex flex-col yaml-preview">
       {/* Tabs */}
       <div className="flex items-center gap-0 border-b border-border px-2">
         {tabs.map((tab) => (
@@ -47,7 +49,7 @@ export function YamlPreview() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 overflow-hidden yaml-preview">
         {previewMode === 'yaml' && (
           <CodeMirror
             value={yaml}
@@ -98,5 +100,6 @@ export function YamlPreview() {
         <span>{yaml.length} 字符</span>
       </div>
     </div>
+    </>
   )
 }
