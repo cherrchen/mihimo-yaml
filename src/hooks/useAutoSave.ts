@@ -16,13 +16,15 @@ export function useAutoSave() {
   const setCurrentDraftId = useConfigStore((s) => s.setCurrentDraftId)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastSavedRef = useRef<string>('')
+  const lastSavedNameRef = useRef<string>('')
 
   const doSave = async () => {
     const yaml = stringifyYamlOrdered(config)
     setConfigYaml(yaml)
 
-    if (yaml === lastSavedRef.current) return
+    if (yaml === lastSavedRef.current && configName === lastSavedNameRef.current) return
     lastSavedRef.current = yaml
+    lastSavedNameRef.current = configName
 
     try {
       localStorage.setItem('mihomo-yaml-autosave', yaml)
