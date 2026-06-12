@@ -29,9 +29,9 @@ export function UrlImport({ onClose }: UrlImportProps) {
     setCorsError(false)
     setContent('')
     try {
-      // Try with optional CORS proxy
+      const ua = localStorage.getItem('mihomo-yaml-custom-ua') || 'clash.meta/v1.19.25'
       const fetchUrl = proxyUrl ? `${proxyUrl}${encodeURIComponent(url)}` : url
-      const resp = await fetch(fetchUrl, { signal: AbortSignal.timeout(15000) })
+      const resp = await fetch(fetchUrl, { signal: AbortSignal.timeout(15000), headers: { 'User-Agent': ua } })
       if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`)
       const text = await resp.text()
       setContent(text)

@@ -9,6 +9,7 @@ export function SettingsPage() {
   const [corsProxy, setCorsProxy] = useState(() => localStorage.getItem('mihomo-yaml-cors-proxy') || '')
   const [controllerUrl, setControllerUrl] = useState(() => localStorage.getItem('mihomo-yaml-controller') || '')
   const [controllerSecret, setControllerSecret] = useState(() => localStorage.getItem('mihomo-yaml-controller-secret') || '')
+  const [customUA, setCustomUA] = useState(() => localStorage.getItem('mihomo-yaml-custom-ua') || 'clash.meta/v1.19.25')
 
   const saveSetting = (key: string, value: string) => {
     if (value) {
@@ -58,6 +59,19 @@ export function SettingsPage() {
           <p className="text-[10px] text-red-500 mt-1">
             隐私风险提示：CORS 代理可以查看你的完整配置文件内容。
           </p>
+        </div>
+
+        {/* Custom UA */}
+        <div className="border border-border rounded-md p-3">
+          <h3 className="text-xs font-medium mb-2">自定义 User-Agent</h3>
+          <p className="text-xs text-muted-foreground mb-2">
+            URL 拉取时使用的 User-Agent 请求头。
+          </p>
+          <TextField
+            value={customUA}
+            onChange={(v) => { setCustomUA(v); saveSetting('mihomo-yaml-custom-ua', v) }}
+            placeholder="clash.meta/v1.19.25"
+          />
         </div>
 
         {/* External Controller */}
