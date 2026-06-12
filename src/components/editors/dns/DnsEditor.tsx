@@ -1,5 +1,6 @@
 import { useConfigStore } from '@/store/config-store'
 import { FieldWrapper } from '@/components/editors/shared/FieldWrapper'
+import { TextField, NumberField } from '@/components/editors/shared/fields'
 import { DNS_ENHANCED_MODES, DNS_CACHE_ALGORITHMS, DNS_FAKE_IP_FILTER_MODES } from '@/lib/constants'
 import { Plus, Trash2, GripVertical } from 'lucide-react'
 
@@ -45,12 +46,10 @@ export function DnsEditor() {
         </FieldWrapper>
 
         <FieldWrapper label="DNS 监听" description="dns.listen" example="0.0.0.0:53">
-          <input
-            type="text"
+          <TextField
             value={dns.listen || ''}
-            onChange={(e) => setDns('listen', e.target.value)}
+            onChange={(v) => setDns('listen', v)}
             placeholder="0.0.0.0:53"
-            className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
           />
         </FieldWrapper>
 
@@ -92,22 +91,18 @@ export function DnsEditor() {
         {dns['enhanced-mode'] === 'fake-ip' && (
           <>
             <FieldWrapper label="Fake IP 范围" description="dns.fake-ip-range" stashSupport={false}>
-              <input
-                type="text"
+              <TextField
                 value={dns['fake-ip-range'] || '198.18.0.1/16'}
-                onChange={(e) => setDns('fake-ip-range', e.target.value)}
+                onChange={(v) => setDns('fake-ip-range', v)}
                 placeholder="198.18.0.1/16"
-                className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
               />
             </FieldWrapper>
 
             <FieldWrapper label="Fake IP TTL" description="dns.fake-ip-ttl" advanced>
-              <input
-                type="number"
-                value={dns['fake-ip-ttl'] ?? ''}
-                onChange={(e) => setDns('fake-ip-ttl', Number(e.target.value))}
+              <NumberField
+                value={dns['fake-ip-ttl']}
+                onChange={(v) => setDns('fake-ip-ttl', v)}
                 placeholder="1"
-                className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
               />
             </FieldWrapper>
 
@@ -198,13 +193,11 @@ export function DnsEditor() {
             </FieldWrapper>
 
             <FieldWrapper label="GeoIP 国家代码" description="fallback-filter.geoip-code" stashSupport={false}>
-              <input
-                type="text"
+              <TextField
                 value={dns['fallback-filter']?.['geoip-code'] || 'CN'}
-                onChange={(e) => {
-                  setDns('fallback-filter', { ...dns['fallback-filter'], 'geoip-code': e.target.value })
+                onChange={(v) => {
+                  setDns('fallback-filter', { ...dns['fallback-filter'], 'geoip-code': v })
                 }}
-                className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
               />
             </FieldWrapper>
           </div>
@@ -245,15 +238,14 @@ function StringListEditor({
       {value.map((item, i) => (
         <div key={i} className="flex items-center gap-1">
           <GripVertical className="size-3 text-muted-foreground shrink-0 cursor-grab" />
-          <input
-            type="text"
+          <TextField
             value={item}
             onChange={(e) => {
               const next = [...value]
-              next[i] = e.target.value
+              next[i] = e
               onChange(next)
             }}
-            className="flex-1 h-7 rounded-md border border-input bg-background px-2 py-0.5 text-xs"
+            className="flex-1"
           />
           <button
             onClick={() => onChange(value.filter((_, j) => j !== i))}
@@ -287,27 +279,25 @@ function NameserverPolicyEditor({
     <div className="space-y-1">
       {entries.map(([domain, servers], i) => (
         <div key={i} className="flex items-start gap-1">
-          <input
-            type="text"
+          <TextField
             value={domain}
             onChange={(e) => {
               const next = { ...value }
               delete next[domain]
-              next[e.target.value] = servers
+              next[e] = servers
               onChange(next)
             }}
             placeholder="geosite:cn"
-            className="w-32 h-7 rounded-md border border-input bg-background px-2 py-0.5 text-xs shrink-0"
+            className="w-32 shrink-0"
           />
-          <input
-            type="text"
+          <TextField
             value={Array.isArray(servers) ? servers.join(', ') : servers}
             onChange={(e) => {
-              const parts = e.target.value.split(',').map((s) => s.trim()).filter(Boolean)
+              const parts = e.split(',').map((s) => s.trim()).filter(Boolean)
               onChange({ ...value, [domain]: parts.length <= 1 ? parts[0] || '' : parts })
             }}
             placeholder="223.5.5.5, 119.29.29.29"
-            className="flex-1 h-7 rounded-md border border-input bg-background px-2 py-0.5 text-xs"
+            className="flex-1"
           />
           <button
             onClick={() => {

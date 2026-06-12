@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useConfigStore } from '@/store/config-store'
+import { TextField } from '@/components/editors/shared/fields'
 import { Plus, Trash2, AlertTriangle, GripVertical } from 'lucide-react'
 import { RULE_TYPES } from '@/lib/constants'
 
@@ -141,13 +142,11 @@ export function RulesEditor() {
                           {subRules.map((sr) => <option key={sr} value={sr}>{sr}</option>)}
                         </select>
                       ) : (
-                        <input
-                          type="text"
+                        <TextField
                           value={payload}
-                          onChange={(e) => updateRule(i, buildRuleString(type, e.target.value, target, extra))}
+                          onChange={(v) => updateRule(i, buildRuleString(type, v, target, extra))}
                           placeholder={type === 'MATCH' ? '' : 'example.com'}
                           disabled={type === 'MATCH'}
-                          className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
                         />
                       )}
                     </div>
@@ -167,12 +166,11 @@ export function RulesEditor() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <label className="text-[10px] text-muted-foreground">额外参数</label>
-                      <input
-                        type="text"
+                      <TextField
                         value={extra}
-                        onChange={(e) => updateRule(i, buildRuleString(type, payload, target, e.target.value))}
+                        onChange={(v) => updateRule(i, buildRuleString(type, payload, target, v))}
                         placeholder="no-resolve"
-                        className="w-32 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                        className="w-32"
                       />
                     </div>
 

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useConfigStore } from '@/store/config-store'
 import { FieldWrapper } from '@/components/editors/shared/FieldWrapper'
 import { TextField, NumberField, BoolField, SelectField } from '@/components/editors/shared/fields'
+import { SensitiveField } from '@/components/editors/shared/SensitiveField'
 import { LISTENER_TYPES } from '@/lib/constants'
 import { Plus, Trash2 } from 'lucide-react'
 import type { ListenerConfig } from '@/schema/model'
@@ -113,7 +114,7 @@ function ListenerDetailEditor({
             <TextField value={listener.username || ''} onChange={(v) => onChange((l) => ({ ...l, username: v }))} />
           </FieldWrapper>
           <FieldWrapper label="密码" sensitive>
-            <input type="password" value={listener.password || ''} onChange={(e) => onChange((l) => ({ ...l, password: e.target.value }))} className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs" />
+            <SensitiveField value={listener.password || ''} onChange={(v) => onChange((l) => ({ ...l, password: v }))} label="密码" />
           </FieldWrapper>
         </div>
       )}
@@ -124,7 +125,7 @@ function ListenerDetailEditor({
             <TextField value={listener.cipher || ''} onChange={(v) => onChange((l) => ({ ...l, cipher: v }))} placeholder="aes-256-gcm" />
           </FieldWrapper>
           <FieldWrapper label="密码" required sensitive>
-            <input type="password" value={listener.password || ''} onChange={(e) => onChange((l) => ({ ...l, password: e.target.value }))} className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs" />
+            <SensitiveField value={listener.password || ''} onChange={(v) => onChange((l) => ({ ...l, password: v }))} label="密码" />
           </FieldWrapper>
         </div>
       )}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useConfigStore } from '@/store/config-store'
+import { TextField } from '@/components/editors/shared/fields'
 import { Plus, Trash2 } from 'lucide-react'
 import { RULE_TYPES } from '@/lib/constants'
 
@@ -78,27 +79,25 @@ export function SubRulesEditor() {
                     >
                       {RULE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                     </select>
-                    <input
-                      type="text"
+                    <TextField
                       value={parts[1] || ''}
-                      onChange={(e) => {
+                      onChange={(v) => {
                         const next = [...subRules[selectedName]]
-                        next[i] = `${parts[0]},${e.target.value},${parts[2] || ''}`
+                        next[i] = `${parts[0]},${v},${parts[2] || ''}`
                         setSubRule(selectedName, next)
                       }}
                       placeholder="payload"
-                      className="flex-1 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                      className="flex-1"
                     />
-                    <input
-                      type="text"
+                    <TextField
                       value={parts[2] || ''}
-                      onChange={(e) => {
+                      onChange={(v) => {
                         const next = [...subRules[selectedName]]
-                        next[i] = `${parts[0]},${parts[1] || ''},${e.target.value}`
+                        next[i] = `${parts[0]},${parts[1] || ''},${v}`
                         setSubRule(selectedName, next)
                       }}
                       placeholder="target"
-                      className="w-24 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                      className="w-24"
                     />
                     <button
                       onClick={() => {

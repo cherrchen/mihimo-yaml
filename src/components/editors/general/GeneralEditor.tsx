@@ -1,6 +1,7 @@
 import { useConfigStore } from '@/store/config-store'
 import { FieldWrapper } from '@/components/editors/shared/FieldWrapper'
-import { SelectField, NumberField } from '@/components/editors/shared/fields'
+import { SelectField, NumberField, TextField } from '@/components/editors/shared/fields'
+import { SensitiveField } from '@/components/editors/shared/SensitiveField'
 import { MODES, LOG_LEVELS, FIND_PROCESS_MODES, GEODATA_LOADERS } from '@/lib/constants'
 
 export function GeneralEditor() {
@@ -58,12 +59,10 @@ export function GeneralEditor() {
         </FieldWrapper>
 
         <FieldWrapper label="出站接口" description="interface-name: 指定出站网络接口">
-          <input
-            type="text"
+          <TextField
             value={config['interface-name'] || ''}
-            onChange={(e) => set('interface-name', e.target.value)}
+            onChange={(v) => set('interface-name', v)}
             placeholder="例如 eth0"
-            className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
           />
         </FieldWrapper>
       </div>
@@ -83,42 +82,35 @@ export function GeneralEditor() {
       <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">External Controller</h3>
       <div className="grid grid-cols-2 gap-3">
         <FieldWrapper label="API 监听地址" description="external-controller" example="127.0.0.1:9090" stashSupport={false}>
-          <input
-            type="text"
+          <TextField
             value={config['external-controller'] || ''}
-            onChange={(e) => set('external-controller', e.target.value)}
+            onChange={(v) => set('external-controller', v)}
             placeholder="127.0.0.1:9090"
-            className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
           />
         </FieldWrapper>
 
         <FieldWrapper label="API 密钥" description="secret" stashSupport={false}>
-          <input
-            type="password"
+          <SensitiveField
             value={config.secret || ''}
-            onChange={(e) => set('secret', e.target.value)}
+            onChange={(v) => set('secret', v)}
+            label="API 密钥"
             placeholder="输入密钥"
-            className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
           />
         </FieldWrapper>
 
         <FieldWrapper label="HTTPS API 地址" description="external-controller-tls" advanced stashSupport={false}>
-          <input
-            type="text"
+          <TextField
             value={config['external-controller-tls'] || ''}
-            onChange={(e) => set('external-controller-tls', e.target.value)}
+            onChange={(v) => set('external-controller-tls', v)}
             placeholder="127.0.0.1:9443"
-            className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
           />
         </FieldWrapper>
 
         <FieldWrapper label="外部 UI 路径" description="external-ui" advanced stashSupport={false}>
-          <input
-            type="text"
+          <TextField
             value={config['external-ui'] || ''}
-            onChange={(e) => set('external-ui', e.target.value)}
+            onChange={(v) => set('external-ui', v)}
             placeholder="/path/to/ui"
-            className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
           />
         </FieldWrapper>
       </div>
