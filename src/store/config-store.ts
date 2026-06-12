@@ -21,6 +21,10 @@ interface ConfigState {
   historyIndex: number
   maxHistory: number
 
+  // save state
+  hasUnsavedChanges: boolean
+  saveTrigger: number
+
   // validation
   integrityReport: IntegrityReport | null
   compatibilityReport: CompatibilityReport | null
@@ -38,6 +42,8 @@ interface ConfigState {
   saveToHistory: () => void
   runValidation: () => void
   runCompatibility: () => void
+  setHasUnsavedChanges: (v: boolean) => void
+  triggerSave: () => void
 }
 
 export const useConfigStore = create<ConfigState>((set, get) => ({
@@ -47,12 +53,15 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
   history: [{ config: { ...MINIMAL_CONFIG } }],
   historyIndex: 0,
   maxHistory: 50,
+  hasUnsavedChanges: false,
+  saveTrigger: 0,
   integrityReport: null,
   compatibilityReport: null,
 
   setConfig: (config) => {
     set(() => ({
       config,
+      hasUnsavedChanges: false,
       integrityReport: runIntegrityCheck(config),
       compatibilityReport: generateMihomoReport(config),
     }))
@@ -65,6 +74,7 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
     get().saveToHistory()
     set(() => ({
       config: cloned,
+      hasUnsavedChanges: true,
       integrityReport: runIntegrityCheck(cloned),
       compatibilityReport: generateMihomoReport(cloned),
     }))
@@ -86,6 +96,7 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
       configName: '未命名配置',
       history: [{ config: defaults }],
       historyIndex: 0,
+      hasUnsavedChanges: false,
       integrityReport: null,
       compatibilityReport: null,
     })
@@ -143,5 +154,13 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
   runCompatibility: () => {
     const config = get().config
     set({ compatibilityReport: generateMihomoReport(config) })
+  },
+
+  setHasUnsavedChanges: (v) => {
+    set({ hasUnsavedChanges: v })
+  },
+
+  triggerSave: () => {
+    set((s) => ({ saveTrigger: s.saveTrigger + 1 }))
   },
 }))
