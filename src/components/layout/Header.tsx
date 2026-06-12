@@ -20,6 +20,7 @@ export function Header() {
   const [importOpen, setImportOpen] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
   const [exportMode, setExportMode] = useState<'mihomo' | 'stash'>('mihomo')
+  const [exportMenuOpen, setExportMenuOpen] = useState(false)
 
   const handleExport = (mode: 'mihomo' | 'stash') => {
     setExportMode(mode)
@@ -61,30 +62,33 @@ export function Header() {
             <FileUp className="size-4" />
             <span className="text-xs ml-1">导入</span>
           </Button>
-          <details className="relative">
-            <summary className="list-none">
-              <Button variant="ghost" size="sm" title="导出 YAML" asChild>
-                <span>
-                  <FileDown className="size-4" />
-                  <span className="text-xs ml-1">导出</span>
-                </span>
-              </Button>
-            </summary>
-            <div className="absolute right-0 top-8 z-40 w-36 rounded-md border border-border bg-popover shadow-md p-1">
-              <button
-                onClick={() => handleExport('mihomo')}
-                className="w-full text-left px-2 py-1.5 text-xs rounded hover:bg-accent"
-              >
-                Mihomo 完整导出
-              </button>
-              <button
-                onClick={() => handleExport('stash')}
-                className="w-full text-left px-2 py-1.5 text-xs rounded hover:bg-accent"
-              >
-                Stash 兼容导出
-              </button>
-            </div>
-          </details>
+          <div className="relative"
+            onMouseEnter={() => setExportMenuOpen(true)}
+            onMouseLeave={() => setExportMenuOpen(false)}
+          >
+            <Button variant="ghost" size="sm" title="导出 YAML" asChild>
+              <span>
+                <FileDown className="size-4" />
+                <span className="text-xs ml-1">导出</span>
+              </span>
+            </Button>
+            {exportMenuOpen && (
+              <div className="absolute left-1/2 -translate-x-1/2 top-8 z-40 w-36 rounded-md border border-border bg-popover shadow-md p-1">
+                <button
+                  onClick={() => handleExport('mihomo')}
+                  className="w-full text-left px-2 py-1.5 text-xs rounded hover:bg-accent"
+                >
+                  Mihomo 完整导出
+                </button>
+                <button
+                  onClick={() => handleExport('stash')}
+                  className="w-full text-left px-2 py-1.5 text-xs rounded hover:bg-accent"
+                >
+                  Stash 兼容导出
+                </button>
+              </div>
+            )}
+          </div>
           <div className="w-px h-5 bg-border mx-1" />
           <Button variant="ghost" size="icon" onClick={cycleTheme} title="切换主题">
             {theme === 'dark' ? <Moon className="size-4" /> : <Sun className="size-4" />}
