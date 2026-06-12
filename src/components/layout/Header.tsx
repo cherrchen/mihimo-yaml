@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import {
   Sun,
   Moon,
+  Monitor,
   FileDown,
   FileUp,
   Undo2,
@@ -135,7 +136,7 @@ export function Header() {
           </div>
           <div className="w-px h-5 bg-border mx-1" />
           <Button variant="ghost" size="icon" onClick={cycleTheme} title="切换主题">
-            {theme === 'dark' ? <Moon className="size-4" /> : <Sun className="size-4" />}
+            {theme === 'dark' ? <Moon className="size-4" /> : theme === 'system' ? <Monitor className="size-4" /> : <Sun className="size-4" />}
           </Button>
         </div>
       </div>
