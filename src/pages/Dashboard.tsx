@@ -14,6 +14,7 @@ export function DashboardPage() {
   const { setConfig, setConfigName, resetConfig } = useConfigStore()
   const { setActiveSection } = useUiStore()
   const [importOpen, setImportOpen] = useState(false)
+  const [importTab, setImportTab] = useState<'file' | 'url' | 'clipboard'>('file')
   const [recentDrafts, setRecentDrafts] = useState<Draft[]>([])
   const [loadingRecent, setLoadingRecent] = useState(true)
 
@@ -70,7 +71,7 @@ export function DashboardPage() {
               </div>
             </Button>
 
-            <Button variant="outline" onClick={() => setImportOpen(true)} className="h-auto py-4 justify-start gap-3">
+            <Button variant="outline" onClick={() => { setImportTab('file'); setImportOpen(true) }} className="h-auto py-4 justify-start gap-3">
               <FileUp className="size-5" />
               <div className="text-left">
                 <div className="text-sm font-medium">导入 YAML 文件</div>
@@ -78,7 +79,7 @@ export function DashboardPage() {
               </div>
             </Button>
 
-            <Button variant="outline" onClick={() => setImportOpen(true)} className="h-auto py-4 justify-start gap-3">
+            <Button variant="outline" onClick={() => { setImportTab('url'); setImportOpen(true) }} className="h-auto py-4 justify-start gap-3">
               <Link className="size-5" />
               <div className="text-left">
                 <div className="text-sm font-medium">从 URL 拉取</div>
@@ -86,7 +87,7 @@ export function DashboardPage() {
               </div>
             </Button>
 
-            <Button variant="outline" onClick={() => setImportOpen(true)} className="h-auto py-4 justify-start gap-3">
+            <Button variant="outline" onClick={() => { setImportTab('clipboard'); setImportOpen(true) }} className="h-auto py-4 justify-start gap-3">
               <Clipboard className="size-5" />
               <div className="text-left">
                 <div className="text-sm font-medium">粘贴 YAML</div>
@@ -154,7 +155,7 @@ export function DashboardPage() {
         </div>
       </div>
 
-      <ImportDialog open={importOpen} onClose={() => setImportOpen(false)} />
+      <ImportDialog key={`${importOpen}-${importTab}`} open={importOpen} onClose={() => setImportOpen(false)} initialTab={importTab} />
     </>
   )
 }

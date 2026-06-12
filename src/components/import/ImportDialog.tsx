@@ -8,12 +8,13 @@ import { ClipboardImport } from './ClipboardImport'
 interface ImportDialogProps {
   open: boolean
   onClose: () => void
+  initialTab?: Tab
 }
 
 type Tab = 'file' | 'url' | 'clipboard'
 
-export function ImportDialog({ open, onClose }: ImportDialogProps) {
-  const [tab, setTab] = useState<Tab>('file')
+export function ImportDialog({ open, onClose, initialTab = 'file' }: ImportDialogProps) {
+  const [tab, setTab] = useState<Tab>(initialTab)
 
   if (!open) return null
 
