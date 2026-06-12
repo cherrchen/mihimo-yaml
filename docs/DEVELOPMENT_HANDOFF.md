@@ -15,7 +15,7 @@
 | **技术栈** | React 19 + TypeScript 6.0 + Vite 8 + Tailwind CSS 4 + Zustand + Dexie + CodeMirror 6 + React Flow |
 | **包管理器** | npm |
 | **当前版本** | 0.1.0 |
-| **当前完成度** | 约 80%——核心引擎完整、17 个配置模块编辑器全部实现、导入导出闭环完成、52 个测试全部通过 |
+| **当前完成度** | 约 85%——核心引擎完整、17 个配置模块编辑器全部实现、导入导出闭环完成、52 个测试全部通过、UI/UX 多轮打磨 |
 
 ### 当前状态关键结论
 
@@ -24,13 +24,15 @@
 | 可启动 (`npm run dev`) | ✅ 通过 |
 | 可构建 (`npm run build`) | ✅ 通过，生成 `dist/` |
 | TypeScript typecheck | ✅ 通过，0 错误 |
-| ESLint | ✅ 0 错误，4 个 warning（不影响功能） |
+| ESLint | ✅ 0 错误，6 个 warning（不影响功能） |
 | 单元测试 | ✅ 52/52 通过（11 个测试文件） |
-| mihomo YAML 导入 | ✅ 文件/URL/剪贴板/模板四种方式 |
+| mihomo YAML 导入 | ✅ 文件/URL/剪贴板/模板四种方式，导入后自动关闭对话框并设置配置名 |
 | mihomo YAML 导出 | ✅ 下载 .yaml 或复制到剪贴板 |
 | Stash 兼容导出 | ✅ 带兼容性报告 |
 | 链式代理静态测试 | ✅ dialer-proxy + relay 链路验证 |
 | unknownFields round-trip | ✅ 导入→编辑→导出不丢失 |
+| 自动保存 | ✅ localStorage + Dexie IndexedDB 双层持久化，支持配置改名不创建重复记录 |
+| 撤销/重做 | ✅ 50 步历史深度 |
 
 ---
 
@@ -39,28 +41,55 @@
 | 项目 | 值 |
 |------|-----|
 | **当前分支** | `main` |
-| **当前 commit** | `312ae38` |
-| **HEAD 对应** | `Merge branch 'dev/remove-header-border'` |
+| **当前 commit** | `1fb0170` |
+| **HEAD 对应** | `fix: unify shared TextField/NumberField/SensitiveField padding+shadow to match General style` |
 | **未提交改动** | 无（working tree clean） |
-| **dev/* 分支** | `dev/mihomo-config-editor`、`dev/fix-theme-transparency`、`dev/remove-header-border` |
-| **已合并到 main** | 是（所有三个 dev 分支均已合并） |
+| **dev/* 分支** | 22 个（见下方） |
+| **已合并到 main** | 是（所有 dev 分支均已合并） |
 | **已 push 到 origin/main** | 是 |
-| **git worktree** | 未使用 |
+| **git worktree** | 1 个（`C:/Users/chenj/Desktop/Coding/mihomo-yaml`） |
 | **远程仓库** | `git@github.com:cherrchen/mihimo-yaml.git` |
 
-### 最近 10 个 commit
+### dev 分支列表
 
 ```
-312ae38 Merge branch 'dev/remove-header-border'
-22acd45 fix: NavTree bottom links - add relative positioning container, remove divider border
-80c5397 revert: restore YamlPreview bottom bar border
-283a2fc fix: remove bottom bar top border in YAML preview panel
-84f41ae revert: restore header bottom border
-895ec01 fix: remove header bottom border to clean up layout
-348724f Merge branch 'dev/fix-theme-transparency'
-9877853 fix: resolve modal transparency and dark divider line
-7e8d460 feat: complete remaining editors, import/export UI, topology, persistence, about/settings, tests
-95e4484 Merge branch 'dev/mihomo-config-editor'
+dev/fix-autosave-name-persistence
+dev/fix-delete-recent
+dev/fix-editable-config-name
+dev/fix-editor-panel-center
+dev/fix-export-hover
+dev/fix-hide-scrollbars
+dev/fix-import-autoclose
+dev/fix-import-set-name
+dev/fix-import-tabs
+dev/fix-navtree-search-color
+dev/fix-page-margins
+dev/fix-save-button
+dev/fix-shared-input-style
+dev/fix-system-theme-icon
+dev/fix-theme-transparency
+dev/fix-yaml-preview-scroll
+dev/fix-yaml-scroll-v2
+dev/mihomo-config-editor
+dev/remove-header-border
+dev/replace-recent-icon-with-delete
+dev/unify-input-general-style
+dev/unify-input-styles
+```
+
+### 最近合并到 main 的 commit（按时间倒序）
+
+```
+1fb0170 fix: unify shared TextField/NumberField/SensitiveField padding+shadow to match General style
+06a0034 fix: unify all raw inputs/selects to GeneralEditor style (trim focus-visible/disabled from raw elements)
+fc939eb fix: unify all input, select, textarea, and checkbox styles across editors
+0e7b1d2 fix: center detail panels in proxy-groups, proxy-providers, and inbounds editors
+48ba98e fix: replace FileText icon with Trash2 delete button in recent projects
+8e33299 fix: persist config name changes when only name is edited (not YAML content)
+a80b2b6 fix: add Monitor icon for system theme toggle
+51c3204 fix: make config name editable in header, persist renames correctly in IndexedDB
+e237ad8 fix: hide scrollbars globally, show on hover
+5ddc7a4 fix: import dialog auto-closes after successful import
 ```
 
 ---
@@ -70,13 +99,11 @@
 本轮开发遵循以下流程：
 
 1. ✅ 从 `main` 拉取最新
-2. ✅ 在 `dev/mihomo-config-editor` 分支进行初始开发
-3. ✅ 开发完成后在 dev 分支运行 typecheck / lint / build / test
-4. ✅ 合并到 `main`
-5. ✅ 在 `main` 再次运行 typecheck / lint / build / test（全部通过）
+2. ✅ 在 `dev/*` 分支进行开发（每轮修复 1 个或多个相关 bug）
+3. ✅ 开发完成后在 dev 分支运行 `typecheck` / `lint` / `build` / `test`
+4. ✅ 全部通过后合并到 `main`（使用 `--no-ff`）
+5. ✅ 在 `main` 再次运行 4 个验证命令（全量通过）
 6. ✅ push 到 `origin/main`
-7. ✅ 后续 `dev/fix-theme-transparency` 分支修复弹窗透明和 CSS 变量问题，同样遵循上述流程
-8. ✅ 后续 `dev/remove-header-border` 分支修复 NavTree 底部链接定位和分割线问题，同样遵循上述流程
 
 **无偏差**。所有流程均按规范执行。
 
@@ -87,11 +114,12 @@
 | 模块 | 状态 | 关键文件 | 说明 |
 |------|------|----------|------|
 | 工作台布局 | 已完成 | `src/components/layout/AppShell.tsx` | 3 面板（侧边栏+编辑+预览），可调整大小 |
-| YAML 文件导入 | 已完成 | `src/components/import/FileImport.tsx` | 拖拽或选择 .yaml 文件，预览后确认导入 |
+| YAML 文件导入 | 已完成 | `src/components/import/FileImport.tsx` | 拖拽或选择 .yaml 文件，预览后确认导入，导入后自动关闭并设配置名 |
 | URL 拉取 | 已完成 | `src/components/import/UrlImport.tsx` | fetch 拉取 + CORS 错误兜底（手动粘贴/文件上传/CORS proxy） |
 | 剪贴板导入 | 已完成 | `src/components/import/ClipboardImport.tsx` | readText + 手动粘贴 |
 | 模板导入 | 已完成 | `src/pages/Dashboard.tsx` | 5 个内置模板 |
-| YAML 实时预览 | 已完成 | `src/components/preview/YamlPreview.tsx` | CodeMirror 6，YAML 语法高亮，行号 |
+| 导入对话框 Tab 定位 | 已完成 | `src/components/import/ImportDialog.tsx` | 工作台按钮精确跳转到文件/URL/剪贴板 Tab |
+| YAML 实时预览 | 已完成 | `src/components/preview/YamlPreview.tsx` | CodeMirror 6，YAML 语法高亮，行号，支持滚动 |
 | YAML 导出 | 已完成 | `src/components/export/ExportDialog.tsx` | mihomo 完整+Stash 兼容双模式，下载/剪贴板 |
 | mihomo 导出 | 已完成 | `src/schema/yaml.ts` (stringifyYamlOrdered) | 字段顺序：general→dns→hosts→... |
 | Stash 导出 | 已完成 | `src/compatibility/stash.ts` | 含兼容性报告 |
@@ -116,14 +144,21 @@
 | 链式代理静态测试 | 已完成 | `src/engine/chain-validator.ts` | UDP/空组/断链/自引用检测 |
 | external-controller 运行态测试 | 未实现 | — | Settings 页面提供 URL/secret 配置入口，但未实现 API 调用 |
 | 模板库 | 已完成 | `src/schema/defaults.ts` | 5 个模板 |
-| 历史版本 / 自动保存 | 已完成 | `src/hooks/useAutoSave.ts` + `src/lib/db.ts` | localStorage + Dexie IndexedDB |
+| 历史版本 / 自动保存 | 已完成 | `src/hooks/useAutoSave.ts` + `src/lib/db.ts` | localStorage + Dexie IndexedDB，支持改名不重复 |
 | diff | 未实现 | — | 无 YAML diff 功能 |
 | license / attribution | 已完成 | `LICENSE` + `README.md` + `src/pages/About.tsx` | CC BY-NC 4.0 |
 | 撤销/重做 | 已完成 | `src/store/config-store.ts` | 50 步历史深度的 undo/redo |
 | 拖拽排序 | 部分完成 | `@dnd-kit` 已安装 | 仅代理组列表提供排序基础结构，rules/proxies 拖拽未启用 |
-| 深色模式 | 已完成 | `src/store/ui-store.ts` + `src/index.css` | light/dark/system |
+| 深色模式 | 已完成 | `src/store/ui-store.ts` + `src/index.css` | light/dark/system 三模式，含 Monitor 专属图标 |
 | 设置页面 | 已完成 | `src/pages/Settings.tsx` | 主题/CORS proxy/controller 配置 |
 | 关于页面 | 已完成 | `src/pages/About.tsx` | 协议+attribution+技术栈 |
+| 可编辑配置名 | 已完成 | `src/components/layout/Header.tsx` | 点击编辑，同步 localStorage + IndexedDB |
+| 最近项目删除 | 已完成 | `src/pages/Dashboard.tsx` | Trash2 按钮直接删除 IndexedDB 记录 |
+| 保存按钮 | 已完成 | `src/components/layout/Header.tsx` | 有未保存改动时启用，点击触发立即保存 |
+| 导出菜单 hover 触发 | 已完成 | `src/components/layout/Header.tsx` | 鼠标移入显示，移出隐藏，菜单居中 |
+| 全局滚动条隐藏 | 已完成 | `src/index.css` | 默认透明，hover 时显示，WebKit+Firefox |
+| 页面边距统一 | 已完成 | 19 个编辑器/页面 | 统一 `p-6 max-w-3xl mx-auto` |
+| 详情面板居中 | 已完成 | ProxyGroups/ProxyProviders/Inbounds | 右侧编辑面板添加 `mx-auto` |
 
 ---
 
@@ -136,14 +171,14 @@
 
 ### 状态管理
 
-- **配置状态**: `src/store/config-store.ts` — Zustand store，包含当前配置（`MihomoConfig`）、撤销/重做历史栈（50 步）、YAML 字符串、完整性报告、兼容性报告
+- **配置状态**: `src/store/config-store.ts` — Zustand store，包含当前配置（`MihomoConfig`）、撤销/重做历史栈（50 步）、YAML 字符串、完整性报告、兼容性报告、`hasUnsavedChanges`、`saveTrigger`、`currentDraftId`
 - **UI 状态**: `src/store/ui-store.ts` — Zustand store，包含主题、侧边栏宽度、活动面板、预览模式、导出模式
 
 ### 关键文件路径索引
 
 | 文件 | 职责 |
 |------|------|
-| `src/schema/model.ts` | 全部 TypeScript 接口定义（MihomoConfig、ProxyConfig、DnsConfig 等，652 行） |
+| `src/schema/model.ts` | 全部 TypeScript 接口定义（MihomoConfig、ProxyConfig、DnsConfig 等） |
 | `src/schema/metadata.ts` | 字段元数据注册表（150+ 字段，含 mihomo/Stash 兼容性标记） |
 | `src/schema/metadata-types.ts` | FieldMeta 类型定义 |
 | `src/schema/yaml.ts` | YAML parse/stringify/ordered-export/clone |
@@ -157,12 +192,12 @@
 | `src/engine/chain-validator.ts` | Relay + dialer-proxy 链路静态验证 |
 | `src/engine/rule-validator.ts` | 规则冲突/不可达/重复检测 |
 | `src/engine/integrity.ts` | 统一完整性检查入口 |
-| `src/store/config-store.ts` | 主配置 Zustand store（含 undo/redo） |
+| `src/store/config-store.ts` | 主配置 Zustand store（含 undo/redo、save 状态、currentDraftId） |
 | `src/store/ui-store.ts` | UI 状态 Zustand store |
 | `src/lib/db.ts` | Dexie IndexedDB schema（drafts/templates/history/preferences） |
 | `src/lib/constants.ts` | 所有常量（PROXY_TYPES、RULE_TYPES、LISTENER_TYPES 等） |
 | `src/lib/utils.ts` | cn() 工具函数（clsx + tailwind-merge） |
-| `src/hooks/useAutoSave.ts` | 自动保存（localStorage + Dexie debounce） |
+| `src/hooks/useAutoSave.ts` | 自动保存（localStorage + Dexie debounce），支持 currentDraftId 避免改名重复 |
 
 ---
 
@@ -186,7 +221,7 @@
 
 ### Proxy 模型
 
-`ProxyConfig` 接口使用"扁平化"设计：所有 proxy 类型的字段都在同一个接口上，通过 `type` 字段区分。这意味着 WireGuard 的 `public-key` 和 SSH 的 `host-key` 等共存于同一接口。
+`ProxyConfig` 接口使用"扁平化"设计：所有 proxy 类型的字段都在同一个接口上，通过 `type` 字段区分。
 
 **优点**: 简单，不需要 discriminated union
 **缺点**: TypeScript 无法在编译时检查类型专属字段的必填性
@@ -221,7 +256,7 @@
 
 ### TypeScript 类型和 Zod 的关系
 
-`zod` 已安装但 **未使用**。当前项目使用 TypeScript 接口做类型约束，但未实现运行时 schema 校验。如果需要运行时校验，需要在 `src/schema/` 下添加 Zod schema 定义。
+`zod` 已安装但 **未使用**。当前项目使用 TypeScript 接口做类型约束，但未实现运行时 schema 校验。
 
 ---
 
@@ -233,7 +268,9 @@
 2. `src/schema/yaml.ts` 的 `parseYaml(yamlString)` 调用 `js-yaml.load()` 解析
 3. `extractUnknownFields()` 将已知字段和未知字段分离
 4. 已知字段写入 Zustand config store，未知字段存入 `config._unknownFields`
-5. 解析错误通过 try-catch 捕获，显示错误消息给用户
+5. 导入成功后自动设置配置名（FileImport 用文件名，UrlImport 用 "从URL导入"，Clipboard 用 "从剪贴板导入"）
+6. 解析错误通过 try-catch 捕获，显示错误消息给用户
+7. 对话框自动关闭
 
 ### 导出流程
 
@@ -241,7 +278,7 @@
 2. 跳过空数组、空对象、undefined、null 值
 3. `injectUnknownFields()` 将 `_unknownFields` 追加到输出末尾
 4. `js-yaml.dump()` 生成 YAML 字符串
-5. 通过 ExportDialog 下载 .yaml 或复制到剪贴板
+5. 通过 ExportDialog（hover 触发菜单）下载 .yaml 或复制到剪贴板
 
 ### 字段顺序
 
@@ -252,11 +289,10 @@
 
 - `js-yaml.dump()` 配置 `forceQuotes: false`，仅在必要时添加引号
 - `quotingType: '"'` 使用双引号
-- 无自定义引号逻辑——完全依赖 js-yaml 的默认行为
 
 ### 注释保留
 
-**不支持**。js-yaml 不保留 YAML 注释。导入的 YAML 注释在 parse 后丢失，导出时无法恢复。
+**不支持**。js-yaml 不保留 YAML 注释。
 
 ---
 
@@ -282,7 +318,7 @@
 - `iptables`（Linux only）
 - `ebpf`（Linux only）
 - `clash-for-android`（已建模但编辑器未实现）
-- 部分 TUN 高级字段（`include-uid-range`、`exclude-mac-address` 等）在 UI 中未暴露
+- 部分 TUN 高级字段在 UI 中未暴露
 - `tuic-server` 配置的完整 UI
 
 ---
@@ -298,14 +334,14 @@
 1. `generateStashReport(config)` → `src/compatibility/stash.ts`
 2. 按 `STASH_REMOVE_FIELDS`（43 个顶级字段）和 `STASH_DNS_REMOVE_FIELDS`（17 个 DNS 字段）移除不支持的字段
 3. DNS 特殊处理：`transformDnsForStash()` 移除 enhanced-mode/fake-ip-range/use-hosts 等，将 `respect-rules` 转换为 `follow-rule`
-4. 检测不支持的 proxy 类型（sudoku/mieru/openvpn/masque）和 rule 类型（PROCESS-NAME-REGEX/SRC-IP-CIDR 等），标记为 error
+4. 检测不支持的 proxy 类型和 rule 类型，标记为 error
 5. 检测 sub-rules 存在，标记为 error
 6. 生成兼容性报告（removed/warnings/errors/transformed 计数）
 7. 如有多服务器 DNS 策略，弹出 `DnsStrategyDialog` 让用户选择处理方式
 
 ### DNS 策略处理
 
-**本项目采用三选一策略**：
+三选一策略：
 
 1. **自动选择第一个** — 默认，安静处理
 2. **用户手动选择** — 弹出对话框，逐条选择
@@ -315,7 +351,7 @@
 
 ### 静默丢字段风险
 
-**存在但可控**。`STASH_REMOVE_FIELDS` 集合中的字段在导出时会被静默删除，但同时会生成警告级别的兼容性报告条目。导出前用户可在 `CompatibilityReport` 组件中看到全部变更。不会悄无声息地丢失数据。
+**存在但可控**。`STASH_REMOVE_FIELDS` 集合中的字段在导出时会被静默删除，但同时会生成警告级别的兼容性报告条目。导出前用户可在 `CompatibilityReport` 组件中看到全部变更。
 
 ---
 
@@ -329,7 +365,7 @@
 | DNS | ✅ 仅 YAML | 内置策略 |
 | REJECT / REJECT-DROP / COMPATIBLE / PASS | ✅ 仅 YAML | 内置策略 |
 | Shadowsocks (ss) | ✅ 完整表单 | cipher/password/plugin/udp-over-tcp |
-| ShadowsocksR (ssr) | ✅ 类型选择可用 | 基础字段（protocol/obfs 等需在 YAML 预览中编辑） |
+| ShadowsocksR (ssr) | ✅ 类型选择可用 | 基础字段 |
 | HTTP | ✅ 完整表单 | username/password/tls/headers |
 | SOCKS5 | ✅ 完整表单 | username/password/tls |
 | VMess | ✅ 完整表单 | uuid/alterId/cipher/tls/servername/network/transport |
@@ -363,10 +399,6 @@
 | load-balance | ✅ 完整表单 | strategy 选择 |
 | relay | ✅ 完整表单 | 含 UDP 不兼容警告 |
 
-### Proxy Group 公共字段覆盖
-
-✅ name / type / proxies / use / url / interval / lazy / empty-fallback / timeout / max-failed-times / disable-udp / filter / exclude-filter / exclude-type / expected-status / hidden / icon / strategy（load-balance）
-
 ---
 
 ## 11. Rule Provider / Rules 覆盖情况
@@ -394,11 +426,11 @@
 | RULE-SET 绑定 provider | ✅ 完成 | 自动读取配置中所有 rule-provider |
 | AND / OR / NOT | ✅ 类型选择可用 | 高级 payload 需手动输入 |
 | SUB-RULE 引用 | ✅ 完成 | 自动读取 sub-rules 名称列表 |
-| MATCH 位置检查 | ✅ 完成 | `src/engine/rule-validator.ts` 检测 MATCH 后的不可达规则 |
-| 规则引用完整性 | ✅ 完成 | `src/engine/references.ts` 检测悬挂 rule-provider/sub-rule 引用 |
-| 拖拽排序 | ❌ 未实现 | @dnd-kit 已安装但未在规则列表启用 |
+| MATCH 位置检查 | ✅ 完成 | `src/engine/rule-validator.ts` |
+| 规则引用完整性 | ✅ 完成 | `src/engine/references.ts` |
+| 拖拽排序 | ❌ 未实现 | @dnd-kit 已安装但未启用 |
 | 规则冲突检测 | ❌ 未实现 | 未检测同类型规则覆盖冲突 |
-| 规则启用/禁用 | ❌ 未实现 | 无 toggle 功能，所有规则始终生效 |
+| 规则启用/禁用 | ❌ 未实现 | 无 toggle 功能 |
 
 ---
 
@@ -411,8 +443,8 @@
 ### Relay proxy-group 链式代理
 
 ✅ **支持**。Proxy Group 编辑器中可选择 `relay` 类型。静态验证包括：
-- UDP 不兼容警告（relay 不支持 UDP）
-- 空 relay 检测（至少需要 2 个代理）
+- UDP 不兼容警告
+- 空 relay 检测
 - 代理引用存在性检查
 - 自引用检测
 
@@ -439,13 +471,14 @@
 
 ---
 
-## 13. UI/UX 说明
+## 13. UI/UX 当前状态
 
 ### 布局
 
 - **3 面板布局**: 左侧导航树（默认 280px，可折叠）| 中间编辑器 | 右侧预览面板（360px，CodeMirror YAML）
-- **Header**: 项目名 + 配置名 + 撤销/重做 + 导入/导出按钮 + 主题切换
-- **所有面板支持滚动**，编辑器区域 `overflow-y-auto`
+- **Header**: 项目名 + 可编辑配置名（点击编辑，Enter/Blur 保存，同步 localStorage+IndexedDB）+ 撤销/重做 + 保存按钮（有改动时启用）+ 导入/导出按钮（hover 触发菜单）+ 主题切换（Sun/Moon/Monitor 三图标）
+- **所有编辑器页面**统一 `p-6 max-w-3xl mx-auto` 边距
+- **列表+详情编辑器**（Proxies/ProxyProviders/ProxyGroups/SubRules/Inbounds）统一 `p-6` 边距，右侧详情面板居中
 
 ### 导航
 
@@ -457,11 +490,28 @@
 - `FieldWrapper` 组件统一管理标签、描述、示例、必填标记、兼容性 badge
 - `SensitiveField` 组件默认隐藏密码/密钥，点击眼睛图标切换显示
 - 高级字段可折叠（`DetailsSection` 组件）
-- 每个字段有简短描述和 `mihomo only` / `stash only` 标记
+- `TextField`/`NumberField`/`SelectField`/`BoolField` 共享组件统一表单样式
+- 复选框统一 `size-4 rounded border-input`
 
 ### 深色模式
 
-✅ **支持**。通过 `useUiStore` 的 theme 状态（light/dark/system）+ CSS 变量 + Tailwind dark class 切换。
+✅ **支持**。通过 `useUiStore` 的 theme 状态（light/dark/system）+ CSS 变量 + Tailwind dark class 切换。System 模式下跟随操作系统偏好。
+
+### 导出菜单
+
+✅ **hover 触发**。鼠标移入导出按钮区域自动居中显示菜单（Mihomo 完整导出 / Stash 兼容导出），鼠标移出后自动隐藏。
+
+### 保存机制
+
+✅ **自动保存 + 手动保存**。1 秒防抖自动保存到 localStorage + Dexie IndexedDB。有未保存改动时 Header 保存按钮启用，点击触发立即保存。配置改名不会创建重复 IndexedDB 记录。
+
+### 导入流程
+
+✅ **自动关闭**。文件/URL/剪贴板导入成功后对话框自动关闭。Dashboard 快速开始按钮可精确定位到导入对话框的对应 Tab。导入自动设置配置名，防止 localStorage 覆盖。
+
+### 滚动条
+
+✅ **全局隐藏**。默认透明，hover 时半透明显示，WebKit + Firefox 兼容。
 
 ### 响应式
 
@@ -471,7 +521,7 @@
 
 - Ctrl+Z / Ctrl+Shift+Z：撤销/重做
 - Tab / Enter：标准表单导航
-- 未实现键盘快捷键导航（如 Ctrl+P 搜索文件等）
+- 未实现键盘快捷键导航
 
 ### 敏感字段
 
@@ -479,7 +529,7 @@
 
 ### 错误定位
 
-⚠️ **部分支持**。验证错误在 YAML 预览面板的"问题"标签中显示，按类型分组，但点击错误**不会**自动跳转到对应编辑字段。
+⚠️ **部分支持**。验证错误在 YAML 预览面板的"问题"标签中显示，按类型分组，但点击错误不会自动跳转到对应编辑字段。
 
 ---
 
@@ -504,14 +554,14 @@
 
 ## 15. 测试和验证结果
 
-> **所有命令均在 `main` 分支 `312ae38` commit 执行，时间：2026-06-12。**
+> **所有命令均在 `main` 分支 `1fb0170` commit 执行，时间：2026-06-12。**
 
 | 命令 | 结果 | 说明 |
 |------|------|------|
 | `npm install` | ✅ 通过 | 0 vulnerabilities |
 | `npm run typecheck` (`tsc -b`) | ✅ 通过 | 0 错误 |
-| `npm run lint` (`eslint .`) | ✅ 0 errors, 4 warnings | 4 个 react-hooks/exhaustive-deps warning，不影响功能 |
-| `npm run build` (`tsc -b && vite build`) | ✅ 通过 | 生成 dist/ (JS 1.1MB, CSS 44KB gzipped 349KB) |
+| `npm run lint` (`eslint .`) | ✅ 0 errors, 6 warnings | 6 个 react-hooks/exhaustive-deps warning，不影响功能 |
+| `npm run build` (`tsc -b && vite build`) | ✅ 通过 | 生成 dist/ (JS 1.12MB, CSS 44KB gzipped 349KB) |
 | `npm test` (`vitest run`) | ✅ **52 passed** | 11 个测试文件全部通过 |
 
 ### 测试文件清单
@@ -556,7 +606,7 @@
 |------|------|------|---------|
 | Zod 未使用 | 无运行时 schema 校验 | P1: 实现 `src/schema/validation.ts` Zod schema | `package.json` 已安装 zod |
 | iptables/ebpf 未建模 | 导入 Linux 配置会丢失这些段 | P2: 添加到模型和编辑器 | `src/schema/model.ts` |
-| Proxy 类型扁平接口 | TypeScript 无法校验跨类型字段一致性 | P2: 考虑 discriminated union 重构 | `src/schema/model.ts` (ProxyConfig) |
+| Proxy 类型扁平接口 | TypeScript 无法校验跨类型字段一致性 | P2: 考虑 discriminated union 重构 | `src/schema/model.ts` |
 | 部分高级嵌套字段未暴露 UI | 如 xhttp-opts.reuse-settings、grpc-opts.min-streams | P2: 逐步补充字段 | `src/components/editors/proxies/` |
 
 ### 16.3 Stash 兼容风险
@@ -572,8 +622,7 @@
 |------|------|------|---------|
 | YAML 注释丢失 | 导入→导出后注释不可恢复 | P2: 考虑使用支持注释的 YAML 库或自定义方案 | `src/schema/yaml.ts` |
 | CORS URL 拉取失败 | 用户无法直接导入远程配置 | ✅ 已提供手动粘贴/文件上传/CORS proxy 三种兜底 | `src/components/import/UrlImport.tsx` |
-| 密码字段在 YAML 明文 | 导出 .yaml 文件包含明文密码 | 提醒用户在导出前自行处理，或提供加密导出选项 | — |
-| 密码在 UI 中默认隐藏 | ✅ SensitiveField 组件 | 已处理 | `src/components/editors/shared/SensitiveField.tsx` |
+| 密码字段在 YAML 明文 | 导出 .yaml 文件包含明文密码 | 提醒用户在导出前自行处理 | — |
 
 ### 16.5 测试覆盖风险
 
@@ -581,7 +630,7 @@
 |------|------|------|
 | 无组件测试 | 编辑器 UI 回归风险 | P2: 添加关键编辑器 smoke test |
 | 无 E2E 测试 | 完整用户流程未自动验证 | P2: 可选 Playwright |
-| 4 个 ESLint warning | 不影响功能但可能影响 useMemo 优化 | P2: 修复 dependency 警告 |
+| 6 个 ESLint warning | 不影响功能但可能影响 useMemo 优化 | P2: 修复 dependency 警告 |
 
 ---
 
@@ -630,9 +679,9 @@
    - 原因：确保 UI 回归可检测
    - 修改文件：`src/__tests__/` 下新建
 
-9. **修复 4 个 ESLint react-hooks/exhaustive-deps warning**
+9. **修复 6 个 ESLint react-hooks/exhaustive-deps warning**
    - 原因：useMemo 依赖可能不完整
-   - 修改文件：`ChainBuilderEditor.tsx`、`ProxyGroupTopology.tsx`
+   - 修改文件：`ChainBuilderEditor.tsx`、`ProxyGroupTopology.tsx`、`useAutoSave.ts`
 
 10. **添加注释保留能力**
     - 原因：导入→编辑→导出应尽量保留原始注释
@@ -678,13 +727,14 @@ npm run lint
 
 1. **打开 Dashboard**: 启动后默认进入工作台
 2. **新建配置**: 点击"新建配置"或选择模板
-3. **导入配置**: 从文件/URL/剪贴板导入 YAML
-4. **编辑配置**: 通过左侧导航进入各配置模块
-5. **预览 YAML**: 右侧面板实时显示生成的 YAML
-6. **查看问题**: 点击右侧"问题"标签查看校验结果
-7. **导出**: Header 导出按钮 → 选择 mihomo 完整导出或 Stash 兼容导出
-8. **下载**: 在弹出的导出对话框中下载 .yaml 或复制到剪贴板
-9. **检查兼容性**: Stash 模式下查看兼容性报告（移除/转换/警告）
+3. **导入配置**: 从文件/URL/剪贴板导入 YAML（导入后自动关闭对话框）
+4. **编辑配置名**: 点击 Header 中的配置名进行编辑，Enter 或失焦保存
+5. **编辑配置**: 通过左侧导航进入各配置模块
+6. **预览 YAML**: 右侧面板实时显示生成的 YAML
+7. **查看问题**: 点击右侧"问题"标签查看校验结果
+8. **导出**: Header 导出按钮 hover 显示菜单 → 选择 mihomo 完整导出或 Stash 兼容导出
+9. **下载**: 在弹出的导出对话框中下载 .yaml 或复制到剪贴板
+10. **检查兼容性**: Stash 模式下查看兼容性报告
 
 ### 链式代理使用
 
@@ -702,14 +752,15 @@ npm run lint
 
 1. `README.md` — 项目概述和开发命令
 2. `package.json` — 依赖和脚本
-3. `src/schema/model.ts` — 数据模型（652 行，最核心）
+3. `src/schema/model.ts` — 数据模型（最核心）
 4. `src/schema/yaml.ts` — YAML 引擎
 5. `src/schema/unknown-fields.ts` — unknownFields 机制
 6. `src/engine/integrity.ts` — 完整验证入口
 7. `src/compatibility/stash.ts` — Stash 导出逻辑
-8. `src/store/config-store.ts` — 状态管理（含 undo/redo）
-9. `src/App.tsx` — 路由和编辑器分发
-10. `docs/DEVELOPMENT_HANDOFF.md` — 本文档
+8. `src/store/config-store.ts` — 状态管理（含 undo/redo、currentDraftId）
+9. `src/hooks/useAutoSave.ts` — 自动保存机制
+10. `src/App.tsx` — 路由和编辑器分发
+11. `docs/DEVELOPMENT_HANDOFF.md` — 本文档
 
 ### 开发流程要求
 
@@ -722,13 +773,13 @@ npm run lint
    npm run build
    npm test
    ```
-4. 全部通过后合并到 `main`
+4. 全部通过后合并到 `main`（使用 `--no-ff`）
 5. 在 `main` 再次运行上述 4 个验证
 6. `git push origin main`
 
 ### 优先修复
 
-首先检查 P0 是否仍存在。如果本文档的 P0 项已完成，按 P1→P2 优先顺序推进。
+首先检查 P0 是否仍存在（Stash DNS 策略完整交互流程）。
 
 ### 修改后必须跑的测试
 
@@ -741,4 +792,4 @@ npm run lint
 
 > **文档生成时间**: 2026-06-12
 > **文档作者**: AI Agent（基于仓库实际状态生成）
-> **仓库状态**: `main` 分支 `312ae38`，working tree clean，所有测试通过
+> **仓库状态**: `main` 分支 `1fb0170`，working tree clean，所有测试通过
