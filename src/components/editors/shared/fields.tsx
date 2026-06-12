@@ -1,20 +1,20 @@
-import { Input } from '@/components/ui/input'
-
 interface TextFieldProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
   disabled?: boolean
+  className?: string
 }
 
-export function TextField({ value, onChange, placeholder, disabled }: TextFieldProps) {
+export function TextField({ value, onChange, placeholder, disabled, className }: TextFieldProps) {
   return (
-    <Input
+    <input
+      type="text"
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       disabled={disabled}
-      className="text-xs h-8 bg-background px-2 shadow-none transition-none"
+      className={`flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs ${className || ''}`}
     />
   )
 }
@@ -26,11 +26,12 @@ interface NumberFieldProps {
   min?: number
   max?: number
   disabled?: boolean
+  className?: string
 }
 
-export function NumberField({ value, onChange, placeholder, min, max, disabled }: NumberFieldProps) {
+export function NumberField({ value, onChange, placeholder, min, max, disabled, className }: NumberFieldProps) {
   return (
-    <Input
+    <input
       type="number"
       value={value ?? ''}
       onChange={(e) => {
@@ -41,7 +42,7 @@ export function NumberField({ value, onChange, placeholder, min, max, disabled }
       min={min}
       max={max}
       disabled={disabled}
-      className="text-xs h-8 bg-background px-2 shadow-none transition-none"
+      className={`flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs ${className || ''}`}
     />
   )
 }

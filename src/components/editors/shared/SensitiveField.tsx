@@ -1,25 +1,25 @@
 import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
-import { Input } from '@/components/ui/input'
 
 interface SensitiveFieldProps {
   value: string
   onChange: (value: string) => void
   label: string
   placeholder?: string
+  className?: string
 }
 
-export function SensitiveField({ value, onChange, label, placeholder }: SensitiveFieldProps) {
+export function SensitiveField({ value, onChange, label, placeholder, className }: SensitiveFieldProps) {
   const [visible, setVisible] = useState(false)
 
   return (
     <div className="relative">
-      <Input
+      <input
         type={visible ? 'text' : 'password'}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder || label}
-        className="pr-8 text-xs h-8 bg-background px-2 shadow-none transition-none"
+        className={`flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs pr-8 ${className || ''}`}
       />
       <button
         type="button"
