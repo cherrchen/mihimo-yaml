@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import {
   Sun,
   Moon,
@@ -16,11 +16,14 @@ import { ExportDialog } from '@/components/export/ExportDialog'
 
 export function Header() {
   const { theme, setTheme } = useUiStore()
-  const { configName, undo, redo, canUndo, canRedo, hasUnsavedChanges, triggerSave } = useConfigStore()
+  const { configName, setConfigName, undo, redo, canUndo, canRedo, hasUnsavedChanges, triggerSave } = useConfigStore()
   const [importOpen, setImportOpen] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
   const [exportMode, setExportMode] = useState<'mihomo' | 'stash'>('mihomo')
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
+  const [editingName, setEditingName] = useState(false)
+  const [nameValue, setNameValue] = useState(configName)
+  const nameInputRef = useRef<HTMLInputElement>(null)
 
   const handleExport = (mode: 'mihomo' | 'stash') => {
     setExportMode(mode)
@@ -39,7 +42,48 @@ export function Header() {
         {/* Left */}
         <div className="flex items-center gap-3">
           <h1 className="text-sm font-semibold tracking-tight">mihomo-yaml</h1>
-          <span className="text-xs text-muted-foreground">{configName}</span>
+          {editingName ? (
+            <input
+              ref={nameInputRef}
+              type="text"
+              value={nameValue}
+              onChange={(e) => setNameValue(e.target.value)}
+              onBlur={() => {
+                setEditingName(false)
+                if (nameValue.trim() && nameValue !== configName) {
+                  setConfigName(nameValue.trim())
+                } else {
+                  setNameValue(configName)
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setEditingName(false)
+                  if (nameValue.trim() && nameValue !== configName) {
+                    setConfigName(nameValue.trim())
+                  } else {
+                    setNameValue(configName)
+                  }
+                } else if (e.key === 'Escape') {
+                  setEditingName(false)
+                  setNameValue(configName)
+                }
+              }}
+              onFocus={(e) => e.target.select()}
+              className="text-xs text-muted-foreground bg-transparent border-b border-primary outline-none w-32"
+              autoFocus
+            />
+          ) : (
+            <span
+              className="text-xs text-muted-foreground cursor-pointer hover:text-foreground"
+              onClick={() => {
+                setNameValue(configName)
+                setEditingName(true)
+              }}
+            >
+              {configName}
+            </span>
+          )}
         </div>
 
         {/* Center */}

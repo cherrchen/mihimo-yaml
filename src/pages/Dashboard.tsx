@@ -11,7 +11,7 @@ import type { Draft } from '@/lib/db'
 import { parseYaml } from '@/schema/yaml'
 
 export function DashboardPage() {
-  const { setConfig, setConfigName, resetConfig } = useConfigStore()
+  const { setConfig, setConfigName, resetConfig, setCurrentDraftId } = useConfigStore()
   const { setActiveSection } = useUiStore()
   const [importOpen, setImportOpen] = useState(false)
   const [importTab, setImportTab] = useState<'file' | 'url' | 'clipboard'>('file')
@@ -48,6 +48,7 @@ export function DashboardPage() {
       const config = parseYaml(draft.yaml)
       setConfig(config)
       setConfigName(draft.name)
+      setCurrentDraftId(draft.id!)
       setActiveSection('general')
     } catch {
       // Invalid YAML
