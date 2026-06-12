@@ -5,7 +5,11 @@ import { useConfigStore } from '@/store/config-store'
 import { useUiStore } from '@/store/ui-store'
 import { parseYaml } from '@/schema/yaml'
 
-export function UrlImport() {
+interface UrlImportProps {
+  onClose: () => void
+}
+
+export function UrlImport({ onClose }: UrlImportProps) {
   const [url, setUrl] = useState('')
   const [loading, setLoading] = useState(false)
   const [content, setContent] = useState('')
@@ -50,6 +54,7 @@ export function UrlImport() {
       setConfig(config)
       setConfigYaml(manualYaml)
       setActiveSection('general')
+      onClose()
     } catch (e) {
       setError(`YAML 解析错误: ${e instanceof Error ? e.message : '未知'}`)
     }
@@ -61,6 +66,7 @@ export function UrlImport() {
       setConfig(config)
       setConfigYaml(content)
       setActiveSection('general')
+      onClose()
     } catch (e) {
       setError(`YAML 解析错误: ${e instanceof Error ? e.message : '未知'}`)
     }

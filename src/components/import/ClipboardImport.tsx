@@ -5,7 +5,11 @@ import { useConfigStore } from '@/store/config-store'
 import { useUiStore } from '@/store/ui-store'
 import { parseYaml } from '@/schema/yaml'
 
-export function ClipboardImport() {
+interface ClipboardImportProps {
+  onClose: () => void
+}
+
+export function ClipboardImport({ onClose }: ClipboardImportProps) {
   const [text, setText] = useState('')
   const [error, setError] = useState('')
   const { setConfig, setConfigYaml } = useConfigStore()
@@ -32,6 +36,7 @@ export function ClipboardImport() {
       setConfigYaml(text)
       setActiveSection('general')
       setText('')
+      onClose()
     } catch (e) {
       setError(`YAML 解析错误: ${e instanceof Error ? e.message : '未知错误'}`)
     }

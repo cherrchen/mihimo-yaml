@@ -5,7 +5,11 @@ import { useConfigStore } from '@/store/config-store'
 import { useUiStore } from '@/store/ui-store'
 import { parseYaml } from '@/schema/yaml'
 
-export function FileImport() {
+interface FileImportProps {
+  onClose: () => void
+}
+
+export function FileImport({ onClose }: FileImportProps) {
   const [preview, setPreview] = useState<string>('')
   const [error, setError] = useState<string>('')
   const [dragOver, setDragOver] = useState(false)
@@ -42,6 +46,7 @@ export function FileImport() {
       setActiveSection('general')
       setPreview('')
       setError('')
+      onClose()
     } catch (e) {
       setError(`YAML 解析错误: ${e instanceof Error ? e.message : '未知错误'}`)
     }

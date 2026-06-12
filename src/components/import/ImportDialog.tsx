@@ -58,9 +58,9 @@ export function ImportDialog({ open, onClose, initialTab = 'file' }: ImportDialo
 
         {/* Content */}
         <div className="p-4">
-          {tab === 'file' && <FileImport />}
-          {tab === 'url' && <UrlImport />}
-          {tab === 'clipboard' && <ClipboardImport />}
+          {tab === 'file' && <FileImport onClose={onClose} />}
+          {tab === 'url' && <UrlImport onClose={onClose} />}
+          {tab === 'clipboard' && <ClipboardImport onClose={onClose} />}
         </div>
       </div>
     </div>
