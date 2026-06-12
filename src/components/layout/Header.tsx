@@ -16,7 +16,7 @@ import { ExportDialog } from '@/components/export/ExportDialog'
 
 export function Header() {
   const { theme, setTheme } = useUiStore()
-  const { configName, undo, redo, canUndo, canRedo } = useConfigStore()
+  const { configName, undo, redo, canUndo, canRedo, hasUnsavedChanges, triggerSave } = useConfigStore()
   const [importOpen, setImportOpen] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
   const [exportMode, setExportMode] = useState<'mihomo' | 'stash'>('mihomo')
@@ -50,7 +50,7 @@ export function Header() {
             <Redo2 className="size-4" />
           </Button>
           <div className="w-px h-5 bg-border mx-1" />
-          <Button variant="ghost" size="icon" title="自动保存中" disabled>
+          <Button variant="ghost" size="icon" title={hasUnsavedChanges ? '保存' : '已保存'} disabled={!hasUnsavedChanges} onClick={triggerSave}>
             <Save className="size-4" />
           </Button>
         </div>
