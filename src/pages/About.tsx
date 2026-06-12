@@ -4,7 +4,7 @@ export function AboutPage() {
   const { setActiveSection } = useUiStore()
 
   return (
-    <div className="p-4 max-w-2xl">
+    <div className="p-6 max-w-3xl mx-auto">
       <button onClick={() => setActiveSection('dashboard')} className="text-xs text-muted-foreground hover:text-foreground mb-4 inline-block">
         &larr; 返回工作台
       </button>

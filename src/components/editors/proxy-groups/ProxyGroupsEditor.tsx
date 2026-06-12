@@ -49,7 +49,7 @@ export function ProxyGroupsEditor() {
 
   if (view === 'topology') {
     return (
-      <div className="h-full flex flex-col">
+      <div className="p-6 h-full flex flex-col">
         <div className="flex items-center gap-2 px-4 py-2 border-b border-border">
           <button onClick={() => setView('list')} className="text-xs text-muted-foreground hover:text-foreground">&larr; 返回列表</button>
           <span className="text-xs font-medium">代理组拓扑图</span>
@@ -62,7 +62,7 @@ export function ProxyGroupsEditor() {
   }
 
   return (
-    <div className="p-4 flex h-full">
+    <div className="p-6 flex h-full">
       <div className="w-64 flex-shrink-0 border-r border-border pr-3 flex flex-col">
         <div className="relative mb-2">
           <Search className="size-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />

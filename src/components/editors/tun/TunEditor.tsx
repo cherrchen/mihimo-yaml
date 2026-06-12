@@ -16,7 +16,7 @@ export function TunEditor() {
   }
 
   return (
-    <div className="p-4 max-w-2xl space-y-4">
+    <div className="p-6 max-w-3xl mx-auto space-y-4">
       <h2 className="text-sm font-semibold">TUN 配置</h2>
       <div className="grid grid-cols-2 gap-3">
         <FieldWrapper label="启用" description="tun.enable">

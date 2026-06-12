@@ -28,7 +28,7 @@ export function SubRulesEditor() {
   }
 
   return (
-    <div className="p-4 flex h-full">
+    <div className="p-6 flex h-full">
       <div className="w-48 flex-shrink-0 border-r border-border pr-3 flex flex-col">
         <button onClick={addSubRule} className="mb-2 flex items-center gap-1 px-2 py-1 rounded bg-primary text-primary-foreground text-xs">
           <Plus className="size-3.5" /> 添加子规则

@@ -58,7 +58,7 @@ export function RulesEditor() {
   }
 
   return (
-    <div className="p-4 max-w-3xl">
+    <div className="p-6 max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold">路由规则</h2>
         <button

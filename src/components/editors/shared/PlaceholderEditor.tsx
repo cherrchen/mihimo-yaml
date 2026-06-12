@@ -4,7 +4,7 @@ interface PlaceholderEditorProps {
 
 export function PlaceholderEditor({ title }: PlaceholderEditorProps) {
   return (
-    <div className="p-4 max-w-2xl">
+    <div className="p-6 max-w-3xl mx-auto">
       <h2 className="text-sm font-semibold mb-3">{title}</h2>
       <p className="text-xs text-muted-foreground mb-4">
         此配置区域的高级编辑器正在开发中。当前 YAML 编辑在预览面板中可用。

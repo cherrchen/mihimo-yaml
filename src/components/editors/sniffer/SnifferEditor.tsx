@@ -15,7 +15,7 @@ export function SnifferEditor() {
   }
 
   return (
-    <div className="p-4 max-w-2xl space-y-4">
+    <div className="p-6 max-w-3xl mx-auto space-y-4">
       <h2 className="text-sm font-semibold">Sniffer (域名嗅探)</h2>
       <div className="grid grid-cols-2 gap-3">
         <FieldWrapper label="启用" description="sniffer.enable">
