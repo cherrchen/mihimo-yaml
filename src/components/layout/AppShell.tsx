@@ -23,7 +23,7 @@ export function AppShell({
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Header */}
-      <div className="flex-shrink-0 border-b border-border h-12">
+      <div className="flex-shrink-0 h-12">
         {header}
       </div>
 
