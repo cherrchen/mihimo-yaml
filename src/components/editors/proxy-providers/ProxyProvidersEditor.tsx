@@ -53,7 +53,7 @@ export function ProxyProvidersEditor() {
         </div>
       </div>
 
-      <div className="flex-1 pl-4 overflow-y-auto max-w-lg">
+      <div className="flex-1 pl-4 overflow-y-auto max-w-lg mx-auto">
         {selectedProvider && providers[selectedProvider] ? (
           <ProviderDetailEditor
             name={selectedProvider}
