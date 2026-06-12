@@ -31,7 +31,7 @@ export function TunnelsEditor() {
   }
 
   return (
-    <div className="p-4 max-w-2xl space-y-4">
+    <div className="p-6 max-w-3xl mx-auto space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold">Tunnels (隧道)</h2>
         <button onClick={addTunnel} className="flex items-center gap-1 px-2 py-1 rounded bg-primary text-primary-foreground text-xs">

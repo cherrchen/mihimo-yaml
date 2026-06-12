@@ -76,7 +76,7 @@ export function ProxiesEditor() {
   }
 
   return (
-    <div className="p-4 flex h-full">
+    <div className="p-6 flex h-full">
       {/* Left: Proxy List */}
       <div className="w-64 flex-shrink-0 border-r border-border pr-3 flex flex-col">
         <div className="relative mb-2">

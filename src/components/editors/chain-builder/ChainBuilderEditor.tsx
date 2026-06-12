@@ -84,7 +84,7 @@ export function ChainBuilderEditor() {
   const [edges, , onEdgesChange] = useEdgesState(initialEdges)
 
   return (
-    <div className="p-4 h-full flex flex-col">
+    <div className="p-6 h-full flex flex-col">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold">链路构建器</h2>
         <div className="flex items-center gap-4 text-xs text-muted-foreground">

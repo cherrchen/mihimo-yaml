@@ -26,7 +26,7 @@ export function HostsEditor() {
   }
 
   return (
-    <div className="p-4 max-w-xl">
+    <div className="p-6 max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold">Hosts</h2>
         <button onClick={addEntry} className="flex items-center gap-1 px-2 py-1 rounded bg-primary text-primary-foreground text-xs">
