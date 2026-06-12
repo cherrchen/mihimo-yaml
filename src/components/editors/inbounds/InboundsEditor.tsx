@@ -46,7 +46,7 @@ export function InboundsEditor() {
         </div>
       </div>
 
-      <div className="flex-1 pl-4 overflow-y-auto max-w-lg">
+      <div className="flex-1 pl-4 overflow-y-auto max-w-lg mx-auto">
         {selectedIdx >= 0 && listeners[selectedIdx] ? (
           <ListenerDetailEditor
             listener={listeners[selectedIdx]}
