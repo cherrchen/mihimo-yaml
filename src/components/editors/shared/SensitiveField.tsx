@@ -19,7 +19,7 @@ export function SensitiveField({ value, onChange, label, placeholder }: Sensitiv
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder || label}
-        className="pr-8 text-xs bg-background"
+        className="pr-8 text-xs h-8 bg-background px-2 shadow-none transition-none"
       />
       <button
         type="button"
