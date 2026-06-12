@@ -41,10 +41,10 @@
 | 项目 | 值 |
 |------|-----|
 | **当前分支** | `main` |
-| **当前 commit** | `1fb0170` |
-| **HEAD 对应** | `fix: unify shared TextField/NumberField/SensitiveField padding+shadow to match General style` |
+| **当前 commit** | `3006cfc` |
+| **HEAD 对应** | `merge: add custom User-Agent setting for URL import` |
 | **未提交改动** | 无（working tree clean） |
-| **dev/* 分支** | 22 个（见下方） |
+| **dev/* 分支** | 27 个（见下方） |
 | **已合并到 main** | 是（所有 dev 分支均已合并） |
 | **已 push 到 origin/main** | 是 |
 | **git worktree** | 1 个（`C:/Users/chenj/Desktop/Coding/mihomo-yaml`） |
@@ -53,8 +53,10 @@
 ### dev 分支列表
 
 ```
+dev/add-custom-ua-setting
 dev/fix-autosave-name-persistence
 dev/fix-delete-recent
+dev/fix-drag-reorder-rules-proxygroups
 dev/fix-editable-config-name
 dev/fix-editor-panel-center
 dev/fix-export-hover
@@ -64,8 +66,10 @@ dev/fix-import-set-name
 dev/fix-import-tabs
 dev/fix-navtree-search-color
 dev/fix-page-margins
+dev/fix-rule-click-edit
 dev/fix-save-button
 dev/fix-shared-input-style
+dev/fix-stringlist-drag-reorder
 dev/fix-system-theme-icon
 dev/fix-theme-transparency
 dev/fix-yaml-preview-scroll
@@ -75,21 +79,25 @@ dev/remove-header-border
 dev/replace-recent-icon-with-delete
 dev/unify-input-general-style
 dev/unify-input-styles
+dev/unify-shared-components-v2
 ```
 
 ### 最近合并到 main 的 commit（按时间倒序）
 
 ```
+3006cfc merge: add custom User-Agent setting for URL import
+82e6c57 feat: add customizable User-Agent for URL import with default clash.meta/v1.19.25
+a494147 merge: fix rule row click-to-edit in sortable list
+d71374e merge: implement drag-to-reorder for rules and proxy group members
+58a6f0e feat: add drag-to-reorder to RulesEditor and ProxyGroupsEditor using @dnd-kit/sortable
+57d6c84 merge: implement drag-to-reorder for DNS server list editors
+0ecc171 feat: add drag-to-reorder to StringListEditor using @dnd-kit/sortable
+8f19fdd merge: unify shared input components with General page style and replace all raw inputs
+1d3946a refactor: replace all raw text/number/password inputs with shared TextField/NumberField/SensitiveField components
+d96709e refactor: replace Input base component with raw input in TextField/NumberField/SensitiveField to match General page style
 1fb0170 fix: unify shared TextField/NumberField/SensitiveField padding+shadow to match General style
 06a0034 fix: unify all raw inputs/selects to GeneralEditor style (trim focus-visible/disabled from raw elements)
 fc939eb fix: unify all input, select, textarea, and checkbox styles across editors
-0e7b1d2 fix: center detail panels in proxy-groups, proxy-providers, and inbounds editors
-48ba98e fix: replace FileText icon with Trash2 delete button in recent projects
-8e33299 fix: persist config name changes when only name is edited (not YAML content)
-a80b2b6 fix: add Monitor icon for system theme toggle
-51c3204 fix: make config name editable in header, persist renames correctly in IndexedDB
-e237ad8 fix: hide scrollbars globally, show on hover
-5ddc7a4 fix: import dialog auto-closes after successful import
 ```
 
 ---
@@ -115,7 +123,7 @@ e237ad8 fix: hide scrollbars globally, show on hover
 |------|------|----------|------|
 | 工作台布局 | 已完成 | `src/components/layout/AppShell.tsx` | 3 面板（侧边栏+编辑+预览），可调整大小 |
 | YAML 文件导入 | 已完成 | `src/components/import/FileImport.tsx` | 拖拽或选择 .yaml 文件，预览后确认导入，导入后自动关闭并设配置名 |
-| URL 拉取 | 已完成 | `src/components/import/UrlImport.tsx` | fetch 拉取 + CORS 错误兜底（手动粘贴/文件上传/CORS proxy） |
+| URL 拉取 | 已完成 | `src/components/import/UrlImport.tsx` | fetch 拉取 + CORS 错误兜底（手动粘贴/文件上传/CORS proxy）+ 自定义 User-Agent 请求头 |
 | 剪贴板导入 | 已完成 | `src/components/import/ClipboardImport.tsx` | readText + 手动粘贴 |
 | 模板导入 | 已完成 | `src/pages/Dashboard.tsx` | 5 个内置模板 |
 | 导入对话框 Tab 定位 | 已完成 | `src/components/import/ImportDialog.tsx` | 工作台按钮精确跳转到文件/URL/剪贴板 Tab |
@@ -126,13 +134,13 @@ e237ad8 fix: hide scrollbars globally, show on hover
 | Stash DNS 单服务器策略 | 部分完成 | `src/compatibility/dns-strategy.ts` | 逻辑完成，UI 对话框已实现 |
 | unknownFields round-trip | 已完成 | `src/schema/unknown-fields.ts` | 导入→编辑→导出不丢失 |
 | general 配置 | 已完成 | `src/components/editors/general/GeneralEditor.tsx` | mode/log-level/ipv6/external-controller 等 |
-| DNS 配置 | 已完成 | `src/components/editors/dns/DnsEditor.tsx` | nameserver 列表/策略表格/fallback-filter |
+| DNS 配置 | 已完成 | `src/components/editors/dns/DnsEditor.tsx` | nameserver 列表(含拖拽排序)/策略表格/fallback-filter |
 | hosts 配置 | 已完成 | `src/components/editors/hosts/HostsEditor.tsx` | 域名→IP 映射 |
 | proxy 配置 | 已完成 | `src/components/editors/proxies/ProxiesEditor.tsx` | 列表+类型分发表单（见第 10 节详细覆盖） |
 | proxy-provider 配置 | 已完成 | `src/components/editors/proxy-providers/ProxyProvidersEditor.tsx` | http 预览/override/health-check |
-| proxy-group 配置 | 已完成 | `src/components/editors/proxy-groups/ProxyGroupsEditor.tsx` | 成员选择/拓扑图 |
+| proxy-group 配置 | 已完成 | `src/components/editors/proxy-groups/ProxyGroupsEditor.tsx` | 成员选择(含拖拽排序)/拓扑图 |
 | rule-provider 配置 | 已完成 | `src/components/editors/rule-providers/RuleProvidersEditor.tsx` | MetaCubeX 内置模板选择器 |
-| rules 配置 | 已完成 | `src/components/editors/rules/RulesEditor.tsx` | 可展开编辑/类型选择/provider 绑定 |
+| rules 配置 | 已完成 | `src/components/editors/rules/RulesEditor.tsx` | 可展开编辑/类型选择/provider 绑定/拖拽排序 |
 | sub-rules 配置 | 已完成 | `src/components/editors/sub-rules/SubRulesEditor.tsx` | 子规则定义与编辑 |
 | inbounds 配置 | 已完成 | `src/components/editors/inbounds/InboundsEditor.tsx` | 12+ listener 类型表单 |
 | tun 配置 | 已完成 | `src/components/editors/tun/TunEditor.tsx` | 20+ 字段 |
@@ -148,9 +156,9 @@ e237ad8 fix: hide scrollbars globally, show on hover
 | diff | 未实现 | — | 无 YAML diff 功能 |
 | license / attribution | 已完成 | `LICENSE` + `README.md` + `src/pages/About.tsx` | CC BY-NC 4.0 |
 | 撤销/重做 | 已完成 | `src/store/config-store.ts` | 50 步历史深度的 undo/redo |
-| 拖拽排序 | 部分完成 | `@dnd-kit` 已安装 | 仅代理组列表提供排序基础结构，rules/proxies 拖拽未启用 |
+| 拖拽排序 | 已完成 | `@dnd-kit/sortable` | DNS 服务器列表、路由规则、代理组成员均支持拖拽排序 |
 | 深色模式 | 已完成 | `src/store/ui-store.ts` + `src/index.css` | light/dark/system 三模式，含 Monitor 专属图标 |
-| 设置页面 | 已完成 | `src/pages/Settings.tsx` | 主题/CORS proxy/controller 配置 |
+| 设置页面 | 已完成 | `src/pages/Settings.tsx` | 主题/CORS proxy/自定义 User-Agent/controller 配置 |
 | 关于页面 | 已完成 | `src/pages/About.tsx` | 协议+attribution+技术栈 |
 | 可编辑配置名 | 已完成 | `src/components/layout/Header.tsx` | 点击编辑，同步 localStorage + IndexedDB |
 | 最近项目删除 | 已完成 | `src/pages/Dashboard.tsx` | Trash2 按钮直接删除 IndexedDB 记录 |
@@ -490,8 +498,15 @@ e237ad8 fix: hide scrollbars globally, show on hover
 - `FieldWrapper` 组件统一管理标签、描述、示例、必填标记、兼容性 badge
 - `SensitiveField` 组件默认隐藏密码/密钥，点击眼睛图标切换显示
 - 高级字段可折叠（`DetailsSection` 组件）
-- `TextField`/`NumberField`/`SelectField`/`BoolField` 共享组件统一表单样式
+- `TextField`/`NumberField`/`SelectField`/`BoolField` 共享组件统一表单样式，使用原始 `<input>` 直接渲染（不再依赖 `ui/input` 基类），与 GeneralEditor 样式完全一致；`TextField`/`NumberField`/`SensitiveField` 支持 `className` prop 覆盖宽度等布局属性
 - 复选框统一 `size-4 rounded border-input`
+
+### 拖拽排序
+
+✅ **完整支持**。通过 `@dnd-kit/sortable` 实现，覆盖三处：
+- DNS 配置的服务器列表编辑器（`StringListEditor`，7 个子字段）
+- 路由规则列表（`RulesEditor`，紧凑视图行拖拽把手）
+- 代理组成员列表（`ProxyGroupsEditor`，成员选择下拉拖拽）
 
 ### 深色模式
 
@@ -507,7 +522,7 @@ e237ad8 fix: hide scrollbars globally, show on hover
 
 ### 导入流程
 
-✅ **自动关闭**。文件/URL/剪贴板导入成功后对话框自动关闭。Dashboard 快速开始按钮可精确定位到导入对话框的对应 Tab。导入自动设置配置名，防止 localStorage 覆盖。
+✅ **自动关闭**。文件/URL/剪贴板导入成功后对话框自动关闭。Dashboard 快速开始按钮可精确定位到导入对话框的对应 Tab。导入自动设置配置名，防止 localStorage 覆盖。URL 拉取支持自定义 User-Agent 请求头（在设置页面配置，默认 `clash.meta/v1.19.25`）。
 
 ### 滚动条
 
@@ -554,7 +569,7 @@ e237ad8 fix: hide scrollbars globally, show on hover
 
 ## 15. 测试和验证结果
 
-> **所有命令均在 `main` 分支 `1fb0170` commit 执行，时间：2026-06-12。**
+> **所有命令均在 `main` 分支 `3006cfc` commit 执行，时间：2026-06-12。**
 
 | 命令 | 结果 | 说明 |
 |------|------|------|
@@ -596,7 +611,6 @@ e237ad8 fix: hide scrollbars globally, show on hover
 | 风险 | 影响 | 建议 | 相关文件 |
 |------|------|------|---------|
 | 无 YAML diff | 用户无法对比配置差异 | P2: 实现 CodeMirror diff 模式 | `src/components/preview/` |
-| 规则拖拽排序未启用 | 规则重排需手动编辑 YAML 文本 | P1: 在 RulesEditor 启用 @dnd-kit | `src/components/editors/rules/RulesEditor.tsx` |
 | external-controller 未连接 | 无法做真实延迟测试和运行态验证 | P1: 实现 API client | Settings 页面已提供配置入口 |
 | 移动端体验未优化 | 小屏设备编辑困难 | P2: 响应式布局调整 | `src/components/layout/` |
 
@@ -655,12 +669,7 @@ e237ad8 fix: hide scrollbars globally, show on hover
    - 修改文件：新建 `src/hooks/useExternalController.ts`
    - 验证：输入正确的 controller 地址和 secret 后能获取 proxies 列表和延迟
 
-4. **启用规则拖拽排序**
-   - 原因：规则顺序至关重要，手动 YAML 编辑容易出错
-   - 修改文件：`src/components/editors/rules/RulesEditor.tsx` 集成 `@dnd-kit/sortable`
-   - 验证：拖拽规则后 YAML 预览中顺序正确变更
-
-5. **实现 YAML diff**
+4. **实现 YAML diff**
    - 原因：撤销/重做后用户需要对比差异
    - 修改文件：新建 `src/components/preview/YamlDiff.tsx`
    - 验证：切换历史版本后显示彩色差异
@@ -790,6 +799,6 @@ npm run lint
 
 ---
 
-> **文档生成时间**: 2026-06-12
+> **文档生成时间**: 2026-06-12（更新）
 > **文档作者**: AI Agent（基于仓库实际状态生成）
-> **仓库状态**: `main` 分支 `1fb0170`，working tree clean，所有测试通过
+> **仓库状态**: `main` 分支 `3006cfc`，working tree clean，所有测试通过

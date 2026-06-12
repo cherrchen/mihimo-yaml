@@ -6,12 +6,13 @@ mihomo / Stash YAML 配置编辑器 —— 纯前端图形化配置工作台。
 
 ## 功能
 
-- 从 YAML 文件、URL、剪贴板导入配置
+- 从 YAML 文件、URL、剪贴板导入配置（URL 拉取支持自定义 User-Agent）
 - 图形化编辑所有 mihomo 配置项（General、DNS、Proxies、Proxy Groups、Rules 等）
 - 实时 YAML 预览与校验
 - 导出 mihomo 完整配置与 Stash 兼容配置
 - 引用完整性检查、循环检测、链路验证
 - 保留未知字段（round-trip 不丢失）
+- 拖拽排序（DNS 服务器列表、路由规则、代理组成员）
 - 浅色 / 深色模式
 
 ## 开发
