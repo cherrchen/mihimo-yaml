@@ -108,7 +108,7 @@ export function RulesEditor() {
                       <select
                         value={type}
                         onChange={(e) => updateRule(i, buildRuleString(e.target.value, payload, target, extra))}
-                        className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
                       >
                         {RULE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                       </select>
@@ -126,7 +126,7 @@ export function RulesEditor() {
                         <select
                           value={payload}
                           onChange={(e) => updateRule(i, buildRuleString(type, e.target.value, target, extra))}
-                          className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
                         >
                           <option value="">选择 rule-provider</option>
                           {ruleProviders.map((rp) => <option key={rp} value={rp}>{rp}</option>)}
@@ -135,7 +135,7 @@ export function RulesEditor() {
                         <select
                           value={payload}
                           onChange={(e) => updateRule(i, buildRuleString(type, e.target.value, target, extra))}
-                          className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
                         >
                           <option value="">选择 sub-rule</option>
                           {subRules.map((sr) => <option key={sr} value={sr}>{sr}</option>)}
@@ -147,7 +147,7 @@ export function RulesEditor() {
                           onChange={(e) => updateRule(i, buildRuleString(type, e.target.value, target, extra))}
                           placeholder={type === 'MATCH' ? '' : 'example.com'}
                           disabled={type === 'MATCH'}
-                          className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
                         />
                       )}
                     </div>
@@ -157,7 +157,7 @@ export function RulesEditor() {
                       <select
                         value={target}
                         onChange={(e) => updateRule(i, buildRuleString(type, payload, e.target.value, extra))}
-                        className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
                       >
                         {allTargets.map((t) => <option key={t} value={t}>{t}</option>)}
                       </select>
@@ -172,7 +172,7 @@ export function RulesEditor() {
                         value={extra}
                         onChange={(e) => updateRule(i, buildRuleString(type, payload, target, e.target.value))}
                         placeholder="no-resolve"
-                        className="w-32 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        className="w-32 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
                       />
                     </div>
 

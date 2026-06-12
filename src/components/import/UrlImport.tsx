@@ -118,7 +118,7 @@ export function UrlImport({ onClose }: UrlImportProps) {
                 value={proxyUrl}
                 onChange={(e) => setProxyUrl(e.target.value)}
                 placeholder="https://cors-proxy.example.com/"
-                className="flex-1 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
               />
               <Button size="sm" variant="outline" onClick={handleFetch} disabled={loading}>
                 重试

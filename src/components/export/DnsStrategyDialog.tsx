@@ -35,7 +35,7 @@ export function DnsStrategyDialog({ open, onClose, choices, onConfirm }: DnsStra
               <select
                 value={selections[c.domain] || c.servers[0]}
                 onChange={(e) => setSelections((s) => ({ ...s, [c.domain]: e.target.value }))}
-                className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
               >
                 {c.servers.map((s) => (
                   <option key={s} value={s}>{s}</option>
