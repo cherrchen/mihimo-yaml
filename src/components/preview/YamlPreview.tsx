@@ -93,7 +93,7 @@ export function YamlPreview() {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-border px-2 py-1 flex items-center justify-between text-[10px] text-muted-foreground">
+      <div className="px-2 py-1 flex items-center justify-between text-[10px] text-muted-foreground">
         <span>{yaml.split('\n').length} 行</span>
         <span>{yaml.length} 字符</span>
       </div>
