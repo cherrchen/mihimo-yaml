@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { FileUp, Link, Clipboard, FileText, Plus, Loader2 } from 'lucide-react'
+import { FileUp, Link, Clipboard, FileText, Plus, Loader2, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useConfigStore } from '@/store/config-store'
 import { useUiStore } from '@/store/ui-store'
@@ -52,6 +52,15 @@ export function DashboardPage() {
       setActiveSection('general')
     } catch {
       // Invalid YAML
+    }
+  }
+
+  const handleDeleteDraft = async (draft: Draft) => {
+    try {
+      await db.drafts.delete(draft.id!)
+      setRecentDrafts((prev) => prev.filter((d) => d.id !== draft.id))
+    } catch {
+      // Ignore
     }
   }
 
@@ -148,7 +157,19 @@ export function DashboardPage() {
                       {new Date(draft.updatedAt).toLocaleString('zh-CN')}
                     </div>
                   </div>
-                  <FileText className="size-4 text-muted-foreground" />
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteDraft(draft)
+                      }}
+                      className="p-1 rounded hover:text-destructive"
+                      title="删除"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                    <FileText className="size-4 text-muted-foreground" />
+                  </div>
                 </div>
               ))}
             </div>
