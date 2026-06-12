@@ -436,7 +436,7 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 | SUB-RULE 引用 | ✅ 完成 | 自动读取 sub-rules 名称列表 |
 | MATCH 位置检查 | ✅ 完成 | `src/engine/rule-validator.ts` |
 | 规则引用完整性 | ✅ 完成 | `src/engine/references.ts` |
-| 拖拽排序 | ❌ 未实现 | @dnd-kit 已安装但未启用 |
+| 拖拽排序 | ✅ 完成 | @dnd-kit/sortable |
 | 规则冲突检测 | ❌ 未实现 | 未检测同类型规则覆盖冲突 |
 | 规则启用/禁用 | ❌ 未实现 | 无 toggle 功能 |
 
@@ -676,23 +676,23 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 
 ### P2：体验增强或长期优化
 
-6. **实现 iptables/ebpf/clash-for-android 配置 UI**
+5. **实现 iptables/ebpf/clash-for-android 配置 UI**
    - 原因：减少导入 Linux 配置时的数据丢失
    - 修改文件：`src/schema/model.ts` 补充接口，新建编辑器组件
 
-7. **Proxy 类型 discriminated union 重构**
+6. **Proxy 类型 discriminated union 重构**
    - 原因：提升类型安全
    - 修改文件：`src/schema/model.ts`
 
-8. **添加组件渲染测试**
+7. **添加组件渲染测试**
    - 原因：确保 UI 回归可检测
    - 修改文件：`src/__tests__/` 下新建
 
-9. **修复 6 个 ESLint react-hooks/exhaustive-deps warning**
+8. **修复 6 个 ESLint react-hooks/exhaustive-deps warning**
    - 原因：useMemo 依赖可能不完整
    - 修改文件：`ChainBuilderEditor.tsx`、`ProxyGroupTopology.tsx`、`useAutoSave.ts`
 
-10. **添加注释保留能力**
+9. **添加注释保留能力**
     - 原因：导入→编辑→导出应尽量保留原始注释
     - 修改文件：研究 `yaml` vs `yaml-ast-parser` 等方案
 
