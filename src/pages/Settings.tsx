@@ -2,6 +2,7 @@ import { useUiStore } from '@/store/ui-store'
 import { Button } from '@/components/ui/button'
 import { TextField } from '@/components/editors/shared/fields'
 import { SensitiveField } from '@/components/editors/shared/SensitiveField'
+import { useExternalController } from '@/hooks/useExternalController'
 import { useState } from 'react'
 
 export function SettingsPage() {
@@ -10,6 +11,7 @@ export function SettingsPage() {
   const [controllerUrl, setControllerUrl] = useState(() => localStorage.getItem('mihomo-yaml-controller') || '')
   const [controllerSecret, setControllerSecret] = useState(() => localStorage.getItem('mihomo-yaml-controller-secret') || '')
   const [customUA, setCustomUA] = useState(() => localStorage.getItem('mihomo-yaml-custom-ua') || 'clash.meta/v1.19.25')
+  const { testConnection, loading, error, isConnected, proxies, clearError } = useExternalController()
 
   const saveSetting = (key: string, value: string) => {
     if (value) {
@@ -85,7 +87,7 @@ export function SettingsPage() {
               <label className="text-[10px] text-muted-foreground">API 地址</label>
               <TextField
                 value={controllerUrl}
-                onChange={(v) => { setControllerUrl(v); saveSetting('mihomo-yaml-controller', v) }}
+                onChange={(v) => { setControllerUrl(v); saveSetting('mihomo-yaml-controller', v); clearError() }}
                 placeholder="http://127.0.0.1:9090"
               />
             </div>
@@ -93,11 +95,22 @@ export function SettingsPage() {
               <label className="text-[10px] text-muted-foreground">Secret</label>
               <SensitiveField
                 value={controllerSecret}
-                onChange={(v) => { setControllerSecret(v); saveSetting('mihomo-yaml-controller-secret', v) }}
+                onChange={(v) => { setControllerSecret(v); saveSetting('mihomo-yaml-controller-secret', v); clearError() }}
                 label="Secret"
                 placeholder="可选"
               />
             </div>
+          </div>
+          <div className="mt-2 flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={testConnection} disabled={loading}>
+              {loading ? '测试中...' : '测试连接'}
+            </Button>
+            {isConnected && (
+              <span className="text-xs text-green-600">已连接 ({proxies.length} 个代理)</span>
+            )}
+            {error && (
+              <span className="text-xs text-red-500">{error}</span>
+            )}
           </div>
         </div>
 
