@@ -33,6 +33,7 @@ export function AppShell({
         <div
           className={cn(
             'flex-shrink-0 border-r border-border overflow-y-auto transition-all duration-200',
+            'max-md:w-0',
             sidebarOpen ? '' : 'w-0',
           )}
           style={{ width: sidebarOpen ? sidebarWidth : 0 }}
@@ -47,7 +48,7 @@ export function AppShell({
 
         {/* Preview Panel */}
         <div
-          className="flex-shrink-0 border-l border-border overflow-y-auto"
+          className="flex-shrink-0 border-l border-border overflow-y-auto max-lg:hidden"
           style={{ width: previewWidth }}
         >
           {previewPanel}

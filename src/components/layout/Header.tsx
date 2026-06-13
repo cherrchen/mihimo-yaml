@@ -105,7 +105,7 @@ export function Header() {
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="sm" onClick={() => setImportOpen(true)} title="导入">
             <FileUp className="size-4" />
-            <span className="text-xs ml-1">导入</span>
+            <span className="text-xs ml-1 max-md:hidden">导入</span>
           </Button>
           <div className="relative"
             onMouseEnter={() => setExportMenuOpen(true)}
@@ -114,7 +114,7 @@ export function Header() {
             <Button variant="ghost" size="sm" title="导出 YAML" asChild>
               <span>
                 <FileDown className="size-4" />
-                <span className="text-xs ml-1">导出</span>
+                <span className="text-xs ml-1 max-md:hidden">导出</span>
               </span>
             </Button>
             {exportMenuOpen && (
