@@ -72,34 +72,34 @@ export function DashboardPage() {
         {/* Quick Actions */}
         <div className="mb-8">
           <h3 className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wider">快速开始</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" onClick={handleNew} className="h-auto py-4 justify-start gap-3">
+          <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-3">
+            <Button variant="outline" onClick={handleNew} className="h-auto py-4 justify-start gap-3 whitespace-normal min-w-0">
               <Plus className="size-5 text-primary" />
-              <div className="text-left">
+              <div className="text-left min-w-0">
                 <div className="text-sm font-medium">新建配置</div>
                 <div className="text-xs text-muted-foreground">从最小模板开始</div>
               </div>
             </Button>
 
-            <Button variant="outline" onClick={() => { setImportTab('file'); setImportOpen(true) }} className="h-auto py-4 justify-start gap-3">
+            <Button variant="outline" onClick={() => { setImportTab('file'); setImportOpen(true) }} className="h-auto py-4 justify-start gap-3 whitespace-normal min-w-0">
               <FileUp className="size-5" />
-              <div className="text-left">
+              <div className="text-left min-w-0">
                 <div className="text-sm font-medium">导入 YAML 文件</div>
                 <div className="text-xs text-muted-foreground">从本地文件导入</div>
               </div>
             </Button>
 
-            <Button variant="outline" onClick={() => { setImportTab('url'); setImportOpen(true) }} className="h-auto py-4 justify-start gap-3">
+            <Button variant="outline" onClick={() => { setImportTab('url'); setImportOpen(true) }} className="h-auto py-4 justify-start gap-3 whitespace-normal min-w-0">
               <Link className="size-5" />
-              <div className="text-left">
+              <div className="text-left min-w-0">
                 <div className="text-sm font-medium">从 URL 拉取</div>
                 <div className="text-xs text-muted-foreground">输入订阅链接或配置 URL</div>
               </div>
             </Button>
 
-            <Button variant="outline" onClick={() => { setImportTab('clipboard'); setImportOpen(true) }} className="h-auto py-4 justify-start gap-3">
+            <Button variant="outline" onClick={() => { setImportTab('clipboard'); setImportOpen(true) }} className="h-auto py-4 justify-start gap-3 whitespace-normal min-w-0">
               <Clipboard className="size-5" />
-              <div className="text-left">
+              <div className="text-left min-w-0">
                 <div className="text-sm font-medium">粘贴 YAML</div>
                 <div className="text-xs text-muted-foreground">从剪贴板导入</div>
               </div>
