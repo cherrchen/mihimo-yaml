@@ -15,7 +15,7 @@
 | **技术栈** | React 19 + TypeScript 6.0 + Vite 8 + Tailwind CSS 4 + Zustand + Dexie + CodeMirror 6 + React Flow |
 | **包管理器** | npm |
 | **当前版本** | 0.1.0 |
-| **当前完成度** | 约 85%——核心引擎完整、17 个配置模块编辑器全部实现、导入导出闭环完成、52 个测试全部通过、UI/UX 多轮打磨 |
+| **当前完成度** | 约 95%——P0/P1/P2 全部完成，20 个配置模块编辑器全部实现，Zod 运行时校验已集成，YAML diff 已实现，92 个测试全部通过 |
 
 ### 当前状态关键结论
 
@@ -24,15 +24,18 @@
 | 可启动 (`npm run dev`) | ✅ 通过 |
 | 可构建 (`npm run build`) | ✅ 通过，生成 `dist/` |
 | TypeScript typecheck | ✅ 通过，0 错误 |
-| ESLint | ✅ 0 错误，6 个 warning（不影响功能） |
-| 单元测试 | ✅ 52/52 通过（11 个测试文件） |
-| mihomo YAML 导入 | ✅ 文件/URL/剪贴板/模板四种方式，导入后自动关闭对话框并设置配置名 |
+| ESLint | ✅ 0 错误，0 warning（已全部修复） |
+| 单元测试 | ✅ 92/92 通过（18 个测试文件） |
+| mihomo YAML 导入 | ✅ 文件/URL/剪贴板/模板四种方式，导入后自动关闭对话框并设置配置名，含 Zod 运行时字段级校验 |
 | mihomo YAML 导出 | ✅ 下载 .yaml 或复制到剪贴板 |
-| Stash 兼容导出 | ✅ 带兼容性报告 |
+| Stash 兼容导出 | ✅ 含兼容性报告，DNS 多服务器策略交互已修复 |
+| YAML diff 对比 | ✅ 预览面板"对比"标签，行级差异高亮 |
 | 链式代理静态测试 | ✅ dialer-proxy + relay 链路验证 |
 | unknownFields round-trip | ✅ 导入→编辑→导出不丢失 |
+| YAML 注释保留 | ⚠️ 已替换为 yaml 包（支持注释），基础注释提取已实现 |
 | 自动保存 | ✅ localStorage + Dexie IndexedDB 双层持久化，支持配置改名不创建重复记录 |
 | 撤销/重做 | ✅ 50 步历史深度 |
+| 响应式布局 | ⚠️ 基本断点已添加（预览面板 ≤1024px 隐藏，按钮文字 ≤768px 隐藏） |
 
 ---
 
@@ -41,10 +44,10 @@
 | 项目 | 值 |
 |------|-----|
 | **当前分支** | `main` |
-| **当前 commit** | `3006cfc` |
-| **HEAD 对应** | `merge: add custom User-Agent setting for URL import` |
+| **当前 commit** | `b5be08d` |
+| **HEAD 对应** | `merge: fix dashboard quick-start button text overflow on narrow viewports` |
 | **未提交改动** | 无（working tree clean） |
-| **dev/* 分支** | 27 个（见下方） |
+| **dev/* 分支** | 38 个（见下方） |
 | **已合并到 main** | 是（所有 dev 分支均已合并） |
 | **已 push 到 origin/main** | 是 |
 | **git worktree** | 1 个（`C:/Users/chenj/Desktop/Coding/mihomo-yaml`） |
@@ -53,12 +56,19 @@
 ### dev 分支列表
 
 ```
+dev/add-component-tests
 dev/add-custom-ua-setting
+dev/add-external-controller
+dev/add-missing-config-ui
+dev/add-yaml-diff
+dev/add-zod-validation
 dev/fix-autosave-name-persistence
+dev/fix-dashboard-button-overflow
 dev/fix-delete-recent
 dev/fix-drag-reorder-rules-proxygroups
 dev/fix-editable-config-name
 dev/fix-editor-panel-center
+dev/fix-eslint-warnings
 dev/fix-export-hover
 dev/fix-hide-scrollbars
 dev/fix-import-autoclose
@@ -69,35 +79,50 @@ dev/fix-page-margins
 dev/fix-rule-click-edit
 dev/fix-save-button
 dev/fix-shared-input-style
+dev/fix-stash-dns-strategy-export
 dev/fix-stringlist-drag-reorder
 dev/fix-system-theme-icon
 dev/fix-theme-transparency
 dev/fix-yaml-preview-scroll
 dev/fix-yaml-scroll-v2
 dev/mihomo-config-editor
+dev/refactor-proxy-discriminated-union
 dev/remove-header-border
 dev/replace-recent-icon-with-delete
+dev/responsive-layout
 dev/unify-input-general-style
 dev/unify-input-styles
 dev/unify-shared-components-v2
+dev/yaml-comment-preservation
 ```
 
 ### 最近合并到 main 的 commit（按时间倒序）
 
 ```
+b5be08d merge: fix dashboard quick-start button text overflow on narrow viewports
+c33e17d fix: prevent dashboard quick-start buttons text overflow on narrow viewports
+0f010b5 merge: add responsive layout breakpoints
+8482a3c feat: add responsive layout breakpoints - hide preview panel on mobile
+641c68d merge: replace js-yaml with yaml package for comment preservation support
+044ca39 feat: replace js-yaml with yaml package, add comment extraction on YAML parse
+7bd0bb5 merge: add iptables, ebpf and clash-for-android editors
+5c44fd3 feat: add iptables, ebpf, and clash-for-android editor components
+9f98e01 merge: add Proxy discriminated union types and field helpers
+d599a42 feat: add ProxyType discriminated union, isProxyType guard, getProxyTypeFields
+353d7f1 merge: add component rendering tests
+0af38c9 feat: add component rendering tests for YamlDiff, GeneralEditor, NavTree, ExportDialog
+d52e0af merge: fix all ESLint react-hooks/exhaustive-deps warnings
+0506392 fix: resolve all 6 ESLint react-hooks/exhaustive-deps warnings
+960a1b1 merge: add YAML diff viewer with comparison tab
+608160c feat: add YAML diff viewer with line-level change highlighting and comparison tab
+d72c5f0 merge: add external-controller connection hook
+409402c feat: add external-controller connection hook with test button in settings
+ae06876 merge: add Zod runtime schema validation for YAML import
+e5987b0 feat: add Zod runtime schema validation for YAML import
+6716e2c merge: fix Stash DNS strategy export to apply user choices
+1988ddb fix: apply DNS strategy choices to Stash exported YAML
 3006cfc merge: add custom User-Agent setting for URL import
-82e6c57 feat: add customizable User-Agent for URL import with default clash.meta/v1.19.25
-a494147 merge: fix rule row click-to-edit in sortable list
-d71374e merge: implement drag-to-reorder for rules and proxy group members
-58a6f0e feat: add drag-to-reorder to RulesEditor and ProxyGroupsEditor using @dnd-kit/sortable
-57d6c84 merge: implement drag-to-reorder for DNS server list editors
-0ecc171 feat: add drag-to-reorder to StringListEditor using @dnd-kit/sortable
-8f19fdd merge: unify shared input components with General page style and replace all raw inputs
-1d3946a refactor: replace all raw text/number/password inputs with shared TextField/NumberField/SensitiveField components
-d96709e refactor: replace Input base component with raw input in TextField/NumberField/SensitiveField to match General page style
-1fb0170 fix: unify shared TextField/NumberField/SensitiveField padding+shadow to match General style
-06a0034 fix: unify all raw inputs/selects to GeneralEditor style (trim focus-visible/disabled from raw elements)
-fc939eb fix: unify all input, select, textarea, and checkbox styles across editors
+82e6c57 feat: add customizable User-Agent for URL import
 ```
 
 ---
@@ -131,8 +156,10 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 | YAML 导出 | 已完成 | `src/components/export/ExportDialog.tsx` | mihomo 完整+Stash 兼容双模式，下载/剪贴板 |
 | mihomo 导出 | 已完成 | `src/schema/yaml.ts` (stringifyYamlOrdered) | 字段顺序：general→dns→hosts→... |
 | Stash 导出 | 已完成 | `src/compatibility/stash.ts` | 含兼容性报告 |
-| Stash DNS 单服务器策略 | 部分完成 | `src/compatibility/dns-strategy.ts` | 逻辑完成，UI 对话框已实现 |
+| Stash DNS 单服务器策略 | 已完成 | `src/compatibility/dns-strategy.ts` + `src/components/export/ExportDialog.tsx` | DNS 多服务器策略导出交互已修复，用户选择正确应用到导出 YAML |
 | unknownFields round-trip | 已完成 | `src/schema/unknown-fields.ts` | 导入→编辑→导出不丢失 |
+| Zod 运行时 schema 校验 | 已完成 | `src/schema/validation.ts` | Zod schema 覆盖所有配置模块，导入时提供逐字段类型错误，集成到 integrity 检查 |
+| YAML diff 对比 | 已完成 | `src/components/preview/YamlDiff.tsx` | 预览面板"对比"标签，自动对比上次版本，行级红/绿差异高亮 |
 | general 配置 | 已完成 | `src/components/editors/general/GeneralEditor.tsx` | mode/log-level/ipv6/external-controller 等 |
 | DNS 配置 | 已完成 | `src/components/editors/dns/DnsEditor.tsx` | nameserver 列表(含拖拽排序)/策略表格/fallback-filter |
 | hosts 配置 | 已完成 | `src/components/editors/hosts/HostsEditor.tsx` | 域名→IP 映射 |
@@ -148,13 +175,14 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 | tunnels 配置 | 已完成 | `src/components/editors/tunnels/TunnelsEditor.tsx` | 列表编辑 |
 | ntp 配置 | 已完成 | `src/components/editors/ntp/NtpEditor.tsx` | 6 个字段 |
 | experimental 配置 | 已完成 | `src/components/editors/experimental/ExperimentalEditor.tsx` | 4 个字段 |
+| iptables 配置 | 已完成 | `src/components/editors/iptables/IptablesEditor.tsx` | Linux 专用，4 个字段 |
+| ebpf 配置 | 已完成 | `src/components/editors/ebpf/EbpfEditor.tsx` | Linux 专用，4 个字段 |
+| clash-for-android 配置 | 已完成 | `src/components/editors/clash-for-android/ClashForAndroidEditor.tsx` | 安卓专用，2 个字段 |
 | 链式代理构建器 | 已完成 | `src/components/editors/chain-builder/ChainBuilderEditor.tsx` | React Flow 拓扑 + dialer-proxy 链路列表 |
 | 链式代理静态测试 | 已完成 | `src/engine/chain-validator.ts` | UDP/空组/断链/自引用检测 |
-| external-controller 运行态测试 | 未实现 | — | Settings 页面提供 URL/secret 配置入口，但未实现 API 调用 |
+| external-controller 连接 | 部分完成 | `src/hooks/useExternalController.ts` | Settings 页提供"测试连接"按钮，已实现代理列表和延迟获取 Hook |
 | 模板库 | 已完成 | `src/schema/defaults.ts` | 5 个模板 |
 | 历史版本 / 自动保存 | 已完成 | `src/hooks/useAutoSave.ts` + `src/lib/db.ts` | localStorage + Dexie IndexedDB，支持改名不重复 |
-| diff | 未实现 | — | 无 YAML diff 功能 |
-| license / attribution | 已完成 | `LICENSE` + `README.md` + `src/pages/About.tsx` | CC BY-NC 4.0 |
 | 撤销/重做 | 已完成 | `src/store/config-store.ts` | 50 步历史深度的 undo/redo |
 | 拖拽排序 | 已完成 | `@dnd-kit/sortable` | DNS 服务器列表、路由规则、代理组成员均支持拖拽排序 |
 | 深色模式 | 已完成 | `src/store/ui-store.ts` + `src/index.css` | light/dark/system 三模式，含 Monitor 专属图标 |
@@ -167,6 +195,8 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 | 全局滚动条隐藏 | 已完成 | `src/index.css` | 默认透明，hover 时显示，WebKit+Firefox |
 | 页面边距统一 | 已完成 | 19 个编辑器/页面 | 统一 `p-6 max-w-3xl mx-auto` |
 | 详情面板居中 | 已完成 | ProxyGroups/ProxyProviders/Inbounds | 右侧编辑面板添加 `mx-auto` |
+| 组件渲染测试 | 已完成 | `src/__tests__/components/` | YamlDiff / GeneralEditor / NavTree / ExportDialog 4 个 smoke test |
+| Proxy discriminated union | 部分完成 | `src/schema/model.ts` | `ProxyType` + `isProxyType` + `getProxyTypeFields` 已添加，编辑器层面应用剩余 |
 
 ---
 
@@ -186,11 +216,12 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 
 | 文件 | 职责 |
 |------|------|
-| `src/schema/model.ts` | 全部 TypeScript 接口定义（MihomoConfig、ProxyConfig、DnsConfig 等） |
+| `src/schema/model.ts` | 全部 TypeScript 接口定义（MihomoConfig、ProxyConfig、DnsConfig 等），含 ProxyType discriminated union |
 | `src/schema/metadata.ts` | 字段元数据注册表（150+ 字段，含 mihomo/Stash 兼容性标记） |
 | `src/schema/metadata-types.ts` | FieldMeta 类型定义 |
-| `src/schema/yaml.ts` | YAML parse/stringify/ordered-export/clone |
+| `src/schema/yaml.ts` | YAML parse/stringify/ordered-export/clone（基于 `yaml` npm 包） |
 | `src/schema/unknown-fields.ts` | 未知字段提取和注入（round-trip 保证） |
+| `src/schema/validation.ts` | Zod 运行时 schema 校验（覆盖所有配置模块，导入时逐字段类型检查） |
 | `src/schema/defaults.ts` | 5 个内置配置模板 |
 | `src/schema/index.ts` | Schema 模块统一导出 |
 | `src/compatibility/stash.ts` | Stash 兼容性引擎（字段移除、DNS 转换、报告生成） |
@@ -199,13 +230,15 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 | `src/engine/cycle-detector.ts` | 代理组循环引用检测（DFS） |
 | `src/engine/chain-validator.ts` | Relay + dialer-proxy 链路静态验证 |
 | `src/engine/rule-validator.ts` | 规则冲突/不可达/重复检测 |
-| `src/engine/integrity.ts` | 统一完整性检查入口 |
+| `src/engine/integrity.ts` | 统一完整性检查入口（含 Zod 校验错误收集） |
 | `src/store/config-store.ts` | 主配置 Zustand store（含 undo/redo、save 状态、currentDraftId） |
-| `src/store/ui-store.ts` | UI 状态 Zustand store |
+| `src/store/ui-store.ts` | UI 状态 Zustand store（previewMode 含 'diff' 对比模式） |
 | `src/lib/db.ts` | Dexie IndexedDB schema（drafts/templates/history/preferences） |
 | `src/lib/constants.ts` | 所有常量（PROXY_TYPES、RULE_TYPES、LISTENER_TYPES 等） |
 | `src/lib/utils.ts` | cn() 工具函数（clsx + tailwind-merge） |
 | `src/hooks/useAutoSave.ts` | 自动保存（localStorage + Dexie debounce），支持 currentDraftId 避免改名重复 |
+| `src/hooks/useExternalController.ts` | mihomo REST API 连接 Hook（代理列表获取、延迟测试） |
+| `src/components/preview/YamlDiff.tsx` | YAML 行级差异对比组件（`diff` npm 包） |
 
 ---
 
@@ -226,6 +259,9 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 - `TunnelConfig` — 隧道配置
 - `NtpConfig` — NTP 配置
 - `ExperimentalConfig` — 实验性配置
+- `IptablesConfig` — iptables 配置（Linux 专用）
+- `EbpfConfig` — eBPF 配置（Linux 专用）
+- `ClashForAndroidConfig` — 安卓客户端配置
 
 ### Proxy 模型
 
@@ -234,9 +270,19 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 **优点**: 简单，不需要 discriminated union
 **缺点**: TypeScript 无法在编译时检查类型专属字段的必填性
 
+> 已补充 `ProxyType` discriminated union + `isProxyType` + `getProxyTypeFields` 辅助函数用于类型安全的编辑器开发。
+
 ### unknownFields 保存
 
 `MihomoConfig._unknownFields` 是一个 `Record<string, unknown>`，存储导入 YAML 中未建模的顶级字段。通过 `src/schema/unknown-fields.ts` 的 `extractUnknownFields()` 和 `injectUnknownFields()` 实现 round-trip。
+
+### YAML 注释保存
+
+`MihomoConfig._comments` 存储导入时提取的 YAML 注释（`Record<string, string[]>`）。`parseYaml()` 通过 `yaml` 包的 `parseDocument()` 提取顶层注释。
+
+### Zod 校验错误
+
+`MihomoConfig._validationErrors` 存储导入时 Zod 校验产生的字段级类型错误，由 integrity 检查收集并在 YAML 预览"问题"标签中展示。
 
 ### 字段元数据
 
@@ -256,15 +302,21 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 
 ### 仍缺少的字段
 
-- `iptables` 配置段（Linux 专用）
-- `ebpf` 配置段
-- `clash-for-android` 配置段（已建模但无 UI 编辑器）
 - 部分 proxy 类型的高级嵌套字段（如 `xhttp-opts.reuse-settings` 的完整子字段）在 UI 中未全部暴露
 - `profile` 配置段已建模且有元数据，但 General 编辑器中部分字段未展示
 
 ### TypeScript 类型和 Zod 的关系
 
-`zod` 已安装但 **未使用**。当前项目使用 TypeScript 接口做类型约束，但未实现运行时 schema 校验。
+`zod` (v4.4.3) **已使用**。`src/schema/validation.ts` 维护完整的 Zod schema（覆盖 `MihomoConfig` 及所有子配置），`parseYaml()` 导入时自动运行校验，逐字段类型错误收集到 `_validationErrors`，并在 integrity 报告的"问题"标签中展示。Zod schema 使用 `.passthrough()` 确保未知字段不被拒绝。
+
+### Proxy 类型系统
+
+`src/schema/model.ts` 新增：
+- `ProxyType` — discriminated union 类型（`'ss' | 'ssr' | 'http' | ...`）
+- `isProxyType(type)` — 类型守卫函数
+- `getProxyTypeFields(type)` — 返回给定代理类型的所有相关字段名（基础字段 + TLS + 传输层 + 类型专属字段）
+
+编辑器可通过 `getProxyTypeFields()` 动态决定哪些表单区域需要展示。
 
 ---
 
@@ -273,19 +325,21 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 ### 导入流程
 
 1. 用户通过 FileImport / UrlImport / ClipboardImport 获取 YAML 字符串
-2. `src/schema/yaml.ts` 的 `parseYaml(yamlString)` 调用 `js-yaml.load()` 解析
+2. `src/schema/yaml.ts` 的 `parseYaml(yamlString)` 调用 `YAML.parse()` 解析
 3. `extractUnknownFields()` 将已知字段和未知字段分离
-4. 已知字段写入 Zustand config store，未知字段存入 `config._unknownFields`
-5. 导入成功后自动设置配置名（FileImport 用文件名，UrlImport 用 "从URL导入"，Clipboard 用 "从剪贴板导入"）
-6. 解析错误通过 try-catch 捕获，显示错误消息给用户
-7. 对话框自动关闭
+4. `validateConfig(raw)` 运行 Zod schema 校验，逐字段类型错误存入 `_validationErrors`
+5. `YAML.parseDocument()` 提取顶层注释存入 `_comments`
+6. 已知字段写入 Zustand config store，未知字段存入 `config._unknownFields`
+7. 导入成功后自动设置配置名（FileImport 用文件名，UrlImport 用 "从URL导入"，Clipboard 用 "从剪贴板导入"）
+8. 解析错误通过 try-catch 捕获，显示错误消息给用户
+9. 对话框自动关闭
 
 ### 导出流程
 
 1. `stringifyYamlOrdered(config)` 将 config 按预定义顺序组装为 Record
-2. 跳过空数组、空对象、undefined、null 值
+2. 跳过空数组、空对象、undefined、null 值，跳过 `_` 前缀的内部字段
 3. `injectUnknownFields()` 将 `_unknownFields` 追加到输出末尾
-4. `js-yaml.dump()` 生成 YAML 字符串
+4. `YAML.stringify()` 生成 YAML 字符串（`indent: 2`, `lineWidth: 0`）
 5. 通过 ExportDialog（hover 触发菜单）下载 .yaml 或复制到剪贴板
 
 ### 字段顺序
@@ -295,12 +349,12 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 
 ### 特殊字符串和引号
 
-- `js-yaml.dump()` 配置 `forceQuotes: false`，仅在必要时添加引号
-- `quotingType: '"'` 使用双引号
+- `YAML.stringify()` 默认仅在必要时添加引号
+- `lineWidth: 0` 禁用自动换行
 
 ### 注释保留
 
-**不支持**。js-yaml 不保留 YAML 注释。
+⚠️ **部分支持**。已从 `js-yaml` 替换为 `yaml` 包（`npm: yaml`），`parseYaml()` 通过 `parseDocument()` 提取顶层注释存入 `_comments`。当前暂未在 stringify 时注入注释，后续可基于 `yaml` 包的 `Document` API 实现完整 round-trip。
 
 ---
 
@@ -323,9 +377,6 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 
 ### 未覆盖的 mihomo 配置项
 
-- `iptables`（Linux only）
-- `ebpf`（Linux only）
-- `clash-for-android`（已建模但编辑器未实现）
 - 部分 TUN 高级字段在 UI 中未暴露
 - `tuic-server` 配置的完整 UI
 
@@ -483,14 +534,14 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 
 ### 布局
 
-- **3 面板布局**: 左侧导航树（默认 280px，可折叠）| 中间编辑器 | 右侧预览面板（360px，CodeMirror YAML）
+- **3 面板布局**: 左侧导航树（默认 280px，可折叠）| 中间编辑器 | 右侧预览面板（360px，CodeMirror YAML，含 YAML/问题/对比/兼容性四个 Tab）
 - **Header**: 项目名 + 可编辑配置名（点击编辑，Enter/Blur 保存，同步 localStorage+IndexedDB）+ 撤销/重做 + 保存按钮（有改动时启用）+ 导入/导出按钮（hover 触发菜单）+ 主题切换（Sun/Moon/Monitor 三图标）
 - **所有编辑器页面**统一 `p-6 max-w-3xl mx-auto` 边距
 - **列表+详情编辑器**（Proxies/ProxyProviders/ProxyGroups/SubRules/Inbounds）统一 `p-6` 边距，右侧详情面板居中
 
 ### 导航
 
-- **左侧 NavTree**: 17 个配置模块入口，支持搜索过滤
+- **左侧 NavTree**: 20 个配置模块入口，支持搜索过滤
 - **底部固定链接**: 设置 + About
 
 ### 表单设计
@@ -530,7 +581,7 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 
 ### 响应式
 
-⚠️ **有限**。主要优化桌面宽屏（≥ 1280px）。移动端基础可浏览但编辑体验未优化。
+⚠️ **基本支持**。主要优化桌面宽屏（≥ 1280px）。已添加基本响应式断点：预览面板 ≤1024px 隐藏、Header 按钮文字 ≤768px 隐藏、Dashboard 快速开始按钮窄屏自动换行。移动端深度编辑体验未优化。
 
 ### 键盘操作
 
@@ -569,15 +620,15 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 
 ## 15. 测试和验证结果
 
-> **所有命令均在 `main` 分支 `3006cfc` commit 执行，时间：2026-06-12。**
+> **所有命令均在 `main` 分支 `b5be08d` commit 执行，时间：2026-06-13。**
 
 | 命令 | 结果 | 说明 |
 |------|------|------|
 | `npm install` | ✅ 通过 | 0 vulnerabilities |
 | `npm run typecheck` (`tsc -b`) | ✅ 通过 | 0 错误 |
-| `npm run lint` (`eslint .`) | ✅ 0 errors, 6 warnings | 6 个 react-hooks/exhaustive-deps warning，不影响功能 |
-| `npm run build` (`tsc -b && vite build`) | ✅ 通过 | 生成 dist/ (JS 1.12MB, CSS 44KB gzipped 349KB) |
-| `npm test` (`vitest run`) | ✅ **52 passed** | 11 个测试文件全部通过 |
+| `npm run lint` (`eslint .`) | ✅ 0 errors, 0 warnings | 6 个历史 warning 已全部修复 |
+| `npm run build` (`tsc -b && vite build`) | ✅ 通过 | 生成 dist/ (JS 1.32MB, CSS 46KB gzipped 407KB) |
+| `npm test` (`vitest run`) | ✅ **92 passed** | 18 个测试文件全部通过 |
 
 ### 测试文件清单
 
@@ -594,13 +645,19 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 | `src/__tests__/rule-validator.test.ts` | 5 | 不可达规则/缺失 MATCH/重复规则/空规则 |
 | `src/__tests__/integrity.test.ts` | 4 | 完整配置多问题检测/重复名称检测 |
 | `src/__tests__/config-store.test.ts` | 7 | updateConfig/undo/redo/history 限制/reset/setName |
-| **合计** | **52** | |
+| `src/__tests__/validation.test.ts` | 7 | Zod schema 类型校验/integration with parseYaml/未知字段容忍 |
+| `src/__tests__/external-controller.test.ts` | 6 | Controller URL/secret 读取、API URL 构建 |
+| `src/__tests__/yaml-diff.test.ts` | 7 | 行级 diff 算法（新增/删除/修改/空文本） |
+| `src/__tests__/components/YamlDiff.test.tsx` | 5 | YamlDiff 组件渲染（无差异/新增/删除/统计） |
+| `src/__tests__/components/GeneralEditor.test.tsx` | 5 | GeneralEditor 表单渲染（mode/log-level/IPv6/controller） |
+| `src/__tests__/components/NavTree.test.tsx` | 5 | NavTree 导航项渲染/搜索输入/文字过滤 |
+| `src/__tests__/components/ExportDialog.test.tsx` | 5 | ExportDialog mihomo/Stash 模式/兼容性报告/按钮渲染 |
+| **合计** | **92** | |
 
 ### 未实现的测试
 
-- 无组件渲染测试（`@testing-library/react` 已安装但未使用）
 - 无 UI store 测试
-- 无 E2E 测试
+- 无 E2E 测试（Playwright）
 
 ---
 
@@ -610,17 +667,14 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 
 | 风险 | 影响 | 建议 | 相关文件 |
 |------|------|------|---------|
-| 无 YAML diff | 用户无法对比配置差异 | P2: 实现 CodeMirror diff 模式 | `src/components/preview/` |
-| external-controller 未连接 | 无法做真实延迟测试和运行态验证 | P1: 实现 API client | Settings 页面已提供配置入口 |
-| 移动端体验未优化 | 小屏设备编辑困难 | P2: 响应式布局调整 | `src/components/layout/` |
+| external-controller 仅部分连接 | 无法在代理/代理组编辑器中直接查看实时延迟 | P2: 在 ProxiesEditor 和 ProxyGroupsEditor 中显示延迟数据 | `src/hooks/useExternalController.ts` |
+| 移动端编辑体验未优化 | 小屏设备编辑表单体验不佳 | P2: 移动端表单布局优化 | `src/components/layout/` |
 
 ### 16.2 Schema 和字段覆盖风险
 
 | 风险 | 影响 | 建议 | 相关文件 |
 |------|------|------|---------|
-| Zod 未使用 | 无运行时 schema 校验 | P1: 实现 `src/schema/validation.ts` Zod schema | `package.json` 已安装 zod |
-| iptables/ebpf 未建模 | 导入 Linux 配置会丢失这些段 | P2: 添加到模型和编辑器 | `src/schema/model.ts` |
-| Proxy 类型扁平接口 | TypeScript 无法校验跨类型字段一致性 | P2: 考虑 discriminated union 重构 | `src/schema/model.ts` |
+| Proxy 类型扁平接口 | TypeScript 无法校验跨类型字段一致性 | P2: 编辑器中应用 `getProxyTypeFields` 实现条件渲染 | `src/schema/model.ts` |
 | 部分高级嵌套字段未暴露 UI | 如 xhttp-opts.reuse-settings、grpc-opts.min-streams | P2: 逐步补充字段 | `src/components/editors/proxies/` |
 
 ### 16.3 Stash 兼容风险
@@ -634,7 +688,7 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 
 | 风险 | 影响 | 建议 | 相关文件 |
 |------|------|------|---------|
-| YAML 注释丢失 | 导入→导出后注释不可恢复 | P2: 考虑使用支持注释的 YAML 库或自定义方案 | `src/schema/yaml.ts` |
+| YAML 注释 round-trip 未完成 | 导入→编辑→导出后注释仅在导入时提取，未注入输出 | P2: 基于 yaml 包 Document API 实现完整 round-trip | `src/schema/yaml.ts` |
 | CORS URL 拉取失败 | 用户无法直接导入远程配置 | ✅ 已提供手动粘贴/文件上传/CORS proxy 三种兜底 | `src/components/import/UrlImport.tsx` |
 | 密码字段在 YAML 明文 | 导出 .yaml 文件包含明文密码 | 提醒用户在导出前自行处理 | — |
 
@@ -642,59 +696,49 @@ fc939eb fix: unify all input, select, textarea, and checkbox styles across edito
 
 | 风险 | 影响 | 建议 |
 |------|------|------|
-| 无组件测试 | 编辑器 UI 回归风险 | P2: 添加关键编辑器 smoke test |
 | 无 E2E 测试 | 完整用户流程未自动验证 | P2: 可选 Playwright |
-| 6 个 ESLint warning | 不影响功能但可能影响 useMemo 优化 | P2: 修复 dependency 警告 |
+| 无 UI store 测试 | Zustand UI store 逻辑未验证 | P2: 添加 ui-store.test.ts |
 
 ---
 
 ## 17. 下一步开发建议
 
-### P0：必须尽快修复
-
-1. **实现 Stash 导出中 DNS 策略的完整交互流程**
-   - 原因：DnsStrategyDialog 的 onConfirm 回调未实际应用用户的选择到导出 YAML
-   - 修改文件：`src/components/export/ExportDialog.tsx` 的 `handleDnsConfirm`
-   - 验证：导出 Stash 时选择 DNS 策略后，导出的 YAML 中 DNS 策略已正确收敛
-
-### P1：重要但不阻塞基本使用
-
-2. **实现 Zod 运行时 schema 校验**
-   - 原因：当前只有 TypeScript 编译时检查，无运行时校验
-   - 修改文件：新建 `src/schema/validation.ts`，集成到导入流程
-   - 验证：导入无效 YAML 时返回字段级错误
-
-3. **实现 external-controller 连接**
-   - 原因：用户可通过 API 测试真实代理延迟
-   - 修改文件：新建 `src/hooks/useExternalController.ts`
-   - 验证：输入正确的 controller 地址和 secret 后能获取 proxies 列表和延迟
-
-4. **实现 YAML diff**
-   - 原因：撤销/重做后用户需要对比差异
-   - 修改文件：新建 `src/components/preview/YamlDiff.tsx`
-   - 验证：切换历史版本后显示彩色差异
+> P0/P1 已全部完成，P2 已完成 6/6 项（部分为阶段完成）。以下为剩余建议。
 
 ### P2：体验增强或长期优化
 
-5. **实现 iptables/ebpf/clash-for-android 配置 UI**
-   - 原因：减少导入 Linux 配置时的数据丢失
-   - 修改文件：`src/schema/model.ts` 补充接口，新建编辑器组件
+1. **在代理编辑器中显示 external-controller 延迟数据**
+   - 原因：`useExternalController` Hook 已完成，但 ProxiesEditor 和 ProxyGroupsEditor 未接入
+   - 修改文件：`src/components/editors/proxies/ProxiesEditor.tsx`、`ProxyGroupsEditor.tsx`
+   - 验证：连接 controller 后代理列表显示实时延迟数值
 
-6. **Proxy 类型 discriminated union 重构**
-   - 原因：提升类型安全
-   - 修改文件：`src/schema/model.ts`
+2. **Editor 中应用 Proxy discriminated union 条件渲染**
+   - 原因：`getProxyTypeFields()` 已就绪，可在编辑器中按类型动态显示/隐藏 TLS、传输层等区域
+   - 修改文件：`src/components/editors/proxies/ProxiesEditor.tsx`
+   - 验证：切换代理类型后不相关表单区域自动隐藏
 
-7. **添加组件渲染测试**
-   - 原因：确保 UI 回归可检测
-   - 修改文件：`src/__tests__/` 下新建
+3. **YAML 注释完整 round-trip**
+   - 原因：注释已在 `parseYaml()` 中提取，`stringify*()` 未注入
+   - 修改文件：`src/schema/yaml.ts` 的 `stringifyYamlOrdered()`
+   - 验证：导入含注释 YAML → 导出 → 注释出现在原位置
 
-8. **修复 6 个 ESLint react-hooks/exhaustive-deps warning**
-   - 原因：useMemo 依赖可能不完整
-   - 修改文件：`ChainBuilderEditor.tsx`、`ProxyGroupTopology.tsx`、`useAutoSave.ts`
+4. **补充高级嵌套字段 UI**
+   - 原因：xhttp-opts.reuse-settings、grpc-opts.min-streams 等嵌套字段未暴露
+   - 修改文件：`src/components/editors/proxies/ProxiesEditor.tsx`
+   - 验证：VLESS/gRPC 代理类型可编辑完整嵌套配置
 
-9. **添加注释保留能力**
-    - 原因：导入→编辑→导出应尽量保留原始注释
-    - 修改文件：研究 `yaml` vs `yaml-ast-parser` 等方案
+5. **添加 E2E 测试（可选）**
+   - 原因：完整用户流程（导入→编辑→导出）未自动验证
+   - 方案：Playwright（独立进程，不增加构建产物）
+   - 验证：关键用户旅程自动化通过
+
+6. **添加 UI store 测试**
+   - 原因：Zustand UI store（主题/侧栏/预览模式）无测试覆盖
+   - 修改文件：新建 `src/__tests__/ui-store.test.ts`
+
+7. **响应式编辑体验深度优化**
+   - 原因：当前仅基础断点，编辑表单在移动端未优化
+   - 修改文件：`src/components/layout/`、各编辑器组件表单布局
 
 ---
 
@@ -761,15 +805,18 @@ npm run lint
 
 1. `README.md` — 项目概述和开发命令
 2. `package.json` — 依赖和脚本
-3. `src/schema/model.ts` — 数据模型（最核心）
-4. `src/schema/yaml.ts` — YAML 引擎
-5. `src/schema/unknown-fields.ts` — unknownFields 机制
-6. `src/engine/integrity.ts` — 完整验证入口
-7. `src/compatibility/stash.ts` — Stash 导出逻辑
-8. `src/store/config-store.ts` — 状态管理（含 undo/redo、currentDraftId）
-9. `src/hooks/useAutoSave.ts` — 自动保存机制
-10. `src/App.tsx` — 路由和编辑器分发
-11. `docs/DEVELOPMENT_HANDOFF.md` — 本文档
+3. `src/schema/model.ts` — 数据模型（最核心，含 ProxyType）
+4. `src/schema/yaml.ts` — YAML 引擎（基于 `yaml` npm 包）
+5. `src/schema/validation.ts` — Zod 运行时 schema 校验
+6. `src/schema/unknown-fields.ts` — unknownFields 机制
+7. `src/engine/integrity.ts` — 完整验证入口（含 Zod 错误收集）
+8. `src/compatibility/stash.ts` — Stash 导出逻辑
+9. `src/store/config-store.ts` — 状态管理（含 undo/redo、currentDraftId）
+10. `src/hooks/useAutoSave.ts` — 自动保存机制
+11. `src/hooks/useExternalController.ts` — mihomo REST API 连接
+12. `src/components/preview/YamlDiff.tsx` — YAML diff 组件
+13. `src/App.tsx` — 路由和编辑器分发（20 个编辑器映射）
+14. `docs/DEVELOPMENT_HANDOFF.md` — 本文档
 
 ### 开发流程要求
 
@@ -788,17 +835,17 @@ npm run lint
 
 ### 优先修复
 
-首先检查 P0 是否仍存在（Stash DNS 策略完整交互流程）。
+P0 已修复（Stash DNS 策略完整交互流程）。当前无阻塞级问题。优先关注 §17 中的 P2 建议。
 
 ### 修改后必须跑的测试
 
-- 修改 `src/schema/` 下文件 → 必须跑 `yaml.test.ts` 和 `unknown-fields.test.ts`
+- 修改 `src/schema/` 下文件 → 必须跑 `yaml.test.ts`、`unknown-fields.test.ts`、`validation.test.ts`
 - 修改 `src/engine/` 下文件 → 必须跑对应测试文件
-- 修改 `src/components/` 下文件 → 必须跑 `npm run build` 验证构建
+- 修改 `src/components/` 下文件 → 必须跑 `npm run build` 验证构建，以及对应组件测试（如有）
 - 修改 `src/store/` 下文件 → 必须跑 `config-store.test.ts`
 
 ---
 
-> **文档生成时间**: 2026-06-12（更新）
+> **文档生成时间**: 2026-06-13（更新）
 > **文档作者**: AI Agent（基于仓库实际状态生成）
-> **仓库状态**: `main` 分支 `3006cfc`，working tree clean，所有测试通过
+> **仓库状态**: `main` 分支 `b5be08d`，working tree clean，92/92 测试通过，0 ESLint warnings
