@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { useConfigStore } from '@/store/config-store'
 import { stringifyYamlOrdered } from '@/schema/yaml'
 import { db } from '@/lib/db'
@@ -18,7 +18,7 @@ export function useAutoSave() {
   const lastSavedRef = useRef<string>('')
   const lastSavedNameRef = useRef<string>('')
 
-  const doSave = async () => {
+  const doSave = useCallback(async () => {
     const yaml = stringifyYamlOrdered(config)
     setConfigYaml(yaml)
 
@@ -66,7 +66,7 @@ export function useAutoSave() {
       // Ignore Dexie errors
     }
     setHasUnsavedChanges(false)
-  }
+  }, [config, configName, setConfigYaml, setHasUnsavedChanges, currentDraftId, setCurrentDraftId])
 
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
@@ -77,12 +77,12 @@ export function useAutoSave() {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
     }
-  }, [config, configName, setConfigYaml])
+  }, [config, configName, setConfigYaml, doSave])
 
   useEffect(() => {
     if (saveTrigger > 0) {
       if (timerRef.current) clearTimeout(timerRef.current)
       doSave()
     }
-  }, [saveTrigger])
+  }, [saveTrigger, doSave])
 }
