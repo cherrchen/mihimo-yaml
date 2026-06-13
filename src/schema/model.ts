@@ -403,6 +403,65 @@ export interface ProxyConfig {
   _unknownFields?: Record<string, unknown>
 }
 
+// === Proxy discriminated union types for type-safe editing ===
+
+export type ProxyType =
+  | 'ss' | 'ssr' | 'http' | 'socks' | 'vmess' | 'vless' | 'trojan'
+  | 'snell' | 'hysteria' | 'hysteria2' | 'tuic' | 'wireguard' | 'ssh'
+  | 'anytls' | 'mieru' | 'sudoku' | 'tailscale' | 'masque'
+  | 'trusttunnel' | 'openvpn' | 'direct' | 'dns'
+  | 'reject' | 'reject-drop' | 'compatible' | 'pass'
+
+export function isProxyType(type: string): type is ProxyType {
+  return [
+    'ss', 'ssr', 'http', 'socks', 'vmess', 'vless', 'trojan',
+    'snell', 'hysteria', 'hysteria2', 'tuic', 'wireguard', 'ssh',
+    'anytls', 'mieru', 'sudoku', 'tailscale', 'masque',
+    'trusttunnel', 'openvpn',
+  ].includes(type)
+}
+
+export function getProxyTypeFields(type: string): string[] {
+  const base: string[] = ['name', 'type', 'server', 'port', 'udp', 'tfo', 'mptcp', 'dialer-proxy', 'interface-name', 'routing-mark', 'ip-version', 'smux']
+  const tls: string[] = ['tls', 'sni', 'servername', 'fingerprint', 'alpn', 'skip-cert-verify', 'client-fingerprint', 'reality-opts', 'ech-opts']
+  const transport: string[] = ['network', 'http-opts', 'h2-opts', 'grpc-opts', 'ws-opts']
+
+  const typeFields: Record<string, string[]> = {
+    ss: ['cipher', 'password', 'udp-over-tcp', 'udp-over-tcp-version', 'plugin', 'plugin-opts'],
+    ssr: ['cipher', 'password', 'protocol', 'protocol-param', 'obfs', 'obfs-param', 'udp-over-tcp'],
+    http: ['username', 'password', 'headers'],
+    socks: ['username', 'password'],
+    vmess: ['uuid', 'alterId', 'security', 'cipher', 'packet-encoding', 'ws-opts', 'http-opts', 'h2-opts', 'grpc-opts', 'xhttp-opts'],
+    vless: ['uuid', 'flow', 'encryption', 'packet-encoding', 'xhttp-opts'],
+    trojan: ['password', 'ss-opts'],
+    snell: ['psk', 'obfs-opts', 'version'],
+    hysteria: ['up', 'down', 'auth', 'auth-str', 'protocol', 'obfs', 'obfs-password', 'ca', 'ca-str', 'disable-mtu-discovery', 'recv-window-conn', 'recv-window', 'ports', 'sni', 'alpn'],
+    hysteria2: ['password', 'up', 'down', 'obfs', 'obfs-password', 'sni', 'skip-cert-verify', 'cwnd'],
+    tuic: ['uuid', 'password', 'version', 'token', 'congestion-controller', 'reduce-rtt', 'heartbeat-interval', 'disable-sni', 'max-open-streams', 'max-udp-relay-packet-size', 'alpn', 'ca', 'ca-str'],
+    wireguard: ['private-key', 'public-key', 'pre-shared-key', 'ip', 'ipv6', 'allowed-ips', 'reserved', 'persistent-keepalive', 'mtu', 'remote-dns-resolve', 'dns', 'peers', 'amnezia-wg-option'],
+    ssh: ['username', 'password', 'private-key', 'host-key', 'host-key-algorithms'],
+    anytls: [],
+    mieru: ['username', 'password'],
+    sudoku: [],
+    tailscale: [],
+    masque: [],
+    trusttunnel: [],
+    openvpn: ['openvpn-opts'],
+  }
+
+  const fields = [...base]
+  if (['vmess', 'vless', 'trojan', 'ss', 'ssr', 'tuic', 'hysteria', 'hysteria2'].includes(type)) {
+    fields.push(...tls)
+  }
+  if (['vmess', 'vless', 'trojan', 'ss'].includes(type)) {
+    fields.push(...transport)
+  }
+  const extra = typeFields[type]
+  if (extra) fields.push(...extra)
+
+  return fields
+}
+
 export interface SmuxConfig {
   enabled?: boolean
   protocol?: string
