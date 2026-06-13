@@ -27,6 +27,18 @@ export interface IntegrityReport {
 export function runIntegrityCheck(config: MihomoConfig): IntegrityReport {
   const issues: IntegrityIssue[] = []
 
+  // Zod validation errors from import
+  if (config._validationErrors) {
+    for (const ve of config._validationErrors) {
+      issues.push({
+        type: 'schema-validation',
+        message: `${ve.path}: ${ve.message}`,
+        severity: 'warning',
+        path: ve.path,
+      })
+    }
+  }
+
   // Reference checks
   const refs = collectReferences(config)
   for (const msg of refs.danglingProxyRefs) {

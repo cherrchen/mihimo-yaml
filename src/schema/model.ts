@@ -73,6 +73,8 @@ export interface MihomoConfig {
 
   // unknown fields preservation
   _unknownFields?: Record<string, unknown>
+  // Zod validation errors from import
+  _validationErrors?: Array<{ path: string; message: string }>
 }
 
 // === General Sub-configs ===

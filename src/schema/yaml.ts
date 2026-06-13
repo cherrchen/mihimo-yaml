@@ -1,6 +1,7 @@
 import yaml from 'js-yaml'
 import type { MihomoConfig } from './model'
 import { extractUnknownFields, injectUnknownFields } from './unknown-fields'
+import { validateConfig } from './validation'
 
 const KNOWN_TOP_KEYS = new Set([
   'mode', 'log-level', 'allow-lan', 'bind-address', 'lan-allowed-ips',
@@ -32,6 +33,12 @@ export function parseYaml(yamlString: string): MihomoConfig {
   if (Object.keys(unknown).length > 0) {
     config._unknownFields = unknown
   }
+
+  const validation = validateConfig(raw)
+  if (!validation.success) {
+    config._validationErrors = validation.errors
+  }
+
   return config
 }
 
