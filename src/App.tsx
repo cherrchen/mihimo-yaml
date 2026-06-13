@@ -23,6 +23,9 @@ import { TunnelsEditor } from '@/components/editors/tunnels/TunnelsEditor'
 import { NtpEditor } from '@/components/editors/ntp/NtpEditor'
 import { ExperimentalEditor } from '@/components/editors/experimental/ExperimentalEditor'
 import { ChainBuilderEditor } from '@/components/editors/chain-builder/ChainBuilderEditor'
+import { IptablesEditor } from '@/components/editors/iptables/IptablesEditor'
+import { EbpfEditor } from '@/components/editors/ebpf/EbpfEditor'
+import { ClashForAndroidEditor } from '@/components/editors/clash-for-android/ClashForAndroidEditor'
 import { AboutPage } from '@/pages/About'
 import { SettingsPage } from '@/pages/Settings'
 
@@ -69,6 +72,9 @@ export default function App() {
       case 'tunnels': return <TunnelsEditor />
       case 'ntp': return <NtpEditor />
       case 'experimental': return <ExperimentalEditor />
+      case 'iptables': return <IptablesEditor />
+      case 'ebpf': return <EbpfEditor />
+      case 'clash-for-android': return <ClashForAndroidEditor />
       case 'about': return <AboutPage />
       case 'settings': return <SettingsPage />
       default: return <DashboardPage />

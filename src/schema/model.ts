@@ -59,6 +59,7 @@ export interface MihomoConfig {
   sniffer?: SnifferConfig
   tun?: TunConfig
   iptables?: IptablesConfig
+  ebpf?: EbpfConfig
   listeners?: ListenerConfig[]
   proxies?: ProxyConfig[]
   'proxy-providers'?: Record<string, ProxyProviderConfig>
@@ -229,6 +230,15 @@ export interface IptablesConfig {
   'inbound-interface'?: string
   bypass?: string[]
   'dns-redirect'?: boolean
+}
+
+// === ebpf ===
+
+export interface EbpfConfig {
+  enable?: boolean
+  'auto-redir'?: string[]
+  'redirect-to-tun'?: string[]
+  'bpf-fs-path'?: string
 }
 
 // === Inbounds / Listeners ===
