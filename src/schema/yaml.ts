@@ -1,4 +1,4 @@
-import yaml from 'js-yaml'
+import YAML from 'yaml'
 import type { MihomoConfig } from './model'
 import { extractUnknownFields, injectUnknownFields } from './unknown-fields'
 import { validateConfig } from './validation'
@@ -24,12 +24,21 @@ const KNOWN_TOP_KEYS = new Set([
 ])
 
 export function parseYaml(yamlString: string): MihomoConfig {
-  const raw = yaml.load(yamlString) as Record<string, unknown> | null
+  const raw = YAML.parse(yamlString) as Record<string, unknown> | null
   if (!raw || typeof raw !== 'object') {
     throw new Error('YAML 解析结果不是有效的对象')
   }
   const { known, unknown } = extractUnknownFields(raw, KNOWN_TOP_KEYS)
   const config = known as MihomoConfig
+
+  const doc = YAML.parseDocument(yamlString)
+  if (doc.contents) {
+    const comments: Record<string, string[]> = {}
+    const topComments = doc.commentBefore ? [doc.commentBefore] : []
+    if (topComments.length) comments[''] = topComments
+    if (Object.keys(comments).length) config._comments = comments
+  }
+
   if (Object.keys(unknown).length > 0) {
     config._unknownFields = unknown
   }
@@ -46,21 +55,16 @@ export function stringifyYaml(config: MihomoConfig): string {
   const { _unknownFields, ...known } = config
   const output: Record<string, unknown> = { ...known }
 
-  // Remove internal marker
   delete (output as Record<string, unknown>)._unknownFields
+  delete (output as Record<string, unknown>)._validationErrors
 
   if (_unknownFields) {
     injectUnknownFields(output, _unknownFields)
   }
 
-  return yaml.dump(output, {
+  return YAML.stringify(output, {
     indent: 2,
-    lineWidth: -1,
-    noRefs: true,
-    sortKeys: false,
-    quotingType: '"',
-    forceQuotes: false,
-    flowLevel: -1,
+    lineWidth: 0,
   })
 }
 
@@ -106,7 +110,6 @@ const SECTION_ORDER: Array<{ key: string; priority: number }> = [
  * Returns a YAML string with sections in recommended order.
  */
 export function stringifyYamlOrdered(config: MihomoConfig): string {
-  // Use section order to guide key ordering
   const { _unknownFields, ...known } = config
 
   const orderMap = new Map<number, Array<[string, unknown]>>()
@@ -115,7 +118,6 @@ export function stringifyYamlOrdered(config: MihomoConfig): string {
   for (const [key, value] of Object.entries(known)) {
     if (key.startsWith('_')) continue
     if (value === undefined || value === null) continue
-    // Skip empty arrays and objects
     if (Array.isArray(value) && value.length === 0) continue
     if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value as object).length === 0) continue
 
@@ -129,7 +131,6 @@ export function stringifyYamlOrdered(config: MihomoConfig): string {
     }
   }
 
-  // Build ordered entries
   const ordered: Array<[string, unknown]> = []
   for (let prio = 0; prio <= 2000; prio++) {
     const items = orderMap.get(prio)
@@ -148,14 +149,9 @@ export function stringifyYamlOrdered(config: MihomoConfig): string {
     injectUnknownFields(output, _unknownFields)
   }
 
-  return yaml.dump(output, {
+  return YAML.stringify(output, {
     indent: 2,
-    lineWidth: -1,
-    noRefs: true,
-    sortKeys: false,
-    quotingType: '"',
-    forceQuotes: false,
-    flowLevel: -1,
+    lineWidth: 0,
   })
 }
 

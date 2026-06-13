@@ -76,6 +76,8 @@ export interface MihomoConfig {
   _unknownFields?: Record<string, unknown>
   // Zod validation errors from import
   _validationErrors?: Array<{ path: string; message: string }>
+  // YAML comment preservation
+  _comments?: Record<string, string[]>
 }
 
 // === General Sub-configs ===
