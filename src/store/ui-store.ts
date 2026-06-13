@@ -8,7 +8,7 @@ interface UiState {
   sidebarWidth: number
   sidebarOpen: boolean
   activeSection: NavSection
-  previewMode: 'yaml' | 'issues' | 'report'
+  previewMode: 'yaml' | 'issues' | 'diff' | 'report'
   showAdvancedFields: boolean
   showSensitiveFields: boolean
   exportMode: 'mihomo' | 'stash'
@@ -17,7 +17,7 @@ interface UiState {
   setSidebarWidth: (width: number) => void
   toggleSidebar: () => void
   setActiveSection: (section: NavSection) => void
-  setPreviewMode: (mode: 'yaml' | 'issues' | 'report') => void
+  setPreviewMode: (mode: 'yaml' | 'issues' | 'diff' | 'report') => void
   toggleAdvancedFields: () => void
   toggleSensitiveFields: () => void
   setExportMode: (mode: 'mihomo' | 'stash') => void

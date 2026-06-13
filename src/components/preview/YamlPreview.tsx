@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useRef, useEffect, useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { yaml as yamlLang } from '@codemirror/lang-yaml'
 import { oneDark } from '@codemirror/theme-one-dark'
@@ -7,6 +7,7 @@ import { useUiStore } from '@/store/ui-store'
 import { stringifyYamlOrdered } from '@/schema/yaml'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { YamlDiff } from './YamlDiff'
 
 export function YamlPreview() {
   const config = useConfigStore((s) => s.config)
@@ -15,9 +16,18 @@ export function YamlPreview() {
 
   const yaml = useMemo(() => stringifyYamlOrdered(config), [config])
 
+  const prevYamlRef = useRef<string>('')
+  const [previousYaml, setPreviousYaml] = useState('')
+
+  useEffect(() => {
+    setPreviousYaml(prevYamlRef.current)
+    prevYamlRef.current = yaml
+  }, [yaml])
+
   const tabs = [
     { id: 'yaml' as const, label: 'YAML' },
     { id: 'issues' as const, label: '问题', count: integrityReport?.issues.length },
+    { id: 'diff' as const, label: '对比' },
     { id: 'report' as const, label: '兼容性' },
   ]
 
@@ -84,6 +94,12 @@ export function YamlPreview() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {previewMode === 'diff' && (
+          <div className="h-full overflow-hidden">
+            <YamlDiff oldText={previousYaml} newText={yaml} />
           </div>
         )}
 
