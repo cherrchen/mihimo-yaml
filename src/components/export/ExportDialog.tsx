@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button'
 import { useConfigStore } from '@/store/config-store'
 import { stringifyYamlOrdered } from '@/schema/yaml'
 import { generateMihomoReport, generateStashReport } from '@/compatibility/stash'
-import { getMultiServerEntries } from '@/compatibility/dns-strategy'
+import { getMultiServerEntries, resolveSingleServerDns, applyManualDnsChoices } from '@/compatibility/dns-strategy'
+import type { DnsStrategyAction } from '@/compatibility/dns-strategy'
 import { CompatibilityReport } from './CompatibilityReport'
 import { DnsStrategyDialog } from './DnsStrategyDialog'
 
@@ -19,6 +20,7 @@ export function ExportDialog({ open, onClose, mode }: ExportDialogProps) {
   const configName = useConfigStore((s) => s.configName)
   const [copied, setCopied] = useState(false)
   const [showDnsDialog, setShowDnsDialog] = useState(false)
+  const [pendingAction, setPendingAction] = useState<'download' | 'copy' | null>(null)
 
   const report = useMemo(() => {
     if (mode === 'mihomo') return generateMihomoReport(config)
@@ -38,16 +40,15 @@ export function ExportDialog({ open, onClose, mode }: ExportDialogProps) {
   }, [config.dns, mode])
 
   const handleDownload = () => {
-    const blob = new Blob([yaml], { type: 'text/yaml' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${configName}-${mode}.yaml`
-    a.click()
-    URL.revokeObjectURL(url)
+    downloadBlob(yaml)
   }
 
   const handleCopy = async () => {
+    if (mode === 'stash' && dnsChoices.length > 0) {
+      setPendingAction('copy')
+      setShowDnsDialog(true)
+      return
+    }
     try {
       await navigator.clipboard.writeText(yaml)
       setCopied(true)
@@ -57,15 +58,72 @@ export function ExportDialog({ open, onClose, mode }: ExportDialogProps) {
     }
   }
 
-  const handleDnsConfirm = () => {
+  const downloadBlob = (yamlStr: string) => {
+    const blob = new Blob([yamlStr], { type: 'text/yaml' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${configName}-${mode}.yaml`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const applyDnsResolution = (
+    manualChoices: Record<string, string>,
+    action: DnsStrategyAction,
+  ) => {
+    const resolvedConfig = JSON.parse(JSON.stringify(report.transformedConfig)) as typeof report.transformedConfig
+
+    if (resolvedConfig.dns?.['nameserver-policy']) {
+      if (action === 'block-export') {
+        const result = resolveSingleServerDns(
+          resolvedConfig.dns['nameserver-policy'] as Record<string, string | string[]>,
+          'block-export',
+        )
+        for (const domain of result.blocked) {
+          delete resolvedConfig.dns['nameserver-policy'][domain]
+        }
+        Object.assign(
+          resolvedConfig.dns['nameserver-policy'] as Record<string, string>,
+          result.resolved,
+        )
+      } else {
+        resolvedConfig.dns['nameserver-policy'] = applyManualDnsChoices(
+          resolvedConfig.dns['nameserver-policy'] as Record<string, string | string[]>,
+          manualChoices,
+        )
+      }
+    }
+
+    return stringifyYamlOrdered(resolvedConfig)
+  }
+
+  const handleDnsConfirm = async (
+    manualChoices: Record<string, string>,
+    action: DnsStrategyAction,
+  ) => {
     setShowDnsDialog(false)
-    handleDownload()
+    const resolvedYaml = applyDnsResolution(manualChoices, action)
+
+    if (pendingAction === 'download') {
+      downloadBlob(resolvedYaml)
+    } else if (pendingAction === 'copy') {
+      try {
+        await navigator.clipboard.writeText(resolvedYaml)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      } catch {
+        // ignore
+      }
+    }
+    setPendingAction(null)
   }
 
   const canExport = report.summary.errors === 0 || mode === 'mihomo'
 
   const handleExport = () => {
     if (mode === 'stash' && dnsChoices.length > 0) {
+      setPendingAction('download')
       setShowDnsDialog(true)
       return
     }
