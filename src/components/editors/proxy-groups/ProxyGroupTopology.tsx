@@ -17,8 +17,9 @@ import { AlertTriangle } from 'lucide-react'
 
 export function ProxyGroupTopology() {
   const config = useConfigStore((s) => s.config)
-  const groups = config['proxy-groups'] || []
-  const proxies = config.proxies || []
+  const proxyGroups = config['proxy-groups']
+  const groups = useMemo(() => proxyGroups || [], [proxyGroups])
+  const proxies = useMemo(() => config.proxies || [], [config.proxies])
   const providers = Object.keys(config['proxy-providers'] || {})
 
   const { cycles, selfRefs, danglingRefs } = useMemo(() => {

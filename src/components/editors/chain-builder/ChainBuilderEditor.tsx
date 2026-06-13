@@ -16,8 +16,9 @@ import { AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react'
 
 export function ChainBuilderEditor() {
   const config = useConfigStore((s) => s.config)
-  const proxies = config.proxies || []
-  const groups = config['proxy-groups'] || []
+  const proxies = useMemo(() => config.proxies || [], [config.proxies])
+  const proxyGroups = config['proxy-groups']
+  const groups = useMemo(() => proxyGroups || [], [proxyGroups])
 
   const chainIssues = useMemo(() => validateChains(config), [config])
 
