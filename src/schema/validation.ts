@@ -392,6 +392,12 @@ export const MihomoConfigSchema = z.object({
   sniffer: SnifferConfigSchema.optional(),
   tun: TunConfigSchema.optional(),
   iptables: IptablesConfigSchema.optional(),
+  ebpf: z.object({
+    enable: z.boolean().optional(),
+    'auto-redir': z.array(z.string()).optional(),
+    'redirect-to-tun': z.array(z.string()).optional(),
+    'bpf-fs-path': z.string().optional(),
+  }).passthrough().optional(),
   listeners: z.array(ListenerConfigSchema).optional(),
   proxies: z.array(ProxyConfigSchema).optional(),
   'proxy-providers': z.record(z.string(), ProxyProviderConfigSchema).optional(),

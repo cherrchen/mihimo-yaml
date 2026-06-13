@@ -60,8 +60,11 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'rules', label: '路由规则', icon: Route, badge: '0' },
   { id: 'sub-rules', label: '子规则', icon: Workflow },
   { id: 'tunnels', label: '隧道', icon: Network },
+  { id: 'iptables', label: 'iptables', icon: Network },
+  { id: 'ebpf', label: 'ebpf', icon: Network },
   { id: 'ntp', label: 'NTP', icon: Clock },
   { id: 'experimental', label: '实验', icon: FlaskConical },
+  { id: 'clash-for-android', label: 'Android 专用', icon: Settings },
 ]
 
 export function NavTree() {

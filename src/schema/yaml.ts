@@ -17,7 +17,7 @@ const KNOWN_TOP_KEYS = new Set([
   'global-client-fingerprint',
   'port', 'socks-port', 'redir-port', 'tproxy-port', 'mixed-port',
   'inbound-tfo', 'inbound-mptcp', 'tuic-server', 'ss-config', 'vmess-config',
-  'dns', 'hosts', 'sniffer', 'tun', 'iptables',
+  'dns', 'hosts', 'sniffer', 'tun', 'iptables', 'ebpf',
   'listeners', 'proxies', 'proxy-providers', 'proxy-groups',
   'rule-providers', 'rules', 'sub-rules', 'tunnels', 'ntp', 'experimental',
   'clash-for-android',
