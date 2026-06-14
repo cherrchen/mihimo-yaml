@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 
 interface AppShellProps {
@@ -20,6 +21,15 @@ export function AppShell({
   sidebarOpen,
   previewWidth = 360,
 }: AppShellProps) {
+  const [isNarrow, setIsNarrow] = useState(() => window.innerWidth < 768)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handler = (e: MediaQueryListEvent) => setIsNarrow(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Header */}
@@ -36,7 +46,7 @@ export function AppShell({
             'max-md:w-0',
             sidebarOpen ? '' : 'w-0',
           )}
-          style={{ width: sidebarOpen ? sidebarWidth : 0 }}
+          style={isNarrow ? undefined : { width: sidebarOpen ? sidebarWidth : 0 }}
         >
           {sidebar}
         </div>
