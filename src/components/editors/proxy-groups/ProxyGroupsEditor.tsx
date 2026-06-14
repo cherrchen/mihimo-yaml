@@ -18,8 +18,10 @@ export function ProxyGroupsEditor() {
 
   const groups = config['proxy-groups'] || []
   const filtered = search
-    ? groups.filter((g) => g.name.toLowerCase().includes(search.toLowerCase()))
-    : groups
+    ? groups
+        .map((g, idx) => ({ group: g, idx }))
+        .filter(({ group: g }) => g.name.toLowerCase().includes(search.toLowerCase()))
+    : groups.map((g, idx) => ({ group: g, idx }))
 
   const setGroups = (updater: (groups: ProxyGroupConfig[]) => ProxyGroupConfig[]) => {
     updateConfig((draft) => {
@@ -81,11 +83,11 @@ export function ProxyGroupsEditor() {
           <GitGraph className="size-3.5" /> 拓扑图
         </button>
         <div className="flex-1 overflow-y-auto space-y-0.5">
-          {filtered.map((g, i) => (
+          {filtered.map(({ group: g, idx }) => (
             <div
-              key={`${g.name}-${i}`}
-              onClick={() => setSelectedIdx(i)}
-              className={`flex items-center gap-1 px-2 py-1 rounded text-xs cursor-pointer ${selectedIdx === i ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'}`}
+              key={`${g.name}-${idx}`}
+              onClick={() => setSelectedIdx(idx)}
+              className={`flex items-center gap-1 px-2 py-1 rounded text-xs cursor-pointer ${selectedIdx === idx ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'}`}
             >
               <span className="truncate flex-1">{g.name}</span>
               <span className="text-[10px] text-muted-foreground">{g.type}</span>

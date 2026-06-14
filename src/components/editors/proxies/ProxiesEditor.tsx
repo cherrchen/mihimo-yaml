@@ -27,14 +27,15 @@ export function ProxiesEditor() {
 
   const proxies = config.proxies || []
 
-  const filtered = search
-    ? proxies.filter(
-        (p) =>
+  const filtered = (search
+    ? proxies
+        .map((p, idx) => ({ proxy: p, idx }))
+        .filter(({ proxy: p }) =>
           p.name.toLowerCase().includes(search.toLowerCase()) ||
           p.type.toLowerCase().includes(search.toLowerCase()) ||
           (p.server || '').toLowerCase().includes(search.toLowerCase()),
-      )
-    : proxies
+        )
+    : proxies.map((p, idx) => ({ proxy: p, idx })))
 
   const setProxies = (updater: (proxies: ProxyConfig[]) => ProxyConfig[]) => {
     updateConfig((draft) => {
@@ -99,17 +100,17 @@ export function ProxiesEditor() {
         </button>
 
         <div className="flex-1 overflow-y-auto space-y-0.5">
-          {filtered.map((proxy, i) => (
+          {filtered.map(({ proxy, idx }) => (
             <div
-              key={`${proxy.name}-${i}`}
-              onClick={() => setSelectedIdx(i)}
+              key={`${proxy.name}-${idx}`}
+              onClick={() => setSelectedIdx(idx)}
               className={`flex items-center gap-1 px-2 py-1 rounded text-xs cursor-pointer ${
-                selectedIdx === i
+                selectedIdx === idx
                   ? 'bg-accent text-accent-foreground'
                   : 'hover:bg-accent/50 text-muted-foreground'
               }`}
             >
-              <span className="text-[10px] w-6 shrink-0 text-muted-foreground">{i + 1}</span>
+              <span className="text-[10px] w-6 shrink-0 text-muted-foreground">{idx + 1}</span>
               <span className="truncate flex-1">{proxy.name}</span>
               <span className="text-[10px] text-muted-foreground shrink-0">
                 {PROXY_TYPE_LABELS[proxy.type] || proxy.type}
