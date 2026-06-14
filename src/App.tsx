@@ -1,33 +1,42 @@
-import { useEffect, useCallback } from 'react'
+import { Suspense, lazy, useEffect, useCallback } from 'react'
 import { AppShell } from '@/components/layout/AppShell'
 import { Header } from '@/components/layout/Header'
 import { NavTree } from '@/components/layout/NavTree'
-import { YamlPreview } from '@/components/preview/YamlPreview'
 import { useUiStore } from '@/store/ui-store'
 import { useConfigStore } from '@/store/config-store'
 import { useAutoSave } from '@/hooks/useAutoSave'
 import { DashboardPage } from '@/pages/Dashboard'
-import { GeneralEditor } from '@/components/editors/general/GeneralEditor'
-import { DnsEditor } from '@/components/editors/dns/DnsEditor'
-import { HostsEditor } from '@/components/editors/hosts/HostsEditor'
-import { ProxiesEditor } from '@/components/editors/proxies/ProxiesEditor'
-import { ProxyGroupsEditor } from '@/components/editors/proxy-groups/ProxyGroupsEditor'
-import { RulesEditor } from '@/components/editors/rules/RulesEditor'
-import { RuleProvidersEditor } from '@/components/editors/rule-providers/RuleProvidersEditor'
-import { ProxyProvidersEditor } from '@/components/editors/proxy-providers/ProxyProvidersEditor'
-import { InboundsEditor } from '@/components/editors/inbounds/InboundsEditor'
-import { TunEditor } from '@/components/editors/tun/TunEditor'
-import { SnifferEditor } from '@/components/editors/sniffer/SnifferEditor'
-import { SubRulesEditor } from '@/components/editors/sub-rules/SubRulesEditor'
-import { TunnelsEditor } from '@/components/editors/tunnels/TunnelsEditor'
-import { NtpEditor } from '@/components/editors/ntp/NtpEditor'
-import { ExperimentalEditor } from '@/components/editors/experimental/ExperimentalEditor'
-import { ChainBuilderEditor } from '@/components/editors/chain-builder/ChainBuilderEditor'
-import { IptablesEditor } from '@/components/editors/iptables/IptablesEditor'
-import { EbpfEditor } from '@/components/editors/ebpf/EbpfEditor'
-import { ClashForAndroidEditor } from '@/components/editors/clash-for-android/ClashForAndroidEditor'
-import { AboutPage } from '@/pages/About'
-import { SettingsPage } from '@/pages/Settings'
+
+const YamlPreview = lazy(() => import('@/components/preview/YamlPreview').then((m) => ({ default: m.YamlPreview })))
+const GeneralEditor = lazy(() => import('@/components/editors/general/GeneralEditor').then((m) => ({ default: m.GeneralEditor })))
+const DnsEditor = lazy(() => import('@/components/editors/dns/DnsEditor').then((m) => ({ default: m.DnsEditor })))
+const HostsEditor = lazy(() => import('@/components/editors/hosts/HostsEditor').then((m) => ({ default: m.HostsEditor })))
+const ProxiesEditor = lazy(() => import('@/components/editors/proxies/ProxiesEditor').then((m) => ({ default: m.ProxiesEditor })))
+const ProxyGroupsEditor = lazy(() => import('@/components/editors/proxy-groups/ProxyGroupsEditor').then((m) => ({ default: m.ProxyGroupsEditor })))
+const RulesEditor = lazy(() => import('@/components/editors/rules/RulesEditor').then((m) => ({ default: m.RulesEditor })))
+const RuleProvidersEditor = lazy(() => import('@/components/editors/rule-providers/RuleProvidersEditor').then((m) => ({ default: m.RuleProvidersEditor })))
+const ProxyProvidersEditor = lazy(() => import('@/components/editors/proxy-providers/ProxyProvidersEditor').then((m) => ({ default: m.ProxyProvidersEditor })))
+const InboundsEditor = lazy(() => import('@/components/editors/inbounds/InboundsEditor').then((m) => ({ default: m.InboundsEditor })))
+const TunEditor = lazy(() => import('@/components/editors/tun/TunEditor').then((m) => ({ default: m.TunEditor })))
+const SnifferEditor = lazy(() => import('@/components/editors/sniffer/SnifferEditor').then((m) => ({ default: m.SnifferEditor })))
+const SubRulesEditor = lazy(() => import('@/components/editors/sub-rules/SubRulesEditor').then((m) => ({ default: m.SubRulesEditor })))
+const TunnelsEditor = lazy(() => import('@/components/editors/tunnels/TunnelsEditor').then((m) => ({ default: m.TunnelsEditor })))
+const NtpEditor = lazy(() => import('@/components/editors/ntp/NtpEditor').then((m) => ({ default: m.NtpEditor })))
+const ExperimentalEditor = lazy(() => import('@/components/editors/experimental/ExperimentalEditor').then((m) => ({ default: m.ExperimentalEditor })))
+const ChainBuilderEditor = lazy(() => import('@/components/editors/chain-builder/ChainBuilderEditor').then((m) => ({ default: m.ChainBuilderEditor })))
+const IptablesEditor = lazy(() => import('@/components/editors/iptables/IptablesEditor').then((m) => ({ default: m.IptablesEditor })))
+const EbpfEditor = lazy(() => import('@/components/editors/ebpf/EbpfEditor').then((m) => ({ default: m.EbpfEditor })))
+const ClashForAndroidEditor = lazy(() => import('@/components/editors/clash-for-android/ClashForAndroidEditor').then((m) => ({ default: m.ClashForAndroidEditor })))
+const AboutPage = lazy(() => import('@/pages/About').then((m) => ({ default: m.AboutPage })))
+const SettingsPage = lazy(() => import('@/pages/Settings').then((m) => ({ default: m.SettingsPage })))
+
+function LoadingPanel() {
+  return (
+    <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
+      加载中...
+    </div>
+  )
+}
 
 export default function App() {
   const { activeSection, sidebarWidth, sidebarOpen } = useUiStore()
@@ -87,9 +96,15 @@ export default function App() {
       sidebar={<NavTree />}
       sidebarWidth={sidebarWidth}
       sidebarOpen={sidebarOpen}
-      previewPanel={<YamlPreview />}
+      previewPanel={(
+        <Suspense fallback={<LoadingPanel />}>
+          <YamlPreview />
+        </Suspense>
+      )}
     >
-      {renderEditor()}
+      <Suspense fallback={<LoadingPanel />}>
+        {renderEditor()}
+      </Suspense>
     </AppShell>
   )
 }

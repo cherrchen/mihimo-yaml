@@ -71,6 +71,28 @@ describe('Config store', () => {
     expect(afterRedo2.config['log-level']).toBe('debug')
   })
 
+  it('should reset undo history when replacing the current config', () => {
+    const store = useConfigStore.getState()
+
+    store.updateConfig((draft) => {
+      draft.mode = 'global'
+      draft.proxies = [{ name: 'node-a', type: 'direct' }]
+    })
+    expect(useConfigStore.getState().canUndo()).toBe(true)
+
+    useConfigStore.getState().setConfig({
+      mode: 'direct',
+      proxies: [{ name: 'node-b', type: 'direct' }],
+      rules: ['MATCH,DIRECT'],
+    })
+
+    const afterReplace = useConfigStore.getState()
+    expect(afterReplace.canUndo()).toBe(false)
+    afterReplace.undo()
+    expect(useConfigStore.getState().config.mode).toBe('direct')
+    expect(useConfigStore.getState().config.proxies?.[0].name).toBe('node-b')
+  })
+
   it('should limit history to maxHistory', () => {
     const max = useConfigStore.getState().maxHistory
 

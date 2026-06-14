@@ -84,6 +84,36 @@ rules:
     expect(refs.danglingRuleProviderRefs.length).toBeGreaterThan(0)
   })
 
+  it('should detect missing RULE-SET policy targets', () => {
+    const input = `rule-providers:
+  cn:
+    type: http
+    behavior: domain
+    format: yaml
+    url: https://example.com/cn.yaml
+rules:
+  - RULE-SET,cn,UNKNOWN_TARGET
+  - MATCH,DIRECT
+`
+    const config = parseYaml(input)
+    const refs = collectReferences(config)
+
+    expect(refs.danglingRuleProviderRefs).toHaveLength(0)
+    expect(refs.danglingGroupRefs.some((r) => r.includes('UNKNOWN_TARGET'))).toBe(true)
+  })
+
+  it('should detect SUB-RULE references to missing sub-rules', () => {
+    const input = `rules:
+  - SUB-RULE,(NETWORK,tcp),missing-sub-rule
+  - MATCH,DIRECT
+`
+    const config = parseYaml(input)
+    const refs = collectReferences(config)
+
+    expect(refs.danglingRuleRefs.some((r) => r.includes('missing-sub-rule'))).toBe(true)
+    expect(refs.danglingGroupRefs).toHaveLength(0)
+  })
+
   it('should detect dialer-proxy dangling references', () => {
     const input = `proxies:
   - name: node1

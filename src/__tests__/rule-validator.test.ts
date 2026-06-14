@@ -52,6 +52,41 @@ describe('Rule validator', () => {
     expect(issues.filter((i) => i.severity === 'error')).toHaveLength(0)
   })
 
+  it('should detect ordinary rules without target', () => {
+    const input = `rules:
+  - DOMAIN-SUFFIX,google.com
+  - MATCH,DIRECT
+`
+    const config = parseYaml(input)
+    const issues = analyzeRules(config)
+
+    expect(issues.some((i) => i.type === 'invalid-format' && i.message.includes('缺少目标'))).toBe(true)
+  })
+
+  it('should detect MATCH rules without target', () => {
+    const input = `rules:
+  - MATCH
+`
+    const config = parseYaml(input)
+    const issues = analyzeRules(config)
+
+    expect(issues.some((i) => i.type === 'invalid-format' && i.message.includes('MATCH'))).toBe(true)
+  })
+
+  it('should detect incomplete SUB-RULE rules', () => {
+    const missingCondition = parseYaml(`rules:
+  - SUB-RULE,,sub-rule
+  - MATCH,DIRECT
+`)
+    const missingName = parseYaml(`rules:
+  - SUB-RULE,(NETWORK,tcp)
+  - MATCH,DIRECT
+`)
+
+    expect(analyzeRules(missingCondition).some((i) => i.message.includes('匹配条件'))).toBe(true)
+    expect(analyzeRules(missingName).some((i) => i.message.includes('sub-rule 名称'))).toBe(true)
+  })
+
   it('should handle empty rules', () => {
     const input = `rules: []
 `

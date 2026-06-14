@@ -62,12 +62,15 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
   compatibilityReport: null,
 
   setConfig: (config) => {
+    const snapshot = cloneConfig(config)
     set(() => ({
-      config,
+      config: snapshot,
+      history: [{ config: cloneConfig(snapshot) }],
+      historyIndex: 0,
       hasUnsavedChanges: false,
       currentDraftId: null,
-      integrityReport: runIntegrityCheck(config),
-      compatibilityReport: generateMihomoReport(config),
+      integrityReport: runIntegrityCheck(snapshot),
+      compatibilityReport: generateMihomoReport(snapshot),
     }))
   },
 

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import type { MihomoConfig } from './model'
+import { RULE_PROVIDER_FORMATS } from '@/lib/constants'
 
 const ExternalControllerCorsSchema = z.object({
   'allow-origins': z.array(z.string()).optional(),
@@ -280,7 +281,7 @@ const RuleProviderConfigSchema = z.object({
   interval: z.number().optional(),
   proxy: z.string().optional(),
   behavior: z.string().optional(),
-  format: z.string().optional(),
+  format: z.enum(RULE_PROVIDER_FORMATS).optional(),
   'path-in-bundle': z.string().optional(),
   'size-limit': z.number().optional(),
   header: z.record(z.string(), z.union([z.string(), z.array(z.string())])).optional(),
