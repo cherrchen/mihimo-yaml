@@ -15,8 +15,9 @@ export function useAutoSave() {
   const currentDraftId = useConfigStore((s) => s.currentDraftId)
   const setCurrentDraftId = useConfigStore((s) => s.setCurrentDraftId)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const lastSavedRef = useRef<string>('')
-  const lastSavedNameRef = useRef<string>('')
+  const initialYaml = stringifyYamlOrdered(config)
+  const lastSavedRef = useRef(initialYaml)
+  const lastSavedNameRef = useRef(configName)
 
   const doSave = useCallback(async () => {
     const yaml = stringifyYamlOrdered(config)
