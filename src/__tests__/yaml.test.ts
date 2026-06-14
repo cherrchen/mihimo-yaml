@@ -197,4 +197,19 @@ rules:
     expect(proxy.up).toBe('50 Mbps')
     expect(proxy.down).toBe('100 Mbps')
   })
+
+  it('should not leak internal _comments field in stringifyYaml output', () => {
+    const input = `# Top-level comment
+mode: rule
+# Another comment
+proxies: []
+rules:
+  - MATCH,DIRECT
+`
+    const config = parseYaml(input)
+    const yaml = stringifyYaml(config)
+    expect(yaml).not.toContain('_comments')
+    expect(yaml).not.toContain('_unknownFields')
+    expect(yaml).not.toContain('_validationErrors')
+  })
 })

@@ -57,6 +57,7 @@ export function stringifyYaml(config: MihomoConfig): string {
 
   delete (output as Record<string, unknown>)._unknownFields
   delete (output as Record<string, unknown>)._validationErrors
+  delete (output as Record<string, unknown>)._comments
 
   if (_unknownFields) {
     injectUnknownFields(output, _unknownFields)
