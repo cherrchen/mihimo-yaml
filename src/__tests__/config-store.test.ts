@@ -40,24 +40,35 @@ describe('Config store', () => {
     expect(state.history.length).toBeLessThanOrEqual(max)
   })
 
-  it('should allow undo and redo', () => {
-    // Setup: start with 2 entries in history
-    useConfigStore.setState({
-      history: [
-        { config: { mode: 'rule', proxies: [], rules: [] } },
-        { config: { mode: 'global', proxies: [], rules: [] } },
-      ],
-      historyIndex: 1,
-      config: { mode: 'global', proxies: [], rules: [] },
-    })
+  it('should allow undo and redo through real updateConfig path', () => {
+    const store = useConfigStore.getState()
 
-    // Undo
-    useConfigStore.getState().undo()
-    expect(useConfigStore.getState().config.mode).toBe('rule')
+    store.updateConfig((draft) => { draft.mode = 'global' })
+    store.updateConfig((draft) => { draft['log-level'] = 'debug' })
 
-    // Redo
-    useConfigStore.getState().redo()
-    expect(useConfigStore.getState().config.mode).toBe('global')
+    const afterEdits = useConfigStore.getState()
+    expect(afterEdits.config.mode).toBe('global')
+    expect(afterEdits.config['log-level']).toBe('debug')
+
+    afterEdits.undo()
+    const afterUndo = useConfigStore.getState()
+    expect(afterUndo.config.mode).toBe('global')
+    expect(afterUndo.config['log-level']).toBeUndefined()
+
+    afterUndo.undo()
+    const afterUndo2 = useConfigStore.getState()
+    expect(afterUndo2.config.mode).toBe('rule')
+    expect(afterUndo2.config['log-level']).toBeUndefined()
+
+    afterUndo2.redo()
+    const afterRedo = useConfigStore.getState()
+    expect(afterRedo.config.mode).toBe('global')
+    expect(afterRedo.config['log-level']).toBeUndefined()
+
+    afterRedo.redo()
+    const afterRedo2 = useConfigStore.getState()
+    expect(afterRedo2.config.mode).toBe('global')
+    expect(afterRedo2.config['log-level']).toBe('debug')
   })
 
   it('should limit history to maxHistory', () => {
