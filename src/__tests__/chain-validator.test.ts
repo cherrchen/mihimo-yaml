@@ -118,4 +118,61 @@ rules:
 
     expect(issues.some((i) => i.type === 'broken-chain')).toBe(true)
   })
+
+  it('should detect A -> B -> A dialer-proxy cycle', () => {
+    const input = `proxies:
+  - name: A
+    type: ss
+    server: s.com
+    port: 8388
+    cipher: aes-256-gcm
+    password: p
+    dialer-proxy: B
+  - name: B
+    type: ss
+    server: s2.com
+    port: 8388
+    cipher: aes-256-gcm
+    password: p
+    dialer-proxy: A
+rules:
+  - MATCH,DIRECT
+`
+    const config = parseYaml(input)
+    const issues = validateChains(config)
+
+    expect(issues.some((i) => i.type === 'circular-chain')).toBe(true)
+  })
+
+  it('should detect A -> B -> C -> A dialer-proxy cycle', () => {
+    const input = `proxies:
+  - name: A
+    type: ss
+    server: s.com
+    port: 8388
+    cipher: aes-256-gcm
+    password: p
+    dialer-proxy: B
+  - name: B
+    type: ss
+    server: s2.com
+    port: 8388
+    cipher: aes-256-gcm
+    password: p
+    dialer-proxy: C
+  - name: C
+    type: ss
+    server: s3.com
+    port: 8388
+    cipher: aes-256-gcm
+    password: p
+    dialer-proxy: A
+rules:
+  - MATCH,DIRECT
+`
+    const config = parseYaml(input)
+    const issues = validateChains(config)
+
+    expect(issues.some((i) => i.type === 'circular-chain')).toBe(true)
+  })
 })

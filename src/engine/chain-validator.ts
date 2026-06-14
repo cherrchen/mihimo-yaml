@@ -1,7 +1,7 @@
 import type { MihomoConfig } from '@/schema/model'
 
 export interface ChainIssue {
-  type: 'udp-incompat' | 'missing-relay' | 'empty-relay' | 'self-relay' | 'broken-chain'
+  type: 'udp-incompat' | 'missing-relay' | 'empty-relay' | 'self-relay' | 'broken-chain' | 'circular-chain'
   message: string
   proxy: string
 }
@@ -85,13 +85,56 @@ export function validateChains(config: MihomoConfig): ChainIssue[] {
           })
         }
 
-        // Check for self-reference via dialer-proxy
         if (dp === p.name) {
           issues.push({
             type: 'self-relay',
             message: `代理 '${p.name}' 的 dialer-proxy 引用了自身`,
             proxy: p.name,
           })
+        }
+      }
+    }
+
+    // DFS cycle detection for dialer-proxy
+    const proxyDeps = new Map<string, string>()
+    for (const px of config.proxies) {
+      if (px['dialer-proxy']) proxyDeps.set(px.name, px['dialer-proxy'])
+    }
+
+    const visited = new Set<string>()
+    const recStack = new Set<string>()
+    const path: string[] = []
+
+    function hasCycle(node: string): string[] | null {
+      if (recStack.has(node)) {
+        const cycleStart = path.indexOf(node)
+        return [...path.slice(cycleStart), node]
+      }
+      if (visited.has(node)) return null
+      visited.add(node)
+      recStack.add(node)
+      path.push(node)
+      const next = proxyDeps.get(node)
+      if (next && proxyDeps.has(next)) {
+        const result = hasCycle(next)
+        if (result) return result
+      }
+      path.pop()
+      recStack.delete(node)
+      return null
+    }
+
+    for (const [name] of proxyDeps) {
+      if (!visited.has(name)) {
+        const cycle = hasCycle(name)
+        if (cycle) {
+          issues.push({
+            type: 'circular-chain',
+            message: `dialer-proxy 环路: ${cycle.join(' → ')}`,
+            proxy: cycle[0],
+          })
+          // Mark all nodes in cycle as visited to avoid duplicate reports
+          for (const node of cycle) visited.add(node)
         }
       }
     }
