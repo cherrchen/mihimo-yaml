@@ -1,5 +1,6 @@
 import type { MihomoConfig } from '@/schema/model'
 import { DIRECT, REJECT, REJECT_DROP, COMPATIBLE, PASS } from '@/lib/constants'
+import { getRuleTarget } from '@/lib/rule-parser'
 
 export const BUILTIN_STRATEGIES = [DIRECT, REJECT, REJECT_DROP, COMPATIBLE, PASS]
 
@@ -120,8 +121,7 @@ export function collectReferences(config: MihomoConfig): ReferenceReport {
       }
 
       // Check rule targets
-      const parts = rule.split(',')
-      const target = parts[parts.length - 1]?.trim()
+      const target = getRuleTarget(rule)
       if (
         target &&
         !BUILTIN_STRATEGIES.includes(target) &&

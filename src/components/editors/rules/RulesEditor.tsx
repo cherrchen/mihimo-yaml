@@ -6,6 +6,7 @@ import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { RULE_TYPES } from '@/lib/constants'
+import { parseRule, buildRuleString } from '@/lib/rule-parser'
 
 const RULE_TARGETS = ['DIRECT', 'REJECT', 'REJECT-DROP', 'COMPATIBLE', 'PASS']
 
@@ -84,18 +85,6 @@ export function RulesEditor() {
     })
   }
 
-  const getRuleParts = (rule: string): [string, string, string, string] => {
-    const parts = rule.split(',').map((s) => s.trim())
-    return [parts[0] || '', parts[1] || '', parts[2] || '', parts[3] || '']
-  }
-
-  const buildRuleString = (type: string, payload: string, target: string, extra: string): string => {
-    if (type === 'MATCH') return `MATCH,${target}`
-    const parts = [type, payload, target]
-    if (extra) parts.push(extra)
-    return parts.join(',')
-  }
-
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-3">
@@ -112,8 +101,8 @@ export function RulesEditor() {
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
           <div className="space-y-0.5 border border-border rounded-md">
             {rules.map((rule, i) => {
-              const [type, payload, target, extra] = getRuleParts(rule)
-              const isMatchAfter = i > 0 && getRuleParts(rules[i - 1])[0] === 'MATCH'
+              const { type, payload, target, extra } = parseRule(rule)
+              const isMatchAfter = i > 0 && parseRule(rules[i - 1]).type === 'MATCH'
               const editing = editingIdx === i
 
               if (editing) {
