@@ -44,6 +44,7 @@ export function ExportDialog({ open, onClose, mode }: ExportDialogProps) {
   }
 
   const handleCopy = async () => {
+    if (!canExport) return
     if (mode === 'stash' && dnsChoices.length > 0) {
       setPendingAction('copy')
       setShowDnsDialog(true)
@@ -166,7 +167,7 @@ export function ExportDialog({ open, onClose, mode }: ExportDialogProps) {
 
           {/* Actions */}
           <div className="px-4 py-3 border-t border-border flex items-center justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={handleCopy}>
+            <Button variant="outline" size="sm" onClick={handleCopy} disabled={!canExport}>
               {copied ? <CheckCircle2 className="size-3.5" /> : <Copy className="size-3.5" />}
               {copied ? '已复制' : '复制到剪贴板'}
             </Button>
