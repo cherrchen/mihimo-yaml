@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useConfigStore } from '@/store/config-store'
 import {
   ReactFlow,
@@ -109,8 +109,16 @@ export function ProxyGroupTopology() {
     return { initialNodes: nodes, initialEdges: edges }
   }, [groups, proxies, providers, cycles, selfRefs])
 
-  const [nodes, , onNodesChange] = useNodesState(initialNodes)
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges)
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
+
+  useEffect(() => {
+    setNodes(initialNodes)
+  }, [initialNodes, setNodes])
+
+  useEffect(() => {
+    setEdges(initialEdges)
+  }, [initialEdges, setEdges])
 
   return (
     <div className="h-full flex flex-col">
