@@ -104,4 +104,41 @@ rules:
 
     expect(report.summary.errors).toBe(0)
   })
+
+  it('should convert respect-rules to follow-rule and delete original field', () => {
+    const input = `dns:
+  enable: true
+  respect-rules: true
+  nameserver:
+    - 8.8.8.8
+proxies: []
+rules:
+  - MATCH,DIRECT
+`
+    const config = parseYaml(input)
+    const report = generateStashReport(config)
+
+    const yaml = stringifyYamlOrdered(report.transformedConfig)
+    expect(yaml).toContain('follow-rule')
+    expect(yaml).not.toContain('respect-rules')
+    expect(report.transformedConfig.dns?.['respect-rules']).toBeUndefined()
+  })
+
+  it('should report error for sub-rules before removing them', () => {
+    const input = `proxies: []
+rules:
+  - MATCH,DIRECT
+sub-rules:
+  my-sub-rule:
+    - DOMAIN,example.com
+`
+    const config = parseYaml(input)
+    const report = generateStashReport(config)
+
+    const subRulesError = report.issues.find(
+      (i) => i.field === 'sub-rules' && i.severity === 'error',
+    )
+    expect(subRulesError).toBeDefined()
+    expect(subRulesError!.action).toBe('block')
+  })
 })
