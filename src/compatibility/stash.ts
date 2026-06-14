@@ -56,6 +56,11 @@ const STASH_DNS_REMOVE_FIELDS = new Set([
   'fallback', 'fallback-filter',
 ])
 
+// sub-rules is special: must report error before removal
+const STASH_REMOVE_FIELDS_WITHOUT_SUB_RULES = new Set(
+  [...STASH_REMOVE_FIELDS].filter((k) => k !== 'sub-rules'),
+)
+
 /**
  * Generates a Stash compatibility report for the given mihomo config.
  */
@@ -63,8 +68,19 @@ export function generateStashReport(config: MihomoConfig): CompatibilityReport {
   const issues: CompatibilityIssue[] = []
   const transformed = JSON.parse(JSON.stringify(config)) as MihomoConfig
 
+  // Check sub-rules before it gets removed
+  if (transformed['sub-rules']) {
+    issues.push({
+      field: 'sub-rules',
+      path: 'sub-rules',
+      severity: 'error',
+      message: 'Stash 不支持 sub-rules',
+      action: 'block',
+    })
+  }
+
   // Check top-level fields
-  for (const key of STASH_REMOVE_FIELDS) {
+  for (const key of STASH_REMOVE_FIELDS_WITHOUT_SUB_RULES) {
     if (key in transformed) {
       issues.push({
         field: key,
@@ -119,17 +135,6 @@ export function generateStashReport(config: MihomoConfig): CompatibilityReport {
         }
       }
     }
-  }
-
-  // Check sub-rules
-  if (transformed['sub-rules']) {
-    issues.push({
-      field: 'sub-rules',
-      path: 'sub-rules',
-      severity: 'error',
-      message: 'Stash 不支持 sub-rules',
-      action: 'block',
-    })
   }
 
   const summary = {
@@ -194,6 +199,7 @@ function transformDnsForStash(dns: DnsConfig): CompatibilityIssue[] {
   // Add follow-rule if respect-rules was set
   if (dns['respect-rules']) {
     dns['follow-rule' as keyof DnsConfig] = true as never
+    delete dns['respect-rules']
     issues.push({
       field: 'respect-rules',
       path: 'dns.respect-rules',
