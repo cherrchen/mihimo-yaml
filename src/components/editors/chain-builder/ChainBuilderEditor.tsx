@@ -85,11 +85,58 @@ export function ChainBuilderEditor() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
   useEffect(() => {
-    setNodes(initialNodes)
+    setNodes((currentNodes) => {
+      const freshMap = new Map(initialNodes.map((n) => [n.id, n]))
+      const updated: Node[] = []
+      const seen = new Set<string>()
+
+      for (const c of currentNodes) {
+        const f = freshMap.get(c.id)
+        if (!f) continue
+        seen.add(c.id)
+        updated.push({
+          ...c,
+          type: f.type,
+          data: f.data,
+          style: f.style,
+          position: f.position,
+        })
+      }
+
+      for (const [id, n] of freshMap) {
+        if (!seen.has(id)) updated.push(n)
+      }
+
+      return updated
+    })
   }, [initialNodes, setNodes])
 
   useEffect(() => {
-    setEdges(initialEdges)
+    setEdges((currentEdges) => {
+      const freshMap = new Map(initialEdges.map((e) => [e.id, e]))
+      const updated: Edge[] = []
+      const seen = new Set<string>()
+
+      for (const c of currentEdges) {
+        const f = freshMap.get(c.id)
+        if (!f) continue
+        seen.add(c.id)
+        updated.push({
+          ...c,
+          source: f.source,
+          target: f.target,
+          label: f.label,
+          style: f.style,
+          markerEnd: f.markerEnd,
+        })
+      }
+
+      for (const [id, e] of freshMap) {
+        if (!seen.has(id)) updated.push(e)
+      }
+
+      return updated
+    })
   }, [initialEdges, setEdges])
 
   return (
