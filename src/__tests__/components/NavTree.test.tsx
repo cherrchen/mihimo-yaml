@@ -25,13 +25,29 @@ describe('NavTree component', () => {
     expect(input).toBeInTheDocument()
   })
 
-  it('should accept text input in search field', async () => {
+  it('should filter nav items when typing in search field', async () => {
     const user = userEvent.setup()
     render(<NavTree />)
 
     const input = screen.getByPlaceholderText('搜索配置项...') as HTMLInputElement
-    await user.type(input, 'DNS')
-    expect(input.value).toBe('DNS')
+    await user.type(input, '代理')
+
+    expect(input.value).toBe('代理')
+    expect(screen.getByText('代理节点')).toBeInTheDocument()
+    expect(screen.getByText('代理 Provider')).toBeInTheDocument()
+    expect(screen.queryByText('工作台')).not.toBeInTheDocument()
+  })
+
+  it('should show all items when search is empty', async () => {
+    const user = userEvent.setup()
+    render(<NavTree />)
+
+    const input = screen.getByPlaceholderText('搜索配置项...') as HTMLInputElement
+    await user.type(input, '代理')
+    await user.clear(input)
+
+    expect(screen.getByText('工作台')).toBeInTheDocument()
+    expect(screen.getByText('代理节点')).toBeInTheDocument()
   })
 
   it('should render settings link', () => {

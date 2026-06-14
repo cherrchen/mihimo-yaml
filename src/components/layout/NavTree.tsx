@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react'
 import {
   LayoutDashboard,
   Settings,
@@ -70,6 +71,23 @@ const NAV_ITEMS: NavItem[] = [
 export function NavTree() {
   const { activeSection, setActiveSection } = useUiStore()
   const config = useConfigStore((s) => s.config)
+  const [search, setSearch] = useState('')
+
+  const filteredItems = useMemo(() => {
+    const matches = (label: string) =>
+      !search || label.toLowerCase().includes(search.toLowerCase())
+    if (!search.trim()) return NAV_ITEMS
+    return NAV_ITEMS.filter((item) => {
+      if (matches(item.label)) return true
+      return item.children?.some((c) => matches(c.label)) ?? false
+    }).map((item) => {
+      if (!item.children) return item
+      return {
+        ...item,
+        children: item.children.filter((c) => matches(c.label)),
+      }
+    })
+  }, [search])
 
   const getBadge = (item: NavItem): string | undefined => {
     if (item.id === 'proxies') return String(config.proxies?.length || 0)
@@ -86,13 +104,15 @@ export function NavTree() {
       <div className="mb-3 px-2 py-1">
         <input
           type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="搜索配置项..."
           className="w-full px-2 py-1.5 text-xs rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
         />
       </div>
 
       <nav className="space-y-0.5">
-        {NAV_ITEMS.map((item) => (
+        {filteredItems.map((item) => (
           <div key={item.id}>
             <button
               onClick={() => setActiveSection(item.id)}
