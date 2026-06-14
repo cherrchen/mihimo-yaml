@@ -1,12 +1,10 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useConfigStore } from '@/store/config-store'
 import {
   ReactFlow,
   Background,
   Controls,
   MiniMap,
-  useNodesState,
-  useEdgesState,
   type Node,
   type Edge,
 } from '@xyflow/react'
@@ -81,64 +79,6 @@ export function ChainBuilderEditor() {
     return { initialNodes: nodes, initialEdges: edges }
   }, [proxies, groups])
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
-
-  useEffect(() => {
-    setNodes((currentNodes) => {
-      const freshMap = new Map(initialNodes.map((n) => [n.id, n]))
-      const updated: Node[] = []
-      const seen = new Set<string>()
-
-      for (const c of currentNodes) {
-        const f = freshMap.get(c.id)
-        if (!f) continue
-        seen.add(c.id)
-        updated.push({
-          ...c,
-          type: f.type,
-          data: f.data,
-          style: f.style,
-          position: f.position,
-        })
-      }
-
-      for (const [id, n] of freshMap) {
-        if (!seen.has(id)) updated.push(n)
-      }
-
-      return updated
-    })
-  }, [initialNodes, setNodes])
-
-  useEffect(() => {
-    setEdges((currentEdges) => {
-      const freshMap = new Map(initialEdges.map((e) => [e.id, e]))
-      const updated: Edge[] = []
-      const seen = new Set<string>()
-
-      for (const c of currentEdges) {
-        const f = freshMap.get(c.id)
-        if (!f) continue
-        seen.add(c.id)
-        updated.push({
-          ...c,
-          source: f.source,
-          target: f.target,
-          label: f.label,
-          style: f.style,
-          markerEnd: f.markerEnd,
-        })
-      }
-
-      for (const [id, e] of freshMap) {
-        if (!seen.has(id)) updated.push(e)
-      }
-
-      return updated
-    })
-  }, [initialEdges, setEdges])
-
   return (
     <div className="p-6 h-full flex flex-col">
       <div className="flex items-center justify-between mb-3">
@@ -155,12 +95,10 @@ export function ChainBuilderEditor() {
 
       {/* Topology */}
       <div className="flex-1 rounded-md border border-border overflow-hidden" style={{ minHeight: 300 }}>
-        {nodes.length > 0 ? (
+        {initialNodes.length > 0 ? (
           <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
+            nodes={initialNodes}
+            edges={initialEdges}
             fitView
             attributionPosition="bottom-left"
           >

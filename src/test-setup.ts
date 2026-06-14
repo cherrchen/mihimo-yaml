@@ -10,3 +10,9 @@ window.matchMedia = window.matchMedia || ((query: string) => ({
   removeEventListener: () => {},
   dispatchEvent: () => false,
 } as MediaQueryList))
+
+window.ResizeObserver = window.ResizeObserver || class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}

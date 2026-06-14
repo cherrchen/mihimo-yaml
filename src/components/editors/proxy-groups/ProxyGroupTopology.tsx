@@ -1,11 +1,9 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useConfigStore } from '@/store/config-store'
 import {
   ReactFlow,
   Background,
   Controls,
-  useNodesState,
-  useEdgesState,
   type Node,
   type Edge,
   MarkerType,
@@ -109,64 +107,6 @@ export function ProxyGroupTopology() {
     return { initialNodes: nodes, initialEdges: edges }
   }, [groups, proxies, providers, cycles, selfRefs])
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
-
-  useEffect(() => {
-    setNodes((currentNodes) => {
-      const freshMap = new Map(initialNodes.map((n) => [n.id, n]))
-      const updated: Node[] = []
-      const seen = new Set<string>()
-
-      for (const c of currentNodes) {
-        const f = freshMap.get(c.id)
-        if (!f) continue
-        seen.add(c.id)
-        updated.push({
-          ...c,
-          type: f.type,
-          data: f.data,
-          style: f.style,
-          position: f.position,
-        })
-      }
-
-      for (const [id, n] of freshMap) {
-        if (!seen.has(id)) updated.push(n)
-      }
-
-      return updated
-    })
-  }, [initialNodes, setNodes])
-
-  useEffect(() => {
-    setEdges((currentEdges) => {
-      const freshMap = new Map(initialEdges.map((e) => [e.id, e]))
-      const updated: Edge[] = []
-      const seen = new Set<string>()
-
-      for (const c of currentEdges) {
-        const f = freshMap.get(c.id)
-        if (!f) continue
-        seen.add(c.id)
-        updated.push({
-          ...c,
-          source: f.source,
-          target: f.target,
-          label: f.label,
-          style: f.style,
-          markerEnd: f.markerEnd,
-        })
-      }
-
-      for (const [id, e] of freshMap) {
-        if (!seen.has(id)) updated.push(e)
-      }
-
-      return updated
-    })
-  }, [initialEdges, setEdges])
-
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -181,18 +121,16 @@ export function ProxyGroupTopology() {
           <span className="size-2.5 rounded-full bg-red-500 inline-block" /> 循环
         </span>
         <span className="text-[10px] text-muted-foreground ml-auto">
-          {nodes.length} 节点 · {edges.length} 边
+          {initialNodes.length} 节点 · {initialEdges.length} 边
         </span>
       </div>
 
       {/* Graph */}
       <div className="flex-1 min-h-[300px]">
-        {nodes.length > 0 ? (
+        {initialNodes.length > 0 ? (
           <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
+            nodes={initialNodes}
+            edges={initialEdges}
             fitView
             attributionPosition="bottom-left"
           >
