@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { render, screen, act } from '@testing-library/react'
 import { ProxyGroupTopology } from '@/components/editors/proxy-groups/ProxyGroupTopology'
+import { buildProxyGroupTopology } from '@/components/editors/proxy-groups/topology'
 import { useConfigStore } from '@/store/config-store'
 
 function setupConfig() {
@@ -39,7 +40,7 @@ describe('ProxyGroupTopology component', () => {
   it('should render node/edge count in header', () => {
     render(<ProxyGroupTopology />)
 
-    expect(screen.getByText('2 节点 · 3 边')).toBeInTheDocument()
+    expect(screen.getByText('4 节点 · 4 边')).toBeInTheDocument()
   })
 
   it('should render the normal / self-ref / cycle legend', () => {
@@ -102,5 +103,26 @@ describe('ProxyGroupTopology component', () => {
     rerender(<ProxyGroupTopology />)
 
     expect(screen.getByTestId('rf__wrapper')).toBeInTheDocument()
+  })
+
+  it('should create visible nodes for every edge endpoint', () => {
+    const topology = buildProxyGroupTopology({
+      mode: 'rule',
+      proxies: [
+        { name: 'node1', type: 'ss', server: 'srv.com', port: 8388, cipher: 'aes-256-gcm', password: 'p' },
+      ],
+      'proxy-providers': {
+        remote: { type: 'http', url: 'https://example.com/proxies.yaml', path: './providers/remote.yaml' },
+      },
+      'proxy-groups': [
+        { name: 'PROXY', type: 'select', proxies: ['DIRECT', 'node1'], use: ['remote'] },
+      ],
+      rules: ['MATCH,PROXY'],
+    })
+    const nodeIds = new Set(topology.initialNodes.map((node) => node.id))
+
+    expect(nodeIds).toEqual(new Set(['PROXY', 'node1', 'remote', 'DIRECT']))
+    expect(topology.initialEdges).toHaveLength(3)
+    expect(topology.initialEdges.every((edge) => nodeIds.has(edge.source) && nodeIds.has(edge.target))).toBe(true)
   })
 })

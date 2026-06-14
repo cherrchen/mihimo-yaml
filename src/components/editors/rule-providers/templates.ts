@@ -1,8 +1,12 @@
+import type { RULE_PROVIDER_FORMATS } from '@/lib/constants'
+
+type RuleProviderFormat = (typeof RULE_PROVIDER_FORMATS)[number]
+
 export interface MetaRuleSetTemplate {
   name: string
   category: 'geo/geosite' | 'geo/geoip' | 'geo-lite/geosite' | 'geo-lite/geoip' | 'geo/geoip/classical' | 'asn'
   behavior: 'domain' | 'ipcidr' | 'classical'
-  format: 'yaml' | 'list' | 'mrs'
+  format: RuleProviderFormat
   url: string
 }
 
@@ -10,6 +14,11 @@ const BASE = 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/he
 
 function u(category: string, name: string, ext: string): string {
   return `${BASE}/${category}/${name}.${ext}`
+}
+
+export function getTemplatePath(tpl: MetaRuleSetTemplate): string {
+  const extension = tpl.url.endsWith('.list') ? 'list' : tpl.format
+  return `./ruleset/${tpl.name}.${extension}`
 }
 
 export const METACUBEX_TEMPLATES: MetaRuleSetTemplate[] = [
@@ -51,9 +60,9 @@ export const METACUBEX_TEMPLATES: MetaRuleSetTemplate[] = [
   // geo-lite/geoip (ipcidr)
   { name: 'cn-ip-lite', category: 'geo-lite/geoip', behavior: 'ipcidr', format: 'yaml', url: u('geo-lite/geoip', 'cn', 'yaml') },
 
-  // asn (ipcidr)
-  { name: 'AS4134', category: 'asn', behavior: 'ipcidr', format: 'list', url: u('asn', 'AS4134', 'list') },
-  { name: 'AS4837', category: 'asn', behavior: 'ipcidr', format: 'list', url: u('asn', 'AS4837', 'list') },
-  { name: 'AS4809', category: 'asn', behavior: 'ipcidr', format: 'list', url: u('asn', 'AS4809', 'list') },
-  { name: 'AS45102', category: 'asn', behavior: 'ipcidr', format: 'list', url: u('asn', 'AS45102', 'list') },
+  // asn (ipcidr) — text files with .list URLs
+  { name: 'AS4134', category: 'asn', behavior: 'ipcidr', format: 'text', url: u('asn', 'AS4134', 'list') },
+  { name: 'AS4837', category: 'asn', behavior: 'ipcidr', format: 'text', url: u('asn', 'AS4837', 'list') },
+  { name: 'AS4809', category: 'asn', behavior: 'ipcidr', format: 'text', url: u('asn', 'AS4809', 'list') },
+  { name: 'AS45102', category: 'asn', behavior: 'ipcidr', format: 'text', url: u('asn', 'AS45102', 'list') },
 ]

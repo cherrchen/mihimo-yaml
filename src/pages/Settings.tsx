@@ -67,7 +67,7 @@ export function SettingsPage() {
         <div className="border border-border rounded-md p-3">
           <h3 className="text-xs font-medium mb-2">自定义 User-Agent</h3>
           <p className="text-xs text-muted-foreground mb-2">
-            URL 拉取时使用的 User-Agent 请求头。
+            浏览器直连 URL 拉取通常无法设置 User-Agent。该值仅供你信任的 CORS 代理或服务端代发场景使用。
           </p>
           <TextField
             value={customUA}

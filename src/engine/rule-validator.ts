@@ -1,10 +1,32 @@
 import type { MihomoConfig } from '@/schema/model'
+import { parseRule } from '@/lib/rule-parser'
 
 export interface RuleIssue {
   type: 'conflict' | 'unreachable' | 'duplicate' | 'invalid-format' | 'missing-match'
   message: string
   severity: 'error' | 'warning'
   index?: number
+}
+
+function getFormatError(rule: string, index: number): string | null {
+  const parsed = parseRule(rule)
+  const label = `第 ${index + 1} 条规则格式无效`
+
+  if (!parsed.type) return `${label}: ${rule}`
+
+  if (parsed.type === 'MATCH') {
+    return parsed.target ? null : `${label}: MATCH 规则缺少目标`
+  }
+
+  if (parsed.type === 'SUB-RULE') {
+    if (!parsed.payload) return `${label}: SUB-RULE 缺少匹配条件`
+    if (!parsed.target) return `${label}: SUB-RULE 缺少 sub-rule 名称`
+    return null
+  }
+
+  if (!parsed.payload) return `${label}: 缺少匹配值`
+  if (!parsed.target) return `${label}: 缺少目标`
+  return null
 }
 
 /**
@@ -38,20 +60,20 @@ export function analyzeRules(config: MihomoConfig): RuleIssue[] {
       continue
     }
 
-    // Check rule format
-    const parts = rule.split(',').map((p) => p.trim())
-    if (parts.length < 2 && parts[0] !== 'MATCH') {
+    const parsed = parseRule(rule)
+    const formatError = getFormatError(rule, i)
+    if (formatError) {
       issues.push({
         type: 'invalid-format',
         severity: 'error',
-        message: `第 ${i + 1} 条规则格式无效: ${rule}`,
+        message: formatError,
         index: i,
       })
       continue
     }
 
     // Check MATCH positioning
-    if (parts[0] === 'MATCH') {
+    if (parsed.type === 'MATCH') {
       matchFound = true
     } else if (matchFound) {
       issues.push({

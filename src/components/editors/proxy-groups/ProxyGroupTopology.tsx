@@ -4,21 +4,15 @@ import {
   ReactFlow,
   Background,
   Controls,
-  type Node,
-  type Edge,
-  MarkerType,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { detectProxyGroupCycles, detectSelfReferences } from '@/engine/cycle-detector'
 import { collectReferences } from '@/engine/references'
 import { AlertTriangle } from 'lucide-react'
+import { buildProxyGroupTopology } from './topology'
 
 export function ProxyGroupTopology() {
   const config = useConfigStore((s) => s.config)
-  const proxyGroups = config['proxy-groups']
-  const groups = useMemo(() => proxyGroups || [], [proxyGroups])
-  const proxies = useMemo(() => config.proxies || [], [config.proxies])
-  const providers = Object.keys(config['proxy-providers'] || {})
 
   const { cycles, selfRefs, danglingRefs } = useMemo(() => {
     const c = detectProxyGroupCycles(config)
@@ -35,77 +29,10 @@ export function ProxyGroupTopology() {
     }
   }, [config])
 
-  const { initialNodes, initialEdges } = useMemo(() => {
-    const nodes: Node[] = []
-    const edges: Edge[] = []
-
-    const isInCycle = (groupName: string) =>
-      cycles.some((cycle) => cycle.includes(groupName))
-
-    const isSelfRef = (groupName: string) =>
-      selfRefs.some((r) => r.includes(groupName))
-
-    const allNames = new Set([
-      ...proxies.map((p) => p.name),
-      ...groups.map((g) => g.name),
-      ...providers,
-    ])
-
-    // Add nodes
-    groups.forEach((g, i) => {
-      const hasCycle = isInCycle(g.name)
-      const hasSelf = isSelfRef(g.name)
-      const x = 80 + (i % 5) * 200
-      const y = 60 + Math.floor(i / 5) * 130
-
-      nodes.push({
-        id: g.name,
-        type: 'default',
-        data: { label: `[${g.type}] ${g.name}` },
-        position: { x, y },
-        style: {
-          background: hasCycle ? '#fef2f2' : hasSelf ? '#fef3c7' : '#f0fdf4',
-          border: `2px solid ${hasCycle ? '#ef4444' : hasSelf ? '#f59e0b' : '#22c55e'}`,
-          borderRadius: '8px',
-          padding: '8px 14px',
-          fontSize: '11px',
-          fontWeight: 600,
-          width: 200,
-        },
-      })
-
-      // Edges: group -> proxies/groups it references
-      if (g.proxies) {
-        g.proxies.forEach((ref, j) => {
-          if (allNames.has(ref)) {
-            edges.push({
-              id: `${g.name}-${ref}-${j}`,
-              source: g.name,
-              target: ref,
-              label: j === 0 ? 'proxies' : '',
-              style: { stroke: '#6366f1', strokeWidth: 1.5 },
-              markerEnd: { type: MarkerType.ArrowClosed },
-            })
-          }
-        })
-      }
-
-      if (g.use) {
-        g.use.forEach((ref, j) => {
-          edges.push({
-            id: `${g.name}-use-${ref}-${j}`,
-            source: g.name,
-            target: ref,
-            label: 'use',
-            style: { stroke: '#8b5cf6', strokeWidth: 1.5, strokeDasharray: '4,4' },
-            markerEnd: { type: MarkerType.ArrowClosed },
-          })
-        })
-      }
-    })
-
-    return { initialNodes: nodes, initialEdges: edges }
-  }, [groups, proxies, providers, cycles, selfRefs])
+  const { initialNodes, initialEdges } = useMemo(
+    () => buildProxyGroupTopology(config, cycles, selfRefs),
+    [config, cycles, selfRefs],
+  )
 
   return (
     <div className="h-full flex flex-col">

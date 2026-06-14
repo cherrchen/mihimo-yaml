@@ -55,6 +55,23 @@ describe('Zod config validation', () => {
     expect(result.errors.some((e) => e.path.includes('port'))).toBe(true)
   })
 
+  it('should reject unsupported rule-provider formats', () => {
+    const raw = {
+      'rule-providers': {
+        asn: {
+          type: 'http',
+          behavior: 'ipcidr',
+          format: 'list',
+          url: 'https://example.com/AS4134.list',
+        },
+      },
+    }
+
+    const result = validateConfig(raw)
+    expect(result.success).toBe(false)
+    expect(result.errors.some((e) => e.path.includes('format'))).toBe(true)
+  })
+
   it('should accept config with unknown fields via passthrough', () => {
     const raw = {
       mode: 'rule',

@@ -125,7 +125,7 @@ export function RulesEditor() {
                           <label className="text-[10px] text-muted-foreground">
                             {type === 'MATCH' ? '无需 payload' :
                              type === 'RULE-SET' ? 'Provider 名称' :
-                             type === 'SUB-RULE' ? 'Sub-rule 名称' :
+                             type === 'SUB-RULE' ? '匹配条件' :
                              type === 'AND' || type === 'OR' || type === 'NOT' ? '子规则组合' :
                              '匹配值'}
                           </label>
@@ -138,34 +138,40 @@ export function RulesEditor() {
                               <option value="">选择 rule-provider</option>
                               {ruleProviders.map((rp) => <option key={rp} value={rp}>{rp}</option>)}
                             </select>
-                          ) : type === 'SUB-RULE' ? (
-                            <select
-                              value={payload}
-                              onChange={(e) => updateRule(i, buildRuleString(type, e.target.value, target, extra))}
-                              className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
-                            >
-                              <option value="">选择 sub-rule</option>
-                              {subRules.map((sr) => <option key={sr} value={sr}>{sr}</option>)}
-                            </select>
                           ) : (
                             <TextField
                               value={payload}
                               onChange={(v) => updateRule(i, buildRuleString(type, v, target, extra))}
-                              placeholder={type === 'MATCH' ? '' : 'example.com'}
+                              placeholder={type === 'MATCH' ? '' : type === 'SUB-RULE' ? '(NETWORK,tcp)' : 'example.com'}
                               disabled={type === 'MATCH'}
                             />
                           )}
                         </div>
 
                         <div>
-                          <label className="text-[10px] text-muted-foreground">目标</label>
-                          <select
-                            value={target}
-                            onChange={(e) => updateRule(i, buildRuleString(type, payload, e.target.value, extra))}
-                            className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
-                          >
-                            {allTargets.map((t) => <option key={t} value={t}>{t}</option>)}
-                          </select>
+                          <label className="text-[10px] text-muted-foreground">
+                            {type === 'SUB-RULE' ? 'Sub-rule 名称' : '目标'}
+                          </label>
+                          {type === 'SUB-RULE' ? (
+                            <select
+                              value={target}
+                              onChange={(e) => updateRule(i, buildRuleString(type, payload, e.target.value, extra))}
+                              className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                            >
+                              <option value="">选择 sub-rule</option>
+                              {[...new Set([target, ...subRules].filter(Boolean))].map((sr) => (
+                                <option key={sr} value={sr}>{sr}</option>
+                              ))}
+                            </select>
+                          ) : (
+                            <select
+                              value={target}
+                              onChange={(e) => updateRule(i, buildRuleString(type, payload, e.target.value, extra))}
+                              className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                            >
+                              {allTargets.map((t) => <option key={t} value={t}>{t}</option>)}
+                            </select>
+                          )}
                         </div>
                       </div>
 

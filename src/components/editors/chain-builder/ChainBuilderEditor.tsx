@@ -5,79 +5,20 @@ import {
   Background,
   Controls,
   MiniMap,
-  type Node,
-  type Edge,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { buildDialerChain, validateChains } from '@/engine/chain-validator'
 import { AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react'
+import { buildChainTopology } from './topology'
 
 export function ChainBuilderEditor() {
   const config = useConfigStore((s) => s.config)
   const proxies = useMemo(() => config.proxies || [], [config.proxies])
-  const proxyGroups = config['proxy-groups']
-  const groups = useMemo(() => proxyGroups || [], [proxyGroups])
 
   const chainIssues = useMemo(() => validateChains(config), [config])
 
   // Build nodes and edges for all dialer-proxy chains
-  const { initialNodes, initialEdges } = useMemo(() => {
-    const nodes: Node[] = []
-    const edges: Edge[] = []
-    const added = new Set<string>()
-
-    // Add all proxies as nodes
-    proxies.forEach((p, i) => {
-      if (!added.has(p.name)) {
-        const isRelay = groups.some((g) => g.type === 'relay' && g.proxies?.includes(p.name))
-        nodes.push({
-          id: p.name,
-          type: 'default',
-          data: { label: `${p.type}: ${p.name}` },
-          position: { x: 50 + (i % 6) * 220, y: 50 + Math.floor(i / 6) * 100 },
-          style: {
-            background: isRelay ? '#fef3c7' : '#f0f9ff',
-            border: '1px solid #94a3b8',
-            borderRadius: '6px',
-            padding: '8px 12px',
-            fontSize: '11px',
-            fontWeight: 500,
-            width: 180,
-          },
-        })
-        added.add(p.name)
-      }
-
-      if (p['dialer-proxy'] && added.has(p['dialer-proxy'])) {
-        edges.push({
-          id: `${p['dialer-proxy']}-${p.name}`,
-          source: p.name,
-          target: p['dialer-proxy'],
-          animated: true,
-          label: 'dialer',
-          style: { stroke: '#6366f1', strokeWidth: 2 },
-        })
-      }
-    })
-
-    // Add relay chains
-    groups.forEach((g) => {
-      if (g.type === 'relay' && g.proxies) {
-        for (let i = 0; i < g.proxies.length - 1; i++) {
-          edges.push({
-            id: `relay-${g.name}-${i}`,
-            source: g.proxies[i],
-            target: g.proxies[i + 1],
-            animated: true,
-            label: `relay:${g.name}`,
-            style: { stroke: '#f59e0b', strokeWidth: 2, strokeDasharray: '5,5' },
-          })
-        }
-      }
-    })
-
-    return { initialNodes: nodes, initialEdges: edges }
-  }, [proxies, groups])
+  const { initialNodes, initialEdges } = useMemo(() => buildChainTopology(config), [config])
 
   return (
     <div className="p-6 h-full flex flex-col">

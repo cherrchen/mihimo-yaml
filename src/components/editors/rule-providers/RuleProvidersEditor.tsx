@@ -4,7 +4,7 @@ import { TextField, NumberField, SelectField } from '@/components/editors/shared
 import { PROVIDER_TYPES, RULE_PROVIDER_BEHAVIORS, RULE_PROVIDER_FORMATS } from '@/lib/constants'
 import { Plus, Trash2 } from 'lucide-react'
 import type { RuleProviderConfig } from '@/schema/model'
-import { METACUBEX_TEMPLATES, type MetaRuleSetTemplate } from './templates'
+import { getTemplatePath, METACUBEX_TEMPLATES, type MetaRuleSetTemplate } from './templates'
 
 export function RuleProvidersEditor() {
   const config = useConfigStore((s) => s.config)
@@ -34,7 +34,7 @@ export function RuleProvidersEditor() {
       behavior: tpl.behavior,
       format: tpl.format,
       url: tpl.url,
-      path: `./ruleset/${tpl.name}.${tpl.format}`,
+      path: getTemplatePath(tpl),
       interval: 86400,
     })
   }

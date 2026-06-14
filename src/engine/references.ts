@@ -1,6 +1,6 @@
 import type { MihomoConfig } from '@/schema/model'
 import { DIRECT, REJECT, REJECT_DROP, COMPATIBLE, PASS } from '@/lib/constants'
-import { getRuleTarget } from '@/lib/rule-parser'
+import { getRulePolicyTarget, getRuleProviderName, getSubRuleName } from '@/lib/rule-parser'
 
 export const BUILTIN_STRATEGIES = [DIRECT, REJECT, REJECT_DROP, COMPATIBLE, PASS]
 
@@ -104,24 +104,22 @@ export function collectReferences(config: MihomoConfig): ReferenceReport {
   // Check rules referencing providers and proxy groups
   if (config.rules) {
     for (const rule of config.rules) {
-      if (rule.startsWith('RULE-SET,')) {
-        const parts = rule.split(',')
-        const providerName = parts[1]
+      const providerName = getRuleProviderName(rule)
+      if (providerName) {
         if (providerName && !allRuleProviderNames.has(providerName)) {
           danglingRuleProviderRefs.push(`规则引用了不存在的 rule-provider '${providerName}': ${rule}`)
         }
       }
 
-      if (rule.startsWith('SUB-RULE,')) {
-        const parts = rule.split(',')
-        const subRuleName = parts[1]
-        if (subRuleName && config['sub-rules'] && !(subRuleName in config['sub-rules'])) {
+      const subRuleName = getSubRuleName(rule)
+      if (subRuleName) {
+        if (!config['sub-rules'] || !(subRuleName in config['sub-rules'])) {
           danglingRuleRefs.push(`规则引用了不存在的 sub-rule '${subRuleName}': ${rule}`)
         }
       }
 
       // Check rule targets
-      const target = getRuleTarget(rule)
+      const target = getRulePolicyTarget(rule)
       if (
         target &&
         !BUILTIN_STRATEGIES.includes(target) &&
