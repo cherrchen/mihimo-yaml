@@ -18,7 +18,7 @@ export function UrlImport({ onClose }: UrlImportProps) {
   const [corsError, setCorsError] = useState(false)
   const [manualInput, setManualInput] = useState(false)
   const [manualYaml, setManualYaml] = useState('')
-  const [proxyUrl, setProxyUrl] = useState('')
+  const [proxyUrl, setProxyUrl] = useState(() => localStorage.getItem('mihomo-yaml-cors-proxy') || '')
   const { setConfig, setConfigYaml, setConfigName } = useConfigStore()
   const { setActiveSection } = useUiStore()
 
@@ -114,7 +114,7 @@ export function UrlImport({ onClose }: UrlImportProps) {
             <div className="mt-2 flex gap-1">
               <TextField
                 value={proxyUrl}
-                onChange={(v) => setProxyUrl(v)}
+                onChange={(v) => { setProxyUrl(v); localStorage.setItem('mihomo-yaml-cors-proxy', v) }}
                 placeholder="https://cors-proxy.example.com/"
               />
               <Button size="sm" variant="outline" onClick={handleFetch} disabled={loading}>
