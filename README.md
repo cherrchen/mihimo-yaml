@@ -2,7 +2,7 @@
 
 mihomo / Stash YAML 配置编辑器 —— 纯前端图形化配置工作台。
 
-创建、导入、编辑、校验并导出 mihomo 和 Stash 兼容 YAML 配置文件。20 个配置模块编辑器，Zod 运行时校验，YAML diff 对比，120 个测试全部通过。
+创建、导入、编辑、校验并导出 mihomo 和 Stash 兼容 YAML 配置文件。20 个配置模块编辑器，Zod 运行时校验，YAML diff 对比，138 个测试全部通过。
 
 ## 功能
 
@@ -54,7 +54,7 @@ React 19 · TypeScript · Vite 8 · Tailwind CSS 4 · Zustand · Dexie · CodeMi
 ### 测试
 
 ```
-120 tests · 22 test files · 0 ESLint warnings
+138 tests · 25 test files · 0 ESLint warnings
 ```
 
 ## License / 协议
