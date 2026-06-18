@@ -1,5 +1,5 @@
 import type { MihomoConfig } from '@/schema/model'
-import { parseRule } from '@/lib/rule-parser'
+import { parseRule, type RuleParts } from '@/lib/rule-parser'
 
 export interface RuleIssue {
   type: 'conflict' | 'unreachable' | 'duplicate' | 'invalid-format' | 'missing-match'
@@ -8,8 +8,7 @@ export interface RuleIssue {
   index?: number
 }
 
-function getFormatError(rule: string, index: number): string | null {
-  const parsed = parseRule(rule)
+function getFormatError(parsed: RuleParts, rule: string, index: number): string | null {
   const label = `第 ${index + 1} 条规则格式无效`
 
   if (!parsed.type) return `${label}: ${rule}`
@@ -44,6 +43,12 @@ export function analyzeRules(config: MihomoConfig): RuleIssue[] {
   }
 
   const rules = config.rules
+  const ruleCounts = new Map<string, number>()
+  for (const rule of rules) {
+    const normalized = rule.trim()
+    ruleCounts.set(normalized, (ruleCounts.get(normalized) ?? 0) + 1)
+  }
+
   let matchFound = false
 
   for (let i = 0; i < rules.length; i++) {
@@ -61,7 +66,7 @@ export function analyzeRules(config: MihomoConfig): RuleIssue[] {
     }
 
     const parsed = parseRule(rule)
-    const formatError = getFormatError(rule, i)
+    const formatError = getFormatError(parsed, rule, i)
     if (formatError) {
       issues.push({
         type: 'invalid-format',
@@ -85,8 +90,7 @@ export function analyzeRules(config: MihomoConfig): RuleIssue[] {
     }
 
     // Check for duplicate rules
-    const dups = rules.filter((r, j) => j !== i && r.trim() === rule)
-    if (dups.length > 0) {
+    if ((ruleCounts.get(rule) ?? 0) > 1) {
       issues.push({
         type: 'duplicate',
         severity: 'warning',

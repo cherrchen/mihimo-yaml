@@ -16,8 +16,16 @@ import { ImportDialog } from '@/components/import/ImportDialog'
 import { ExportDialog } from '@/components/export/ExportDialog'
 
 export function Header() {
-  const { theme, setTheme } = useUiStore()
-  const { configName, setConfigName, undo, redo, canUndo, canRedo, hasUnsavedChanges, triggerSave } = useConfigStore()
+  const theme = useUiStore((state) => state.theme)
+  const setTheme = useUiStore((state) => state.setTheme)
+  const configName = useConfigStore((state) => state.configName)
+  const setConfigName = useConfigStore((state) => state.setConfigName)
+  const undo = useConfigStore((state) => state.undo)
+  const redo = useConfigStore((state) => state.redo)
+  const historyIndex = useConfigStore((state) => state.historyIndex)
+  const historyLength = useConfigStore((state) => state.history.length)
+  const hasUnsavedChanges = useConfigStore((state) => state.hasUnsavedChanges)
+  const triggerSave = useConfigStore((state) => state.triggerSave)
   const [importOpen, setImportOpen] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
   const [exportMode, setExportMode] = useState<'mihomo' | 'stash'>('mihomo')
@@ -89,10 +97,10 @@ export function Header() {
 
         {/* Center */}
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" disabled={!canUndo()} onClick={undo} title="撤销">
+          <Button variant="ghost" size="icon" disabled={historyIndex <= 0} onClick={undo} title="撤销">
             <Undo2 className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" disabled={!canRedo()} onClick={redo} title="重做">
+          <Button variant="ghost" size="icon" disabled={historyIndex >= historyLength - 1} onClick={redo} title="重做">
             <Redo2 className="size-4" />
           </Button>
           <div className="w-px h-5 bg-border mx-1" />
@@ -141,8 +149,8 @@ export function Header() {
         </div>
       </div>
 
-      <ImportDialog open={importOpen} onClose={() => setImportOpen(false)} />
-      <ExportDialog open={exportOpen} onClose={() => setExportOpen(false)} mode={exportMode} />
+      {importOpen && <ImportDialog open onClose={() => setImportOpen(false)} />}
+      {exportOpen && <ExportDialog open onClose={() => setExportOpen(false)} mode={exportMode} />}
     </>
   )
 }

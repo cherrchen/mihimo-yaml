@@ -10,6 +10,7 @@ function resetStore() {
     historyIndex: 0,
     integrityReport: null,
     compatibilityReport: null,
+    derivationPending: false,
   })
 }
 
@@ -18,13 +19,14 @@ describe('Config store', () => {
     resetStore()
   })
 
-  it('should update config and trigger validation', () => {
+  it('should update config and defer validation', () => {
     useConfigStore.getState().updateConfig((draft) => {
       draft.mode = 'global'
     })
     const updated = useConfigStore.getState()
     expect(updated.config.mode).toBe('global')
-    expect(updated.integrityReport).not.toBeNull()
+    expect(updated.integrityReport).toBeNull()
+    expect(updated.derivationPending).toBe(true)
   })
 
   it('should limit history to maxHistory', () => {
@@ -124,7 +126,7 @@ describe('Config store', () => {
     expect(useConfigStore.getState().configName).toBe('我的配置')
   })
 
-  it('should run integrity check on updateConfig', () => {
+  it('should allow an explicit integrity check while background derivation is pending', () => {
     const store = useConfigStore.getState()
     store.updateConfig((draft) => {
       draft['proxy-groups'] = [
@@ -132,8 +134,68 @@ describe('Config store', () => {
       ]
     })
 
+    useConfigStore.getState().runValidation()
     const state = useConfigStore.getState()
     expect(state.integrityReport).not.toBeNull()
     expect(state.integrityReport!.issues.some((i) => i.type === 'dangling-ref')).toBe(true)
+  })
+
+  it('should structurally share untouched config sections and history snapshots', () => {
+    useConfigStore.getState().setConfig({
+      mode: 'rule',
+      proxies: [{ name: 'node-a', type: 'direct' }],
+      rules: ['MATCH,DIRECT'],
+    })
+    const before = useConfigStore.getState().config
+
+    useConfigStore.getState().updateConfig((draft) => {
+      draft.mode = 'global'
+    })
+
+    const state = useConfigStore.getState()
+    expect(state.config).not.toBe(before)
+    expect(state.config.proxies).toBe(before.proxies)
+    expect(state.config.rules).toBe(before.rules)
+    expect(state.history[0].config).toBe(before)
+    expect(state.history[1].config).toBe(state.config)
+  })
+
+  it('should not add history for an updater that makes no changes', () => {
+    const before = useConfigStore.getState()
+    before.updateConfig(() => {})
+
+    const after = useConfigStore.getState()
+    expect(after.config).toBe(before.config)
+    expect(after.history).toBe(before.history)
+  })
+
+  it('should ignore a derived result from an obsolete config snapshot', () => {
+    const obsolete = useConfigStore.getState().config
+    useConfigStore.getState().updateConfig((draft) => {
+      draft.mode = 'global'
+    })
+
+    useConfigStore.getState().applyDerivedResult(obsolete, 'stale yaml', {
+      valid: true,
+      issues: [],
+      references: {
+        allProxyNames: new Set(),
+        allGroupNames: new Set(),
+        allProviderNames: new Set(),
+        allRuleProviderNames: new Set(),
+        allListenerNames: new Set(),
+        danglingProxyRefs: [],
+        danglingGroupRefs: [],
+        danglingProviderRefs: [],
+        danglingRuleProviderRefs: [],
+        danglingRuleRefs: [],
+      },
+      cycles: { hasCycle: false, cycles: [], path: '' },
+      chains: [],
+      rules: [],
+    })
+
+    expect(useConfigStore.getState().configYaml).toBe('')
+    expect(useConfigStore.getState().derivationPending).toBe(true)
   })
 })

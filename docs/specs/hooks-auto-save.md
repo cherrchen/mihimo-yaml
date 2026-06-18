@@ -18,12 +18,13 @@ function useAutoSave(): void
 
 ## 依赖
 - `react` — `useEffect`, `useRef`, `useCallback`
-- `@/store/config-store` — reads `config`, `configName`, `saveTrigger`, `currentDraftId`; calls `setConfigYaml`, `setHasUnsavedChanges`, `setCurrentDraftId`
-- `@/schema/yaml` — `stringifyYamlOrdered` to produce YAML from config
+- `@/store/config-store` — reads snapshot/name/trigger and applies matching derived/save state
+- `@/lib/config-derivation` — shares the Worker-backed YAML/integrity result with the preview pipeline
 - `@/lib/db` — `db` (Dexie instance), `Draft` type
 
 ## 关键数据流
-The hook serialises the config to YAML via `stringifyYamlOrdered` on every change. A `useEffect` debounces saves with a 1-second `setTimeout` — the timer is cleared and restarted on each config or name change. When the timer fires, `doSave` checks if the YAML or name actually changed since the last persisted state (to avoid no-op writes). It writes to `localStorage` (`mihomo-yaml-autosave` and `mihomo-yaml-autosave-name`) and then to IndexedDB via Dexie: if a `currentDraftId` exists it updates that row; otherwise it looks up by name and updates or inserts. A second `useEffect` watches the `saveTrigger` counter and performs an immediate save (without debounce) when triggered. After a successful save, `hasUnsavedChanges` is set to `false`.
+The hook waits one second after config/name changes, then requests the shared derived result instead of serialising during render. A save captures immutable config/name snapshots and aborts if either is obsolete before persistence. Immediate save consumes each `saveTrigger` value exactly once. localStorage and Dexie receive the same YAML/config snapshot; `hasUnsavedChanges` is cleared only if that snapshot is still current after the async writes.
 
 ## 关联测试
-- No dedicated automated test; localStorage/Dexie writes and debounce/immediate-save behavior are not directly covered
+- `src/__tests__/auto-save.test.tsx` — matching YAML/config persistence, immediate save, and stale in-flight save rejection
+- `src/__tests__/config-derivation.test.ts` — synchronous derivation, Worker-unavailable fallback, and current-snapshot cache

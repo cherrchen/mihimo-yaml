@@ -4,8 +4,8 @@ import { Header } from '@/components/layout/Header'
 import { NavTree } from '@/components/layout/NavTree'
 import { useUiStore } from '@/store/ui-store'
 import { useConfigStore } from '@/store/config-store'
-import { useAutoSave } from '@/hooks/useAutoSave'
 import { DashboardPage } from '@/pages/Dashboard'
+import { ConfigBackgroundTasks } from '@/components/ConfigBackgroundTasks'
 
 const YamlPreview = lazy(() => import('@/components/preview/YamlPreview').then((m) => ({ default: m.YamlPreview })))
 const GeneralEditor = lazy(() => import('@/components/editors/general/GeneralEditor').then((m) => ({ default: m.GeneralEditor })))
@@ -39,9 +39,9 @@ function LoadingPanel() {
 }
 
 export default function App() {
-  const { activeSection, sidebarWidth, sidebarOpen } = useUiStore()
-
-  useAutoSave()
+  const activeSection = useUiStore((state) => state.activeSection)
+  const sidebarWidth = useUiStore((state) => state.sidebarWidth)
+  const sidebarOpen = useUiStore((state) => state.sidebarOpen)
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
@@ -91,20 +91,23 @@ export default function App() {
   }
 
   return (
-    <AppShell
-      header={<Header />}
-      sidebar={<NavTree />}
-      sidebarWidth={sidebarWidth}
-      sidebarOpen={sidebarOpen}
-      previewPanel={(
+    <>
+      <ConfigBackgroundTasks />
+      <AppShell
+        header={<Header />}
+        sidebar={<NavTree />}
+        sidebarWidth={sidebarWidth}
+        sidebarOpen={sidebarOpen}
+        previewPanel={(
+          <Suspense fallback={<LoadingPanel />}>
+            <YamlPreview />
+          </Suspense>
+        )}
+      >
         <Suspense fallback={<LoadingPanel />}>
-          <YamlPreview />
+          {renderEditor()}
         </Suspense>
-      )}
-    >
-      <Suspense fallback={<LoadingPanel />}>
-        {renderEditor()}
-      </Suspense>
-    </AppShell>
+      </AppShell>
+    </>
   )
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useDeferredValue, useMemo, useRef, useState } from 'react'
 import { useConfigStore } from '@/store/config-store'
 import { Plus, Trash2, Copy, Search } from 'lucide-react'
 import { SelectField, TextField, NumberField, BoolField } from '@/components/editors/shared/fields'
@@ -6,6 +6,10 @@ import { FieldWrapper } from '@/components/editors/shared/FieldWrapper'
 import { SensitiveField } from '@/components/editors/shared/SensitiveField'
 import type { ProxyConfig } from '@/schema/model'
 import { PROXY_TYPES, IP_VERSIONS, NETWORK_TYPES } from '@/lib/constants'
+import { useVirtualizer } from '@tanstack/react-virtual'
+
+const EMPTY_PROXIES: ProxyConfig[] = []
+const VIRTUALIZE_THRESHOLD = 200
 
 const PROXY_TYPE_LABELS: Record<string, string> = {
   direct: 'Direct', dns: 'DNS', reject: 'Reject', 'reject-drop': 'Reject Drop',
@@ -20,22 +24,35 @@ const PROXY_TYPE_LABELS: Record<string, string> = {
 }
 
 export function ProxiesEditor() {
-  const config = useConfigStore((s) => s.config)
+  const proxies = useConfigStore((state) => state.config.proxies ?? EMPTY_PROXIES)
   const updateConfig = useConfigStore((s) => s.updateConfig)
   const [selectedIdx, setSelectedIdx] = useState<number>(-1)
   const [search, setSearch] = useState('')
+  const scrollRef = useRef<HTMLDivElement>(null)
 
-  const proxies = config.proxies || []
-
-  const filtered = (search
+  const deferredSearch = useDeferredValue(search.trim().toLowerCase())
+  const filtered = useMemo(() => deferredSearch
     ? proxies
         .map((p, idx) => ({ proxy: p, idx }))
         .filter(({ proxy: p }) =>
-          p.name.toLowerCase().includes(search.toLowerCase()) ||
-          p.type.toLowerCase().includes(search.toLowerCase()) ||
-          (p.server || '').toLowerCase().includes(search.toLowerCase()),
+          p.name.toLowerCase().includes(deferredSearch) ||
+          p.type.toLowerCase().includes(deferredSearch) ||
+          (p.server || '').toLowerCase().includes(deferredSearch),
         )
-    : proxies.map((p, idx) => ({ proxy: p, idx })))
+    : proxies.map((p, idx) => ({ proxy: p, idx })), [deferredSearch, proxies])
+  const shouldVirtualize = filtered.length > VIRTUALIZE_THRESHOLD
+  // TanStack Virtual intentionally exposes mutable measurement methods.
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const virtualizer = useVirtualizer({
+    count: filtered.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 29,
+    overscan: 12,
+    getItemKey: (index) => `${filtered[index]?.proxy.name ?? 'proxy'}-${filtered[index]?.idx ?? index}`,
+  })
+  const renderedProxies = shouldVirtualize
+    ? virtualizer.getVirtualItems().map((virtualRow) => ({ ...filtered[virtualRow.index], virtualRow }))
+    : filtered.map((item) => ({ ...item, virtualRow: undefined }))
 
   const setProxies = (updater: (proxies: ProxyConfig[]) => ProxyConfig[]) => {
     updateConfig((draft) => {
@@ -99,16 +116,23 @@ export function ProxiesEditor() {
           添加节点
         </button>
 
-        <div className="flex-1 overflow-y-auto space-y-0.5">
-          {filtered.map(({ proxy, idx }) => (
+        <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-0.5">
+          <div
+            className={shouldVirtualize ? 'relative w-full' : undefined}
+            style={shouldVirtualize ? { height: virtualizer.getTotalSize() } : undefined}
+          >
+          {renderedProxies.map(({ proxy, idx, virtualRow }) => (
             <div
-              key={`${proxy.name}-${idx}`}
+              key={virtualRow?.key ?? `${proxy.name}-${idx}`}
+              ref={virtualRow ? virtualizer.measureElement : undefined}
+              data-index={virtualRow?.index}
               onClick={() => setSelectedIdx(idx)}
-              className={`flex items-center gap-1 px-2 py-1 rounded text-xs cursor-pointer ${
+              className={`${virtualRow ? 'absolute left-0 top-0 w-full' : ''} flex items-center gap-1 px-2 py-1 rounded text-xs cursor-pointer ${
                 selectedIdx === idx
                   ? 'bg-accent text-accent-foreground'
                   : 'hover:bg-accent/50 text-muted-foreground'
               }`}
+              style={virtualRow ? { transform: `translateY(${virtualRow.start}px)` } : undefined}
             >
               <span className="text-[10px] w-6 shrink-0 text-muted-foreground">{idx + 1}</span>
               <span className="truncate flex-1">{proxy.name}</span>
@@ -117,6 +141,7 @@ export function ProxiesEditor() {
               </span>
             </div>
           ))}
+          </div>
         </div>
       </div>
 

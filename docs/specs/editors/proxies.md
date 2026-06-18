@@ -7,7 +7,7 @@ Manages outbound proxy nodes — the individual proxy servers that groups and ru
 - `src/components/editors/proxies/ProxiesEditor.tsx`
 
 ## UI 结构
-List/detail split layout with search. Left sidebar has a search input, an "Add" button, and a scrollable proxy list showing index, name, and type. Right pane shows a detail form with collapsible sections (Advanced, TLS, SMUX, Network/Transport). Type-specific fields are rendered dynamically via `TypeSpecificFields` switch. Supports duplicate and delete actions.
+List/detail split layout with deferred search. The left list shows index/name/type and switches to fixed-height virtual rows above 200 matches; the right pane shows the selected proxy detail form. Type-specific fields are rendered through `TypeSpecificFields`; duplicate and delete actions are preserved.
 
 ## 配置字段
 - `proxies[]` (top-level array)
@@ -22,6 +22,7 @@ List/detail split layout with search. Left sidebar has a search input, an "Add" 
 - `FieldWrapper`
 - `TextField`, `NumberField`, `BoolField`, `SelectField`
 - `SensitiveField`
+- `@tanstack/react-virtual`
 
 ## 关联引擎
 - `src/engine/references.ts` — collects proxy names, validates dialer-proxy references

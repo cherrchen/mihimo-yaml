@@ -1,14 +1,16 @@
-import { useState, useId, useMemo } from 'react'
+import { useDeferredValue, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useConfigStore } from '@/store/config-store'
 import { TextField } from '@/components/editors/shared/fields'
 import { Plus, Trash2, AlertTriangle, GripVertical, Search } from 'lucide-react'
-import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
+import { DndContext, closestCenter, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core'
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { RULE_TYPES } from '@/lib/constants'
 import { parseRule, buildRuleString } from '@/lib/rule-parser'
+import { defaultRangeExtractor, useVirtualizer, type VirtualItem } from '@tanstack/react-virtual'
 
 const RULE_TARGETS = ['DIRECT', 'REJECT', 'REJECT-DROP', 'COMPATIBLE', 'PASS']
+const VIRTUALIZE_THRESHOLD = 200
 
 function SortableRuleItem({ id, className = '', onClick, dragDisabled = false, children }: { id: string; className?: string; onClick?: () => void; dragDisabled?: boolean; children: React.ReactNode }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, disabled: dragDisabled })
@@ -42,6 +44,8 @@ export function RulesEditor() {
   const updateConfig = useConfigStore((s) => s.updateConfig)
   const [editingIdx, setEditingIdx] = useState<number>(-1)
   const [search, setSearch] = useState('')
+  const [draggedIdx, setDraggedIdx] = useState<number>(-1)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   const rules = useMemo(() => config.rules || [], [config.rules])
   const ruleProviders = Object.keys(config['rule-providers'] || {})
@@ -52,17 +56,53 @@ export function RulesEditor() {
 
   const idPrefix = useId()
   const ids = useMemo(() => rules.map((_, i) => `${idPrefix}-${i}`), [rules, idPrefix])
-  const normalizedSearch = search.trim().toLowerCase()
+  const normalizedSearch = useDeferredValue(search.trim().toLowerCase())
   const filteredRules = useMemo(
     () => rules
       .map((rule, idx) => ({ rule, idx }))
       .filter(({ rule }) => !normalizedSearch || rule.toLowerCase().includes(normalizedSearch)),
     [rules, normalizedSearch],
   )
-  const visibleIds = filteredRules.map(({ idx }) => ids[idx])
+  const visibleIds = useMemo(() => filteredRules.map(({ idx }) => ids[idx]), [filteredRules, ids])
+  const shouldVirtualize = filteredRules.length > VIRTUALIZE_THRESHOLD
+  const editingVirtualIndex = filteredRules.findIndex(({ idx }) => idx === editingIdx)
+  const draggedVirtualIndex = filteredRules.findIndex(({ idx }) => idx === draggedIdx)
+  // TanStack Virtual intentionally exposes mutable measurement methods.
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const virtualizer = useVirtualizer({
+    count: filteredRules.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 31,
+    overscan: 12,
+    getItemKey: (index) => visibleIds[index] ?? index,
+    rangeExtractor: (range) => {
+      const indexes = defaultRangeExtractor(range)
+      if (editingVirtualIndex >= 0) indexes.push(editingVirtualIndex)
+      if (draggedVirtualIndex >= 0) indexes.push(draggedVirtualIndex)
+      return [...new Set(indexes)].sort((left, right) => left - right)
+    },
+  })
+
+  useEffect(() => {
+    if (shouldVirtualize && editingVirtualIndex >= 0) {
+      virtualizer.scrollToIndex(editingVirtualIndex, { align: 'auto' })
+    }
+  }, [editingVirtualIndex, shouldVirtualize, virtualizer])
+
+  const renderedRules: Array<{ rule: string; idx: number; virtualRow?: VirtualItem }> = shouldVirtualize
+    ? virtualizer.getVirtualItems().map((virtualRow) => ({
+        ...filteredRules[virtualRow.index],
+        virtualRow,
+      }))
+    : filteredRules
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setDraggedIdx(ids.indexOf(event.active.id as string))
+  }
 
   const handleDragEnd = (event: DragEndEvent) => {
-    if (normalizedSearch) return
+    setDraggedIdx(-1)
+    if (search.trim()) return
     const { active, over } = event
     if (over && active.id !== over.id) {
       const oldIndex = ids.indexOf(active.id as string)
@@ -128,16 +168,28 @@ export function RulesEditor() {
         />
       </div>
 
-      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <DndContext
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragCancel={() => setDraggedIdx(-1)}
+        onDragEnd={handleDragEnd}
+      >
         <SortableContext items={visibleIds} strategy={verticalListSortingStrategy}>
-          <div className="space-y-0.5 border border-border rounded-md">
-            {filteredRules.map(({ rule, idx: i }) => {
+          <div
+            ref={shouldVirtualize ? scrollRef : undefined}
+            className={`border border-border rounded-md ${shouldVirtualize ? 'h-[calc(100vh-11rem)] overflow-y-auto' : 'space-y-0.5'}`}
+          >
+            <div
+              className={shouldVirtualize ? 'relative w-full' : undefined}
+              style={shouldVirtualize ? { height: virtualizer.getTotalSize() } : undefined}
+            >
+            {renderedRules.map(({ rule, idx: i, virtualRow }) => {
               const { type, payload, target, extra } = parseRule(rule)
               const isMatchAfter = i > 0 && parseRule(rules[i - 1]).type === 'MATCH'
               const editing = editingIdx === i
 
               if (editing) {
-                return (
+                const editor = (
                   <div key={i} className={`border-b border-border last:border-b-0 ${isMatchAfter ? 'bg-yellow-500/5' : ''}`}>
                     <div className="px-2 py-2 space-y-2">
                       <div className="grid grid-cols-4 gap-1">
@@ -236,9 +288,22 @@ export function RulesEditor() {
                     </div>
                   </div>
                 )
+
+                if (!virtualRow) return editor
+                return (
+                  <div
+                    key={virtualRow.key}
+                    ref={virtualizer.measureElement}
+                    data-index={virtualRow.index}
+                    className="absolute left-0 top-0 w-full pb-0.5"
+                    style={{ transform: `translateY(${virtualRow.start}px)` }}
+                  >
+                    {editor}
+                  </div>
+                )
               }
 
-              return (
+              const collapsed = (
                 <SortableRuleItem
                   key={ids[i]}
                   id={ids[i]}
@@ -261,6 +326,19 @@ export function RulesEditor() {
                   </button>
                 </SortableRuleItem>
               )
+
+              if (!virtualRow) return collapsed
+              return (
+                <div
+                  key={virtualRow.key}
+                  ref={virtualizer.measureElement}
+                  data-index={virtualRow.index}
+                  className="absolute left-0 top-0 w-full pb-0.5"
+                  style={{ transform: `translateY(${virtualRow.start}px)` }}
+                >
+                  {collapsed}
+                </div>
+              )
             })}
 
             {rules.length === 0 && (
@@ -273,6 +351,7 @@ export function RulesEditor() {
                 没有找到匹配“{search.trim()}”的规则。
               </div>
             )}
+            </div>
           </div>
         </SortableContext>
       </DndContext>

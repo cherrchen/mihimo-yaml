@@ -95,4 +95,19 @@ describe('Rule validator', () => {
 
     expect(issues).toHaveLength(0)
   })
+
+  it('should analyze 50,000 rules in linear time', () => {
+    const rules = Array.from(
+      { length: 49_999 },
+      (_, index) => `DOMAIN-SUFFIX,rule-${index}.example,DIRECT`,
+    )
+    rules.push('MATCH,DIRECT')
+
+    const startedAt = performance.now()
+    const issues = analyzeRules({ rules })
+    const elapsed = performance.now() - startedAt
+
+    expect(issues).toHaveLength(0)
+    expect(elapsed).toBeLessThan(2_000)
+  })
 })

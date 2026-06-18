@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RulesEditor } from '@/components/editors/rules/RulesEditor'
 import { useConfigStore } from '@/store/config-store'
@@ -55,5 +55,29 @@ describe('RulesEditor component', () => {
     await user.type(screen.getByPlaceholderText('搜索规则关键词...'), 'not-present')
 
     expect(screen.getByText('没有找到匹配“not-present”的规则。')).toBeInTheDocument()
+  })
+
+  it('should virtualize 50,000 rules and preserve original indexes when searching', async () => {
+    const rules = Array.from(
+      { length: 49_999 },
+      (_, index) => `DOMAIN-SUFFIX,rule-${index}.example,DIRECT`,
+    )
+    rules.push('MATCH,DIRECT')
+    useConfigStore.setState((state) => ({
+      ...state,
+      config: { mode: 'rule', proxies: [], 'proxy-groups': [], rules },
+      history: [],
+      historyIndex: -1,
+    }))
+
+    render(<RulesEditor />)
+    expect(screen.queryAllByLabelText(/^删除规则/).length).toBeLessThan(100)
+
+    fireEvent.change(screen.getByPlaceholderText('搜索规则关键词...'), {
+      target: { value: 'rule-49998.example' },
+    })
+
+    expect(await screen.findByText('rule-49998.example')).toBeInTheDocument()
+    expect(screen.getByLabelText('删除规则 49999')).toBeInTheDocument()
   })
 })

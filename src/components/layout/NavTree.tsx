@@ -77,8 +77,10 @@ const NAV_ITEMS: NavItem[] = [
 ]
 
 export function NavTree() {
-  const { activeSection, setActiveSection } = useUiStore()
-  const config = useConfigStore((s) => s.config)
+  const activeSection = useUiStore((state) => state.activeSection)
+  const setActiveSection = useUiStore((state) => state.setActiveSection)
+  const proxyCount = useConfigStore((state) => state.config.proxies?.length ?? 0)
+  const ruleCount = useConfigStore((state) => state.config.rules?.length ?? 0)
   const [search, setSearch] = useState('')
 
   const filteredItems = useMemo(() => {
@@ -94,8 +96,8 @@ export function NavTree() {
   }, [search])
 
   const getBadge = (item: NavItem): string | undefined => {
-    if (item.id === 'proxies') return String(config.proxies?.length || 0)
-    if (item.id === 'rules') return String(config.rules?.length || 0)
+    if (item.id === 'proxies') return String(proxyCount)
+    if (item.id === 'rules') return String(ruleCount)
     return item.badge
   }
 

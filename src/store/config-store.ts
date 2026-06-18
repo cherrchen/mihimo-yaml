@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { produce, setAutoFreeze } from 'immer'
 import type { MihomoConfig } from '@/schema/model'
 import { cloneConfig } from '@/schema/yaml'
 import { MINIMAL_CONFIG } from '@/schema/defaults'
@@ -6,6 +7,8 @@ import type { IntegrityReport } from '@/engine/integrity'
 import { runIntegrityCheck } from '@/engine/integrity'
 import type { CompatibilityReport } from '@/compatibility/stash'
 import { generateMihomoReport } from '@/compatibility/stash'
+
+setAutoFreeze(false)
 
 interface HistoryEntry {
   config: MihomoConfig
@@ -29,6 +32,7 @@ interface ConfigState {
   // validation
   integrityReport: IntegrityReport | null
   compatibilityReport: CompatibilityReport | null
+  derivationPending: boolean
 
   // actions
   setConfig: (config: MihomoConfig) => void
@@ -43,6 +47,8 @@ interface ConfigState {
   saveToHistory: (snapshot?: MihomoConfig) => void
   runValidation: () => void
   runCompatibility: () => void
+  applyDerivedResult: (snapshot: MihomoConfig, yaml: string, report: IntegrityReport) => void
+  failDerivedResult: (snapshot: MihomoConfig) => void
   setHasUnsavedChanges: (v: boolean) => void
   triggerSave: () => void
   setCurrentDraftId: (id: number | null) => void
@@ -60,30 +66,41 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
   currentDraftId: null,
   integrityReport: null,
   compatibilityReport: null,
+  derivationPending: true,
 
   setConfig: (config) => {
     const snapshot = cloneConfig(config)
     set(() => ({
       config: snapshot,
-      history: [{ config: cloneConfig(snapshot) }],
+      history: [{ config: snapshot }],
       historyIndex: 0,
       hasUnsavedChanges: false,
       currentDraftId: null,
-      integrityReport: runIntegrityCheck(snapshot),
-      compatibilityReport: generateMihomoReport(snapshot),
+      integrityReport: null,
+      compatibilityReport: null,
+      derivationPending: true,
     }))
   },
 
   updateConfig: (updater) => {
-    const cloned = cloneConfig(get().config)
-    updater(cloned)
+    const current = get().config
+    const next = produce(current, updater)
+    if (next === current) return
+
+    const { history, historyIndex, maxHistory } = get()
+    const nextHistory = history.slice(0, historyIndex + 1)
+    nextHistory.push({ config: next })
+    if (nextHistory.length > maxHistory) nextHistory.shift()
+
     set(() => ({
-      config: cloned,
+      config: next,
+      history: nextHistory,
+      historyIndex: nextHistory.length - 1,
       hasUnsavedChanges: true,
-      integrityReport: runIntegrityCheck(cloned),
-      compatibilityReport: generateMihomoReport(cloned),
+      integrityReport: null,
+      compatibilityReport: null,
+      derivationPending: true,
     }))
-    get().saveToHistory(cloned)
   },
 
   setConfigYaml: (yaml) => {
@@ -95,7 +112,7 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
   },
 
   resetConfig: () => {
-    const defaults = { ...MINIMAL_CONFIG }
+    const defaults = cloneConfig(MINIMAL_CONFIG)
     set({
       config: defaults,
       configYaml: '',
@@ -106,13 +123,14 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
       currentDraftId: null,
       integrityReport: null,
       compatibilityReport: null,
+      derivationPending: true,
     })
   },
 
   saveToHistory: (snapshot?: MihomoConfig) => {
     const { history, historyIndex, maxHistory } = get()
     const newHistory = history.slice(0, historyIndex + 1)
-    newHistory.push({ config: cloneConfig(snapshot ?? get().config) })
+    newHistory.push({ config: snapshot ?? get().config })
     if (newHistory.length > maxHistory) {
       newHistory.shift()
     }
@@ -126,13 +144,14 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
     const { historyIndex, history } = get()
     if (historyIndex > 0) {
       const newIndex = historyIndex - 1
-      const config = cloneConfig(history[newIndex].config)
+      const config = history[newIndex].config
       set({
         historyIndex: newIndex,
         config,
         hasUnsavedChanges: true,
-        integrityReport: runIntegrityCheck(config),
-        compatibilityReport: generateMihomoReport(config),
+        integrityReport: null,
+        compatibilityReport: null,
+        derivationPending: true,
       })
     }
   },
@@ -141,13 +160,14 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
     const { historyIndex, history } = get()
     if (historyIndex < history.length - 1) {
       const newIndex = historyIndex + 1
-      const config = cloneConfig(history[newIndex].config)
+      const config = history[newIndex].config
       set({
         historyIndex: newIndex,
         config,
         hasUnsavedChanges: true,
-        integrityReport: runIntegrityCheck(config),
-        compatibilityReport: generateMihomoReport(config),
+        integrityReport: null,
+        compatibilityReport: null,
+        derivationPending: true,
       })
     }
   },
@@ -163,6 +183,16 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
   runCompatibility: () => {
     const config = get().config
     set({ compatibilityReport: generateMihomoReport(config) })
+  },
+
+  applyDerivedResult: (snapshot, yaml, report) => {
+    if (get().config !== snapshot) return
+    set({ configYaml: yaml, integrityReport: report, derivationPending: false })
+  },
+
+  failDerivedResult: (snapshot) => {
+    if (get().config !== snapshot) return
+    set({ derivationPending: false })
   },
 
   setHasUnsavedChanges: (v) => {

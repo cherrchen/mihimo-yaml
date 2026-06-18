@@ -23,7 +23,7 @@ export default function App(): JSX.Element
 - `@/components/layout/NavTree` — left navigation tree
 - `@/store/ui-store` — `useUiStore` (reads `activeSection`, `sidebarWidth`, `sidebarOpen`)
 - `@/store/config-store` — `useConfigStore` (for undo/redo keyboard shortcuts)
-- `@/hooks/useAutoSave` — `useAutoSave` to start auto-save watcher
+- `@/components/ConfigBackgroundTasks` — isolates config derivation and auto-save subscriptions from the application shell
 - `@/pages/Dashboard` — default landing page
 - 21 lazy-loaded editor/page components (19 editor routes plus About and Settings), plus a lazy-loaded YAML preview; Dashboard is imported eagerly
 
@@ -55,7 +55,7 @@ export default function App(): JSX.Element
 | `settings` | `SettingsPage` |
 
 ## 关键数据流
-`App` calls `useAutoSave()` to activate persistent auto-save on mount. It registers global keyboard listeners for `Ctrl+Z` (undo), `Ctrl+Shift+Z` (redo), and `Ctrl+S`; the save shortcut only suppresses the browser default and does not call `triggerSave`. The `renderEditor` switch maps `activeSection` to page/editor components. Lazy editors and YamlPreview are wrapped in `<Suspense>` with a `LoadingPanel` fallback.
+`App` mounts `ConfigBackgroundTasks` as a sibling of the layout so config/auto-save updates do not re-render the application shell. It subscribes only to the three UI fields required by `AppShell`, registers global keyboard listeners for undo/redo/save shortcuts, and maps `activeSection` to lazy editor components. Lazy editors and YamlPreview are wrapped in `<Suspense>` with a `LoadingPanel` fallback.
 
 ## 关联测试
 - No dedicated `App` integration test

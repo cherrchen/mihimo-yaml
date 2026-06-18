@@ -1,89 +1,106 @@
-import { useEffect, useRef, useCallback } from 'react'
-import { useConfigStore } from '@/store/config-store'
-import { stringifyYamlOrdered } from '@/schema/yaml'
+import { useCallback, useEffect, useRef } from 'react'
+import { deriveConfig } from '@/lib/config-derivation'
 import { db } from '@/lib/db'
 import type { Draft } from '@/lib/db'
+import { useConfigStore } from '@/store/config-store'
 
 const SAVE_DELAY = 1000
 
 export function useAutoSave() {
-  const config = useConfigStore((s) => s.config)
-  const configName = useConfigStore((s) => s.configName)
-  const setConfigYaml = useConfigStore((s) => s.setConfigYaml)
-  const setHasUnsavedChanges = useConfigStore((s) => s.setHasUnsavedChanges)
-  const saveTrigger = useConfigStore((s) => s.saveTrigger)
-  const currentDraftId = useConfigStore((s) => s.currentDraftId)
-  const setCurrentDraftId = useConfigStore((s) => s.setCurrentDraftId)
+  const config = useConfigStore((state) => state.config)
+  const configName = useConfigStore((state) => state.configName)
+  const saveTrigger = useConfigStore((state) => state.saveTrigger)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const initialYaml = stringifyYamlOrdered(config)
-  const lastSavedRef = useRef(initialYaml)
+  const handledSaveTriggerRef = useRef(saveTrigger)
+  const lastSavedConfigRef = useRef(config)
   const lastSavedNameRef = useRef(configName)
 
   const doSave = useCallback(async () => {
-    const yaml = stringifyYamlOrdered(config)
-    setConfigYaml(yaml)
+    const snapshot = config
+    const nameSnapshot = configName
 
-    if (yaml === lastSavedRef.current && configName === lastSavedNameRef.current) return
-    lastSavedRef.current = yaml
-    lastSavedNameRef.current = configName
+    if (snapshot === lastSavedConfigRef.current && nameSnapshot === lastSavedNameRef.current) return
+
+    let derived
+    try {
+      derived = await deriveConfig(snapshot)
+    } catch {
+      return
+    }
+    const { yaml, integrityReport } = derived
+    const stateBeforePersist = useConfigStore.getState()
+    if (stateBeforePersist.config !== snapshot || stateBeforePersist.configName !== nameSnapshot) return
+
+    stateBeforePersist.applyDerivedResult(snapshot, yaml, integrityReport)
 
     try {
       localStorage.setItem('mihomo-yaml-autosave', yaml)
-      localStorage.setItem('mihomo-yaml-autosave-name', configName)
+      localStorage.setItem('mihomo-yaml-autosave-name', nameSnapshot)
     } catch {
-      // Ignore storage errors
+      // Storage can be unavailable in private browsing or restricted contexts.
     }
 
     try {
+      const currentDraftId = useConfigStore.getState().currentDraftId
       if (currentDraftId) {
         await db.drafts.update(currentDraftId, {
           yaml,
-          config: config,
-          name: configName,
+          config: snapshot,
+          name: nameSnapshot,
           updatedAt: Date.now(),
         })
       } else {
-        const existing = await db.drafts.where('name').equals(configName).first()
+        const existing = await db.drafts.where('name').equals(nameSnapshot).first()
         if (existing) {
           await db.drafts.update(existing.id!, {
             yaml,
-            config: config,
-            name: configName,
+            config: snapshot,
+            name: nameSnapshot,
             updatedAt: Date.now(),
           })
-          setCurrentDraftId(existing.id!)
+          const current = useConfigStore.getState()
+          if (current.config === snapshot && current.configName === nameSnapshot) {
+            current.setCurrentDraftId(existing.id!)
+          }
         } else {
           const id = await db.drafts.put({
-            name: configName,
+            name: nameSnapshot,
             yaml,
-            config,
+            config: snapshot,
             updatedAt: Date.now(),
             createdAt: Date.now(),
           } as Draft)
-          setCurrentDraftId(id as number)
+          const current = useConfigStore.getState()
+          if (current.config === snapshot && current.configName === nameSnapshot) {
+            current.setCurrentDraftId(id as number)
+          }
         }
       }
     } catch {
-      // Ignore Dexie errors
+      // Keep local editing usable when IndexedDB is unavailable.
     }
-    setHasUnsavedChanges(false)
-  }, [config, configName, setConfigYaml, setHasUnsavedChanges, currentDraftId, setCurrentDraftId])
+
+    const current = useConfigStore.getState()
+    if (current.config === snapshot && current.configName === nameSnapshot) {
+      lastSavedConfigRef.current = snapshot
+      lastSavedNameRef.current = nameSnapshot
+      current.setHasUnsavedChanges(false)
+    }
+  }, [config, configName])
 
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => {
-      doSave()
-    }, SAVE_DELAY)
+    timerRef.current = setTimeout(() => void doSave(), SAVE_DELAY)
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
     }
-  }, [config, configName, setConfigYaml, doSave])
+  }, [config, configName, doSave])
 
   useEffect(() => {
-    if (saveTrigger > 0) {
-      if (timerRef.current) clearTimeout(timerRef.current)
-      doSave()
-    }
-  }, [saveTrigger, doSave])
+    if (saveTrigger <= handledSaveTriggerRef.current) return
+    handledSaveTriggerRef.current = saveTrigger
+    if (timerRef.current) clearTimeout(timerRef.current)
+    void doSave()
+  }, [doSave, saveTrigger])
 }
