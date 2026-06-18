@@ -23,9 +23,9 @@ Zustand store for UI-level state including theme, sidebar layout, active navigat
 | `sidebarOpen` | `boolean` | Whether the sidebar is visible |
 | `activeSection` | `NavSection` | Currently selected navigation section key |
 | `previewMode` | `'yaml' \| 'issues' \| 'diff' \| 'report'` | Which panel to show in the preview area |
-| `showAdvancedFields` | `boolean` | Whether advanced fields are visible in editors |
-| `showSensitiveFields` | `boolean` | Whether sensitive fields (e.g. secrets) are visible |
-| `exportMode` | `'mihomo' \| 'stash'` | Target mode for export functionality |
+| `showAdvancedFields` | `boolean` | Reserved global advanced-field toggle; currently unused outside the store |
+| `showSensitiveFields` | `boolean` | Reserved global sensitive-field toggle; currently unused outside the store |
+| `exportMode` | `'mihomo' \| 'stash'` | Reserved export mode; Header currently keeps its own local export mode |
 
 ### Actions
 
@@ -50,4 +50,4 @@ Zustand store for UI-level state including theme, sidebar layout, active navigat
 On store creation, `getInitialTheme` and `getInitialSidebar` hydrate from localStorage. `setTheme` writes back to localStorage and calls `applyTheme`, which adds or removes the `dark` CSS class on `<html>` (respecting `prefers-color-scheme` when set to `system`). `setSidebarWidth` also persists to localStorage. All other state is transient in-memory. The `applyTheme` helper is also called at module load to ensure the `<html>` class is correct on page load.
 
 ## 关联测试
-- `src/__tests__/config-store.test.ts` (indirectly, via integration)
+- No dedicated or indirect UI store test currently exists

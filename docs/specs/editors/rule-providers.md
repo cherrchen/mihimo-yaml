@@ -8,11 +8,11 @@ Manages rule providers — remote or local rule sets (domain, IPCIDR, classical)
 - `src/components/editors/rule-providers/templates.ts`
 
 ## UI 结构
-Single-page flat list layout. Top section shows a MetaCubeX rule set template picker (3-column grid, scrollable) with 33+ pre-configured templates spanning geo/geosite, geo/geoip, geo-lite, and ASN categories. An "Add" button creates a blank provider. Each provider renders as a card with: type/behavior/format selects, interval, URL (for HTTP type), and advanced fields (local path, download proxy). Each card has its own delete button.
+Single-page flat list layout. Top section shows a MetaCubeX rule set template picker (3-column grid, scrollable) with 32 pre-configured templates spanning geo/geosite, geo/geoip, geo-lite, and ASN categories. An "Add" button creates a blank provider. Each provider renders as a card with: type/behavior/format selects, interval, URL (for HTTP type), and advanced fields (local path, download proxy). Each card has its own delete button.
 
 ## 配置字段
 - `rule-providers` (top-level map, keyed by provider name)
-  - `type` — (`http` | `file`)
+  - `type` — (`http` | `file` | `inline`); inline `payload` is modeled but has no editor control
   - `behavior` — (`domain` | `ipcidr` | `classical`)
   - `format` — (`mrs` | `yaml` | `text`)
   - `interval` — update interval in seconds (default `86400`)

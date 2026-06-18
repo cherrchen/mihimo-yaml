@@ -60,7 +60,7 @@ const db: Dexie & {
 - `dexie` — IndexedDB wrapper (`Dexie`, `EntityTable`)
 
 ## 关键数据流
-The module creates a singleton `Dexie` instance named `'mihomo-yaml'` with a single version (v1) schema defining four object stores: `drafts` (auto-incrementing `id`, indexed by `name` and `updatedAt`), `templates` (auto-incrementing `id`, indexed by `name` and `category`), `history` (auto-incrementing `id`, indexed by `draftId` and `timestamp`), and `preferences` (unique `key`). The `db` export is consumed by `useAutoSave` for draft persistence and elsewhere for template and preference management.
+The module creates a singleton `Dexie` instance named `'mihomo-yaml'` with a v1 schema for four stores. At runtime, `useAutoSave` and `DashboardPage` currently use only `db.drafts`; the `templates`, `history`, and `preferences` tables are defined but have no callers in `src/`.
 
 ## 关联测试
 - No dedicated test file

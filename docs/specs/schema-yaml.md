@@ -1,7 +1,7 @@
 # schema-yaml
 
 ## 职责
-Parses YAML strings into `MihomoConfig` objects and serializes them back to YAML, preserving unknown fields, validation state, and YAML comments across round-trips. Provides deterministic field ordering on export.
+Parses YAML strings into `MihomoConfig` objects and serializes them back to YAML, preserving unknown top-level fields and attaching validation/comment metadata on import. Provides deterministic field ordering on export; YAML comments are not restored on stringify.
 
 ## 文件
 `src/schema/yaml.ts`
@@ -10,7 +10,7 @@ Parses YAML strings into `MihomoConfig` objects and serializes them back to YAML
 
 | 导出 | 类型 | 说明 |
 |------|------|------|
-| `parseYaml` | `function` | Parses a YAML string and returns a `MihomoConfig` with unknown fields, comments, and validation errors attached |
+| `parseYaml` | `function` | Parses a YAML string and returns a `MihomoConfig` with unknown top-level fields, validation errors, and any document-leading comment attached |
 
 ```typescript
 export function parseYaml(yamlString: string): MihomoConfig
@@ -34,8 +34,7 @@ export function stringifyYamlOrdered(config: MihomoConfig): string
 export function cloneConfig(config: MihomoConfig): MihomoConfig
 ```
 
-| `SECTION_ORDER` | `const` | Priority-ordered list of top-level keys for deterministic YAML output |
-| `KNOWN_TOP_KEYS` | `const` | `Set<string>` of all recognized top-level YAML keys |
+`SECTION_ORDER` and `KNOWN_TOP_KEYS` are private module constants, not exports.
 
 ## 依赖
 - `import YAML from 'yaml'` — YAML parsing and stringifying
@@ -44,7 +43,9 @@ export function cloneConfig(config: MihomoConfig): MihomoConfig
 - `import { validateConfig } from './validation'` — Zod validation on parse
 
 ## 关键数据流
-`parseYaml` first parses the raw YAML string into a plain object, then splits it into known and unknown keys via `extractUnknownFields`. Known keys are cast to `MihomoConfig`. YAML comments are extracted from the parse document and stored in `_comments`. Zod validation runs against the raw object and errors are attached as `_validationErrors`. On stringify, `_unknownFields` are stripped from the known object, then `injectUnknownFields` appends them back to preserve the original shape. `stringifyYamlOrdered` uses `SECTION_ORDER` priority map to group fields logically before serializing.
+`parseYaml` first parses the raw YAML string into a plain object, then splits top-level keys via `extractUnknownFields`. Known keys are cast to `MihomoConfig`. Only `Document.commentBefore` is collected into `_comments`; field comments and trailing comments are not collected. Zod validation errors are attached as `_validationErrors`. Serialization omits `_unknownFields`, `_validationErrors`, and `_comments` as metadata, then appends the contents of `_unknownFields`; comments are not restored. `stringifyYamlOrdered` also drops undefined/null values and empty arrays/objects before applying `SECTION_ORDER`.
 
 ## 关联测试
-- (no dedicated test file found)
+- `src/__tests__/yaml.test.ts`
+- `src/__tests__/unknown-fields.test.ts`
+- `src/__tests__/validation.test.ts` (parse integration)

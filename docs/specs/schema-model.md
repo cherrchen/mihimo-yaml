@@ -27,7 +27,7 @@ Defines all TypeScript interfaces for the Mihomo proxy configuration data model,
 | `VmessUser` | `interface` | VMess user credentials |
 | `TuicServerConfig` | `interface` | TUIC server configuration |
 | `ProxyConfig` | `interface` | Proxy node configuration (union of all proxy types) |
-| `ProxyType` | `type` | Discriminated union of all supported proxy type string literals |
+| `ProxyType` | `type` | Union of supported proxy type string literals; `ProxyConfig` itself remains a flat interface |
 | `isProxyType` | `function` | Type guard to check if a string is a known proxy type |
 
 ```typescript
@@ -67,7 +67,7 @@ export function getProxyTypeFields(type: string): string[]
 - (none — pure type definitions, no imports)
 
 ## 关键数据流
-`MihomoConfig` is the root interface that composes all sub-config interfaces. The `_unknownFields`, `_validationErrors`, and `_comments` fields serve as metadata carriers for YAML round-trip preservation. `ProxyConfig` is a monolithic interface with all possible proxy-type fields merged (not a discriminated union); the `getProxyTypeFields` function and `ProxyType` type are used externally to determine which fields are relevant for a given proxy type. `_unknownFields` at both top-level and listener/proxy levels allow preserving unmapped YAML keys across parse→edit→stringify cycles.
+`MihomoConfig` is the root interface that composes all sub-config interfaces. `_unknownFields`, `_validationErrors`, and `_comments` are internal metadata carriers. `ProxyConfig` is a monolithic interface with all proxy-type fields merged; `ProxyType` and `getProxyTypeFields` provide optional type/field lookup helpers, but the current proxy editor does not consume `getProxyTypeFields`. Listener and proxy interfaces also declare `_unknownFields`, although `parseYaml` currently extracts unknown fields only at the top level.
 
 ## 关联测试
 - (no dedicated test file found)

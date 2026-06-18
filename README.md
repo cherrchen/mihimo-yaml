@@ -2,13 +2,13 @@
 
 mihomo / Stash YAML 配置编辑器 —— 纯前端图形化配置工作台。
 
-创建、导入、编辑、校验并导出 mihomo 和 Stash 兼容 YAML 配置文件。20 个配置模块编辑器，Zod 运行时校验，YAML diff 对比，138 个测试全部通过。
+创建、导入、编辑、校验并导出 mihomo 和 Stash 兼容 YAML 配置文件。18 个配置模块编辑器、1 个链路可视化工具，Zod 运行时校验，YAML diff 对比，138 个测试全部通过。
 
 ## 功能
 
 - 从 YAML 文件、URL、剪贴板导入配置（URL 拉取支持 CORS 代理；浏览器直连不保证自定义 User-Agent 生效）
 - Zod 运行时 schema 校验，导入时逐字段类型错误检测
-- 图形化编辑 20 个 mihomo 配置模块（General、DNS、Proxies、Proxy Groups、Rules、iptables、ebpf 等）
+- 图形化编辑 18 个 mihomo 配置模块（General、DNS、Proxies、Proxy Groups、Rules、iptables、ebpf 等），并提供链路构建器
 - 实时 YAML 预览与校验（CodeMirror 6）
 - YAML diff 对比（撤销/重做后自动显示差异）
 - 导出 mihomo 完整配置与 Stash 兼容配置（含 DNS 多服务器策略交互、兼容性报告）

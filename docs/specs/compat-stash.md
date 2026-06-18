@@ -42,8 +42,8 @@ function generateMihomoReport(config: MihomoConfig): CompatibilityReport
 
 ## 依赖
 - `@/schema/model` — type imports (`MihomoConfig`, `DnsConfig`)
-- (internal) `STASH_REMOVE_FIELDS` Set — 41 top-level fields unsupported by Stash
-- (internal) `STASH_DNS_REMOVE_FIELDS` Set — 16 DNS fields to strip or transform
+- (internal) `STASH_REMOVE_FIELDS` Set — 50 top-level fields unsupported by Stash, including specially handled `sub-rules`
+- (internal) `STASH_DNS_REMOVE_FIELDS` Set — 17 DNS fields to strip or transform
 
 ## 关键数据流
 `generateStashReport` deep-clones the config, then walks top-level keys against `STASH_REMOVE_FIELDS` (special-casing `sub-rules` as a blocking error). It delegates DNS transformation to the private `transformDnsForStash`, which removes unsupported DNS fields, converts `respect-rules` to `follow-rule`, and warns on multi-server `nameserver-policy` entries. After DNS, it checks every proxy for unsupported types (`sudoku`/`mieru`/`openvpn`/`masque`) and every rule for unsupported prefixes (PROCESS-NAME-REGEX, SRC-IP-CIDR, etc.). `generateMihomoReport` is a lighter pass that only flags deprecated top-level fields like `global-client-fingerprint`.

@@ -21,4 +21,4 @@ Sidebar + detail layout. Left sidebar lists all sub-rule names with rule counts;
 - `src/engine/references.ts` — validates that SUB-RULE references in main rules point to existing sub-rule names
 
 ## 关联测试
-None.
+- `src/__tests__/components/EditorLayouts.test.tsx` (layout/control-width coverage)

@@ -54,7 +54,7 @@ export type FieldMetaCategory =
 
 | 导出 | 类型 | 说明 |
 |------|------|------|
-| `ALL_FIELD_META` | `FieldMeta[]` | Complete merged array of all field metadata entries (all categories) |
+| `ALL_FIELD_META` | `FieldMeta[]` | Merged array of the 157 currently registered field metadata entries |
 
 | `getFieldMeta` | `function` | Looks up a single `FieldMeta` by dot-path |
 
@@ -106,7 +106,7 @@ Internal field arrays (grouped by category):
 - `import type { FieldMeta } from './metadata-types'` — type for the factory function
 
 ## 关键数据流
-`metadata-types.ts` defines `FieldMeta` as a pure descriptor interface with both semantic fields (`description`, `example`, `category`, `advanced`) and platform-compatibility fields (`mihomo`, `stash`, `stashAction`). `metadata.ts` uses the `f()` factory to create `FieldMeta` entries with conventional defaults. All per-category arrays are spread into `ALL_FIELD_META`, which is consumed by the three lookup functions (`getFieldMeta`, `getFieldsByCategory`, `getStashUnsupportedFields`). The metadata catalog powers the config editor's form generation and Stash export compatibility filtering.
+`metadata-types.ts` defines `FieldMeta` as a descriptor interface with semantic and platform-compatibility fields. `metadata.ts` uses the private `f()` factory to apply defaults and combines the category arrays into `ALL_FIELD_META`. The three lookup functions query this static registry. No editor or compatibility module currently imports these APIs, so the registry does not drive the present form rendering or Stash transformation and can drift unless updated deliberately.
 
 ## 关联测试
 - (no dedicated test file found)

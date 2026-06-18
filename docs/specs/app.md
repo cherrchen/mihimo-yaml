@@ -25,7 +25,7 @@ export default function App(): JSX.Element
 - `@/store/config-store` — `useConfigStore` (for undo/redo keyboard shortcuts)
 - `@/hooks/useAutoSave` — `useAutoSave` to start auto-save watcher
 - `@/pages/Dashboard` — default landing page
-- 18 lazy-loaded editor/page components (via `React.lazy`)
+- 21 lazy-loaded editor/page components (19 editor routes plus About and Settings), plus a lazy-loaded YAML preview; Dashboard is imported eagerly
 
 ### Lazy-loaded sections
 
@@ -55,7 +55,7 @@ export default function App(): JSX.Element
 | `settings` | `SettingsPage` |
 
 ## 关键数据流
-`App` calls `useAutoSave()` to activate persistent auto-save on mount. It registers global keyboard listeners for `Ctrl+Z` (undo), `Ctrl+Shift+Z` (redo), and `Ctrl+S` (suppressed, handled by auto-save). The `renderEditor` function maps `activeSection` from the UI store to the corresponding lazy-loaded component via a switch statement. All editors and the YamlPreview panel are wrapped in `<Suspense>` with a `LoadingPanel` fallback. The layout is composed via `<AppShell>`, receiving the header, nav tree, preview panel, and main content area as props.
+`App` calls `useAutoSave()` to activate persistent auto-save on mount. It registers global keyboard listeners for `Ctrl+Z` (undo), `Ctrl+Shift+Z` (redo), and `Ctrl+S`; the save shortcut only suppresses the browser default and does not call `triggerSave`. The `renderEditor` switch maps `activeSection` to page/editor components. Lazy editors and YamlPreview are wrapped in `<Suspense>` with a `LoadingPanel` fallback.
 
 ## 关联测试
-- No dedicated test file; tested indirectly through component integration tests
+- No dedicated `App` integration test

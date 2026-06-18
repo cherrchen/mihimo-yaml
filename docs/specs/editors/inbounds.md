@@ -1,7 +1,7 @@
 # inbounds
 
 ## 职责
-Configures mihomo listener (inbound) entries — HTTP, SOCKS5, Mixed, Shadowsocks, and Tunnel listeners.
+Configures mihomo listener (inbound) entries. The type selector exposes all 19 values from `LISTENER_TYPES`; dedicated conditional fields currently exist only for HTTP/SOCKS/Mixed authentication, Shadowsocks credentials, and Tunnel targets.
 
 ## 文件
 - `src/components/editors/inbounds/InboundsEditor.tsx`
@@ -12,7 +12,7 @@ List/detail split layout. Left sidebar lists all listeners with name and `type:p
 ## 配置字段
 - `listeners[]` (top-level array)
   - `name` — listener name
-  - `type` — (`http` | `socks` | `mixed` | `shadowsocks` | `tunnel`)
+  - `type` — one of the 19 `LISTENER_TYPES`; types without a dedicated block can edit only common fields
   - `port` — listen port
   - `listen` — bind address (default `0.0.0.0`)
   - `udp` — enable UDP (default `true`)

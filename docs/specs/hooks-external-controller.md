@@ -43,7 +43,7 @@ function getControllerSettings(): { url: string; secret: string }
 - (internal) `buildHeaders()` — constructs `Content-Type` + optional `Authorization: Bearer` headers
 
 ## 关键数据流
-`getControllerSettings` reads the controller URL and secret from localStorage keys `mihomo-yaml-controller` and `mihomo-yaml-controller-secret`. `testConnection` fetches `GET /proxies`, parses the response into `ProxyInfo[]` (extracting name, type, delay, and history), then sets `isConnected: true`. `testDelay` fetches `GET /proxies/:name/delay?url=...&timeout=5000` for a specific proxy and updates that proxy's delay in state. Both methods use `AbortController` to cancel in-flight requests on re-invocation. Errors are surfaced in `state.error` with user-friendly Chinese messages for connection failures or 401/403 auth errors. `clearError` resets the error field.
+`getControllerSettings` reads the controller URL and secret from localStorage keys `mihomo-yaml-controller` and `mihomo-yaml-controller-secret`. `testConnection` cancels a previous connection request via `AbortController`, fetches `GET /proxies`, parses the response into `ProxyInfo[]`, and sets `isConnected: true`. Its connection/auth failures are exposed through `state.error`. `testDelay` separately fetches `GET /proxies/:name/delay?url=...&timeout=5000` and updates delay state; it has no abort signal and returns `null` on HTTP/network failure without setting `state.error`. `clearError` resets the error field.
 
 ## 关联测试
-- `src/__tests__/external-controller.test.ts`
+- `src/__tests__/external-controller.test.ts` (settings and URL construction only; hook fetch/state branches are not covered)

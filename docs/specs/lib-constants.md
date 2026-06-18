@@ -17,10 +17,10 @@ Provides string constants and enum-like arrays for mihomo config fields (proxy t
 | `PASS` | `string` | `'PASS'` |
 | `BUILTIN_STRATEGIES` | `readonly string[]` | `[DIRECT, REJECT, REJECT_DROP, COMPATIBLE, PASS]` |
 | `RULE_TARGETS` | `readonly string[]` | Same five built-in strategies as rule targets |
-| `PROXY_TYPES` | `readonly string[]` | 24 proxy types (`direct`, `ss`, `vmess`, `hysteria2`, etc.) |
+| `PROXY_TYPES` | `readonly string[]` | 26 proxy types (`direct`, `ss`, `vmess`, `hysteria2`, etc.) |
 | `PROXY_GROUP_TYPES` | `readonly string[]` | 5 group types (`select`, `url-test`, `fallback`, `load-balance`, `relay`) |
-| `LISTENER_TYPES` | `readonly string[]` | 17 listener types (`http`, `socks`, `mixed`, `tun`, etc.) |
-| `RULE_TYPES` | `readonly string[]` | 31 rule types (`DOMAIN`, `GEOSITE`, `IP-CIDR`, `MATCH`, etc.) |
+| `LISTENER_TYPES` | `readonly string[]` | 19 listener types (`http`, `socks`, `mixed`, `tun`, etc.) |
+| `RULE_TYPES` | `readonly string[]` | 36 rule types (`DOMAIN`, `GEOSITE`, `IP-CIDR`, `MATCH`, etc.) |
 | `LOG_LEVELS` | `readonly string[]` | `['silent', 'error', 'warning', 'info', 'debug']` |
 | `MODES` | `readonly string[]` | `['rule', 'global', 'direct']` |
 | `FIND_PROCESS_MODES` | `readonly string[]` | `['always', 'strict', 'off']` |

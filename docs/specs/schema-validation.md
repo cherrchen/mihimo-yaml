@@ -37,11 +37,7 @@ export interface ValidationResult {
 export function validateConfig(raw: Record<string, unknown>): ValidationResult
 ```
 
-| `flattenZodErrors` | `function` | Converts Zod `ZodError` issues into `ValidationError[]` with dot-separated paths (internal) |
-
-```typescript
-function flattenZodErrors(zodError: z.ZodError, basePath?: string): ValidationError[]
-```
+`flattenZodErrors` is a private helper, not part of the exported API.
 
 Internal Zod schemas (not exported):
 
@@ -75,7 +71,7 @@ Internal Zod schemas (not exported):
 - `import { RULE_PROVIDER_FORMATS } from '@/lib/constants'` — enum values for rule provider format validation
 
 ## 关键数据流
-All Zod schemas use `.passthrough()` to allow fields beyond those explicitly defined, supporting the unknown-fields preservation pattern. `validateConfig` receives a raw parsed object, runs `safeParse` via `MihomoConfigSchema`, and returns a `ValidationResult`. On failure, `flattenZodErrors` recursively walks Zod issues and joins path segments with `.` to produce human-readable error paths (e.g. `dns.nameserver-policy.geosite:cn`). The validation is run inside `parseYaml` in `yaml.ts`.
+The object schemas use `.passthrough()` so fields beyond the explicit constraints are accepted. This gives broad runtime type checking, not complete validation of every field modeled in `model.ts`. `validateConfig` runs `MihomoConfigSchema.safeParse`; on failure, `flattenZodErrors` maps each Zod issue path to a dot-separated string. Validation is invoked by `parseYaml`.
 
 ## 关联测试
-- (no dedicated test file found)
+- `src/__tests__/validation.test.ts`

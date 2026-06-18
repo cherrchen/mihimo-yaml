@@ -28,4 +28,6 @@ Sortable list with search bar. In collapsed view, each row shows index, rule typ
 - `src/engine/references.ts` — checks RULE-SET provider references and SUB-RULE name references
 
 ## 关联测试
-None specific to this component.
+- `src/__tests__/components/RulesEditor.test.tsx`
+- `src/__tests__/rule-parser.test.ts`
+- `src/__tests__/rule-validator.test.ts`

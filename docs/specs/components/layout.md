@@ -11,7 +11,7 @@
 ## 导出组件
 | 组件 | 说明 |
 |------|------|
-| `AppShell` | 应用外壳布局：固定顶栏 + 左侧可折叠侧边栏 + 中央主区域 + 右侧预览面板的四区域布局容器 |
+| `AppShell` | 应用外壳布局：固定顶栏 + 左侧侧边栏 + 中央主区域 + 右侧预览面板；接收折叠状态，但当前 UI 没有触发 toggle 的按钮 |
 | `Header` | 顶部工具栏：显示应用名称和配置名（可编辑）、撤销/重做/保存按钮、导入/导出入口、主题切换 |
 | `NavTree` | 左侧导航树：带有搜索过滤功能的配置区段导航，支持父子分组和动态徽章 |
 
@@ -19,7 +19,7 @@
 `AppShell` 采用全高 flex 布局（`h-screen flex flex-col`）：
 - **顶部**：固定高度 12（`h-12`），渲染 `header` 子节点
 - **中部**：flex-1 三栏横向布局
-  - **左侧** `sidebar`：宽度由 `sidebarWidth` 控制，支持 `sidebarOpen` 开合动画，窄屏（<768px）下宽度为 0
+  - **左侧** `sidebar`：宽度由 `sidebarWidth` 控制，支持 `sidebarOpen` 开合动画；当前没有可见 toggle，窄屏（<768px）下宽度为 0
   - **中央** `children`：主编辑区，占据剩余空间
   - **右侧** `previewPanel`：固定宽度 360px，在 `max-lg` 断点下隐藏
 
@@ -34,7 +34,7 @@
 - **底部**：固定位置的"设置"和"About / 关于"链接
 
 ## 依赖
-- **状态管理**: `useUiStore` (theme, setTheme, activeSection, setActiveSection, previewMode, setPreviewMode), `useConfigStore` (config, configName, setConfigName, undo, redo, canUndo, canRedo, hasUnsavedChanges, triggerSave)
+- **状态管理**: `useUiStore` (theme, setTheme, activeSection, setActiveSection), `useConfigStore` (config, configName, setConfigName, undo, redo, canUndo, canRedo, hasUnsavedChanges, triggerSave)
 - **UI 组件**: `Button` from `@/components/ui/button`, `Badge` from `@/components/ui/badge`
 - **子模块**: `ImportDialog` from `@/components/import/ImportDialog`, `ExportDialog` from `@/components/export/ExportDialog`
 - **图标**: `lucide-react` (Sun, Moon, Monitor, FileDown, FileUp, Undo2, Redo2, Save, LayoutDashboard, Settings, Globe, Server, ShieldCheck, Share2, Rss, Network, ArrowLeftRight, Route, FolderTree, Workflow, Link, Clock, FlaskConical, SlidersHorizontal)
