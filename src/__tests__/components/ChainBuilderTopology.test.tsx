@@ -71,4 +71,46 @@ describe('ChainBuilder topology', () => {
       expect.objectContaining({ source: 'relay-a', target: 'relay-b', label: 'relay:relay-chain' }),
     ])
   })
+
+  it('should include a proxy group referenced by dialer-proxy', () => {
+    const topology = buildChainTopology({
+      mode: 'rule',
+      proxies: [
+        { name: 'client', type: 'direct', 'dialer-proxy': 'Dialer in' },
+        { name: 'unused', type: 'direct' },
+      ],
+      'proxy-groups': [
+        { name: 'Dialer in', type: 'select', proxies: ['unused'] },
+      ],
+      rules: ['MATCH,DIRECT'],
+    })
+
+    expect(topology.initialNodes.map((node) => node.id)).toEqual(['client', 'Dialer in'])
+    expect(topology.initialNodes.find((node) => node.id === 'Dialer in')?.data.label).toBe('[group:select] Dialer in')
+    expect(topology.initialEdges).toEqual([
+      expect.objectContaining({ source: 'client', target: 'Dialer in', label: 'dialer' }),
+    ])
+  })
+
+  it('should include provider override chains that target a proxy group', () => {
+    const topology = buildChainTopology({
+      mode: 'rule',
+      'proxy-providers': {
+        Airport: {
+          type: 'http',
+          override: { 'dialer-proxy': 'Dialer in' },
+        },
+      },
+      'proxy-groups': [
+        { name: 'Dialer in', type: 'select' },
+      ],
+      proxies: [],
+      rules: ['MATCH,DIRECT'],
+    })
+
+    expect(topology.initialNodes.map((node) => node.id)).toEqual(['Airport', 'Dialer in'])
+    expect(topology.initialEdges).toEqual([
+      expect.objectContaining({ source: 'Airport', target: 'Dialer in', label: 'dialer override' }),
+    ])
+  })
 })

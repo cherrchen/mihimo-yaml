@@ -14,6 +14,15 @@ import { buildChainTopology } from './topology'
 export function ChainBuilderEditor() {
   const config = useConfigStore((s) => s.config)
   const proxies = useMemo(() => config.proxies || [], [config.proxies])
+  const proxyProviders = config['proxy-providers']
+  const dialerSources = useMemo(() => [
+    ...proxies
+      .filter((proxy) => proxy['dialer-proxy'])
+      .map((proxy) => ({ key: `proxy:${proxy.name}`, name: proxy.name })),
+    ...Object.entries(proxyProviders || {})
+      .filter(([, provider]) => provider.override?.['dialer-proxy'])
+      .map(([name]) => ({ key: `provider:${name}`, name })),
+  ], [proxies, proxyProviders])
 
   const chainIssues = useMemo(() => validateChains(config), [config])
 
@@ -30,6 +39,12 @@ export function ChainBuilderEditor() {
           </span>
           <span className="flex items-center gap-1">
             <span className="size-3 rounded bg-amber-500 inline-block border border-dashed" /> relay
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="size-3 rounded bg-green-500 inline-block" /> 代理组
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="size-3 rounded bg-violet-500 inline-block" /> Provider
           </span>
         </div>
       </div>
@@ -86,25 +101,23 @@ export function ChainBuilderEditor() {
       {/* Dialer-proxy chains list */}
       <div className="mt-3 border border-border rounded-md p-3">
         <h3 className="text-xs font-medium mb-2">Dialer-Proxy 链路</h3>
-        {proxies.filter((p) => p['dialer-proxy']).length === 0 ? (
+        {dialerSources.length === 0 ? (
           <p className="text-xs text-muted-foreground">暂无 dialer-proxy 链路</p>
         ) : (
           <div className="space-y-1">
-            {proxies
-              .filter((p) => p['dialer-proxy'])
-              .map((p) => {
-                const chain = buildDialerChain(config, p.name)
-                return (
-                  <div key={p.name} className="flex items-center gap-1 text-xs">
-                    {chain.map((node, i) => (
-                      <span key={i} className="flex items-center gap-1">
-                        <code className="bg-muted px-1 rounded text-[10px]">{node}</code>
-                        {i < chain.length - 1 && <ArrowRight className="size-3 text-muted-foreground" />}
-                      </span>
-                    ))}
-                  </div>
-                )
-              })}
+            {dialerSources.map((source) => {
+              const chain = buildDialerChain(config, source.name)
+              return (
+                <div key={source.key} className="flex items-center gap-1 text-xs">
+                  {chain.map((node, i) => (
+                    <span key={i} className="flex items-center gap-1">
+                      <code className="bg-muted px-1 rounded text-[10px]">{node}</code>
+                      {i < chain.length - 1 && <ArrowRight className="size-3 text-muted-foreground" />}
+                    </span>
+                  ))}
+                </div>
+              )
+            })}
           </div>
         )}
       </div>
