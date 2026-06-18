@@ -332,7 +332,10 @@ function NameserverPolicyEditor({
   return (
     <div className="space-y-1">
       {entries.map(([domain, servers], i) => (
-        <div key={i} className="flex items-start gap-1">
+        <div
+          key={i}
+          className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-start gap-1"
+        >
           <TextField
             value={domain}
             onChange={(e) => {
@@ -342,7 +345,6 @@ function NameserverPolicyEditor({
               onChange(next)
             }}
             placeholder="geosite:cn"
-            className="w-32 shrink-0"
           />
           <TextField
             value={Array.isArray(servers) ? servers.join(', ') : servers}

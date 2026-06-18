@@ -66,7 +66,7 @@ export function SubRulesEditor() {
               {subRules[selectedName].map((rule, i) => {
                 const parts = rule.split(',').map((s) => s.trim())
                 return (
-                  <div key={i} className="flex items-center gap-1">
+                  <div key={i} className="grid grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-1">
                     <span className="text-[10px] w-6 text-muted-foreground">{i + 1}</span>
                     <select
                       value={parts[0]}
@@ -75,7 +75,7 @@ export function SubRulesEditor() {
                         next[i] = `${e.target.value},${parts.slice(1).join(',')}`
                         setSubRule(selectedName, next)
                       }}
-                      className="w-32 h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                      className="w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
                     >
                       {RULE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                     </select>
@@ -87,7 +87,6 @@ export function SubRulesEditor() {
                         setSubRule(selectedName, next)
                       }}
                       placeholder="payload"
-                      className="flex-1"
                     />
                     <TextField
                       value={parts[2] || ''}
@@ -97,7 +96,6 @@ export function SubRulesEditor() {
                         setSubRule(selectedName, next)
                       }}
                       placeholder="target"
-                      className="w-24"
                     />
                     <button
                       onClick={() => {

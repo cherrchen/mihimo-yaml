@@ -6,12 +6,35 @@ export function buildChainTopology(config: MihomoConfig): { initialNodes: Node[]
   const groups = config['proxy-groups'] || []
   const nodes: Node[] = []
   const edges: Edge[] = []
-  const added = new Set<string>()
+  const proxyMap = new Map(proxies.map((proxy) => [proxy.name, proxy]))
+  const relayMembers = new Set(
+    groups
+      .filter((group) => group.type === 'relay')
+      .flatMap((group) => group.proxies || []),
+  )
+  const included = new Set<string>()
 
-  proxies.forEach((p, i) => {
-    if (!added.has(p.name)) {
-      const isRelay = groups.some((g) => g.type === 'relay' && g.proxies?.includes(p.name))
-      nodes.push({
+  const includeProxyAndUpstream = (startName: string) => {
+    const visited = new Set<string>()
+    let currentName: string | undefined = startName
+
+    while (currentName && !visited.has(currentName)) {
+      visited.add(currentName)
+      const proxy = proxyMap.get(currentName)
+      if (!proxy) break
+      included.add(currentName)
+      currentName = proxy['dialer-proxy']
+    }
+  }
+
+  proxies.forEach((proxy) => {
+    if (proxy['dialer-proxy']) includeProxyAndUpstream(proxy.name)
+  })
+  relayMembers.forEach(includeProxyAndUpstream)
+
+  proxies.filter((proxy) => included.has(proxy.name)).forEach((p, i) => {
+    const isRelay = relayMembers.has(p.name)
+    nodes.push({
         id: p.name,
         type: 'default',
         data: { label: `${p.type}: ${p.name}` },
@@ -24,15 +47,13 @@ export function buildChainTopology(config: MihomoConfig): { initialNodes: Node[]
           fontSize: '11px',
           fontWeight: 500,
           width: 180,
-        },
-      })
-      added.add(p.name)
-    }
+      },
+    })
   })
 
   proxies.forEach((p) => {
     const dialerProxy = p['dialer-proxy']
-    if (dialerProxy && added.has(dialerProxy)) {
+    if (dialerProxy && included.has(p.name) && included.has(dialerProxy)) {
       edges.push({
         id: `${p.name}-${dialerProxy}`,
         source: p.name,
@@ -47,7 +68,7 @@ export function buildChainTopology(config: MihomoConfig): { initialNodes: Node[]
   groups.forEach((g) => {
     if (g.type === 'relay' && g.proxies) {
       for (let i = 0; i < g.proxies.length - 1; i++) {
-        if (!added.has(g.proxies[i]) || !added.has(g.proxies[i + 1])) continue
+        if (!included.has(g.proxies[i]) || !included.has(g.proxies[i + 1])) continue
         edges.push({
           id: `relay-${g.name}-${i}`,
           source: g.proxies[i],

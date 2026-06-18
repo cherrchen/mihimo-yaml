@@ -200,7 +200,7 @@ const ruleProviderFields: FieldMeta[] = [
   f({ key: 'interval', path: 'rule-providers.<name>.interval', type: 'number', description: '更新间隔 (秒)', category: 'rule-providers', advanced: true }),
   f({ key: 'proxy', path: 'rule-providers.<name>.proxy', type: 'string', description: '下载代理', category: 'rule-providers', advanced: true }),
   f({ key: 'behavior', path: 'rule-providers.<name>.behavior', type: 'enum', enumValues: ['domain', 'ipcidr', 'classical'], description: '规则行为类型', category: 'rule-providers' }),
-  f({ key: 'format', path: 'rule-providers.<name>.format', type: 'enum', enumValues: ['yaml', 'text', 'mrs'], defaultValue: 'yaml', description: '规则文件格式', category: 'rule-providers' }),
+  f({ key: 'format', path: 'rule-providers.<name>.format', type: 'enum', enumValues: ['yaml', 'text', 'mrs'], defaultValue: 'mrs', description: '规则文件格式', category: 'rule-providers' }),
   f({ key: 'path-in-bundle', path: 'rule-providers.<name>.path-in-bundle', type: 'string', description: 'Bundle MRS 内部路径', category: 'rule-providers', advanced: true }),
   f({ key: 'size-limit', path: 'rule-providers.<name>.size-limit', type: 'number', description: '最大下载大小 (字节)', category: 'rule-providers', advanced: true }),
 ]
