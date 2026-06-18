@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateChains } from '@/engine/chain-validator'
+import { buildDialerChain, validateChains } from '@/engine/chain-validator'
 import { parseYaml } from '@/schema/yaml'
 
 describe('Chain validator', () => {
@@ -174,5 +174,59 @@ rules:
     const issues = validateChains(config)
 
     expect(issues.some((i) => i.type === 'circular-chain')).toBe(true)
+  })
+
+  it('should retain a proxy group at the end of a dialer chain', () => {
+    const chain = buildDialerChain({
+      mode: 'rule',
+      proxies: [
+        { name: 'client', type: 'direct', 'dialer-proxy': 'middle' },
+        { name: 'middle', type: 'direct', 'dialer-proxy': 'Dialer in' },
+      ],
+      'proxy-groups': [
+        { name: 'Dialer in', type: 'select' },
+      ],
+      rules: ['MATCH,DIRECT'],
+    }, 'client')
+
+    expect(chain).toEqual(['client', 'middle', 'Dialer in'])
+  })
+
+  it('should build provider override chains that end at a proxy group', () => {
+    const chain = buildDialerChain({
+      mode: 'rule',
+      'proxy-providers': {
+        Airport: {
+          type: 'http',
+          override: { 'dialer-proxy': 'Dialer in' },
+        },
+      },
+      'proxy-groups': [
+        { name: 'Dialer in', type: 'select' },
+      ],
+      proxies: [],
+      rules: ['MATCH,DIRECT'],
+    }, 'Airport')
+
+    expect(chain).toEqual(['Airport', 'Dialer in'])
+  })
+
+  it('should detect broken provider override dialer chains', () => {
+    const issues = validateChains({
+      mode: 'rule',
+      'proxy-providers': {
+        Airport: {
+          type: 'http',
+          override: { 'dialer-proxy': 'missing-upstream' },
+        },
+      },
+      proxies: [],
+      rules: ['MATCH,DIRECT'],
+    })
+
+    expect(issues).toContainEqual(expect.objectContaining({
+      type: 'broken-chain',
+      proxy: 'Airport',
+    }))
   })
 })

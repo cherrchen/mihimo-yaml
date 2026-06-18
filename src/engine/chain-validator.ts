@@ -1,4 +1,5 @@
 import type { MihomoConfig } from '@/schema/model'
+import { BUILTIN_STRATEGIES } from '@/lib/constants'
 
 export interface ChainIssue {
   type: 'udp-incompat' | 'missing-relay' | 'empty-relay' | 'self-relay' | 'broken-chain' | 'circular-chain'
@@ -140,6 +141,22 @@ export function validateChains(config: MihomoConfig): ChainIssue[] {
     }
   }
 
+  for (const [name, provider] of Object.entries(config['proxy-providers'] || {})) {
+    const dialerProxy = provider.override?.['dialer-proxy']
+    if (
+      dialerProxy &&
+      !allProxyNames.has(dialerProxy) &&
+      !allGroupNames.has(dialerProxy) &&
+      !(BUILTIN_STRATEGIES as readonly string[]).includes(dialerProxy)
+    ) {
+      issues.push({
+        type: 'broken-chain',
+        message: `Proxy Provider '${name}' 的 dialer-proxy '${dialerProxy}' 不存在`,
+        proxy: name,
+      })
+    }
+  }
+
   return issues
 }
 
@@ -149,7 +166,7 @@ export function validateChains(config: MihomoConfig): ChainIssue[] {
  */
 export function buildDialerChain(
   config: MihomoConfig,
-  startProxyName: string,
+  startName: string,
 ): string[] {
   const proxyMap = new Map<string, string | undefined>()
   if (config.proxies) {
@@ -157,17 +174,28 @@ export function buildDialerChain(
       proxyMap.set(p.name, p['dialer-proxy'])
     }
   }
+  const dialerMap = new Map(proxyMap)
+  for (const [name, provider] of Object.entries(config['proxy-providers'] || {})) {
+    const dialerProxy = provider.override?.['dialer-proxy']
+    if (dialerProxy) dialerMap.set(name, dialerProxy)
+  }
+  const validTargets = new Set([
+    ...proxyMap.keys(),
+    ...(config['proxy-groups'] || []).map((group) => group.name),
+    ...BUILTIN_STRATEGIES,
+  ])
 
-  const chain: string[] = [startProxyName]
+  const chain: string[] = [startName]
   const visited = new Set<string>()
-  let current = startProxyName
+  let current = startName
 
   while (current) {
     if (visited.has(current)) break
     visited.add(current)
-    const next = proxyMap.get(current)
-    if (!next || !proxyMap.has(next)) break
+    const next = dialerMap.get(current)
+    if (!next || !validTargets.has(next)) break
     chain.push(next)
+    if (!proxyMap.has(next)) break
     current = next
   }
 
