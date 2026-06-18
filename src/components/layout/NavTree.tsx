@@ -15,6 +15,7 @@ import {
   Link,
   Clock,
   FlaskConical,
+  SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -61,11 +62,18 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'rules', label: '路由规则', icon: Route, badge: '0' },
   { id: 'sub-rules', label: '子规则', icon: Workflow },
   { id: 'tunnels', label: '隧道', icon: Network },
-  { id: 'iptables', label: 'iptables', icon: Network },
-  { id: 'ebpf', label: 'ebpf', icon: Network },
   { id: 'ntp', label: 'NTP', icon: Clock },
-  { id: 'experimental', label: '实验', icon: FlaskConical },
-  { id: 'clash-for-android', label: 'Android 专用', icon: Settings },
+  {
+    id: 'experimental',
+    label: '高级',
+    icon: SlidersHorizontal,
+    children: [
+      { id: 'iptables', label: 'iptables', icon: Network },
+      { id: 'ebpf', label: 'ebpf', icon: Network },
+      { id: 'experimental', label: 'Experimental', icon: FlaskConical },
+      { id: 'clash-for-android', label: 'Clash for Android', icon: Settings },
+    ],
+  },
 ]
 
 export function NavTree() {
@@ -74,18 +82,14 @@ export function NavTree() {
   const [search, setSearch] = useState('')
 
   const filteredItems = useMemo(() => {
-    const matches = (label: string) =>
-      !search || label.toLowerCase().includes(search.toLowerCase())
-    if (!search.trim()) return NAV_ITEMS
-    return NAV_ITEMS.filter((item) => {
-      if (matches(item.label)) return true
-      return item.children?.some((c) => matches(c.label)) ?? false
-    }).map((item) => {
-      if (!item.children) return item
-      return {
-        ...item,
-        children: item.children.filter((c) => matches(c.label)),
-      }
+    const normalizedSearch = search.trim().toLowerCase()
+    if (!normalizedSearch) return NAV_ITEMS
+
+    const matches = (label: string) => label.toLowerCase().includes(normalizedSearch)
+    return NAV_ITEMS.flatMap((item) => {
+      if (matches(item.label)) return [item]
+      const matchingChildren = item.children?.filter((child) => matches(child.label)) || []
+      return matchingChildren.length > 0 ? [{ ...item, children: matchingChildren }] : []
     })
   }, [search])
 
@@ -132,7 +136,7 @@ export function NavTree() {
               )}
             </button>
 
-            {item.children && isActive(item) && (
+            {item.children && (isActive(item) || Boolean(search.trim())) && (
               <div className="ml-4 mt-0.5 space-y-0.5">
                 {item.children.map((child) => (
                   <button

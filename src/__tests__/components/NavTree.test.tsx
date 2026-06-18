@@ -54,4 +54,29 @@ describe('NavTree component', () => {
     render(<NavTree />)
     expect(screen.getByText('设置')).toBeInTheDocument()
   })
+
+  it('should group platform-specific editors under Advanced', async () => {
+    const user = userEvent.setup()
+    render(<NavTree />)
+
+    expect(screen.queryByText('iptables')).not.toBeInTheDocument()
+    await user.click(screen.getByText('高级'))
+
+    expect(useUiStore.getState().activeSection).toBe('experimental')
+    expect(screen.getByText('iptables')).toBeInTheDocument()
+    expect(screen.getByText('ebpf')).toBeInTheDocument()
+    expect(screen.getByText('Experimental')).toBeInTheDocument()
+    expect(screen.getByText('Clash for Android')).toBeInTheDocument()
+  })
+
+  it('should expose matching advanced children through search', async () => {
+    const user = userEvent.setup()
+    render(<NavTree />)
+
+    await user.type(screen.getByPlaceholderText('搜索配置项...'), 'iptables')
+
+    expect(screen.getByText('高级')).toBeInTheDocument()
+    expect(screen.getByText('iptables')).toBeInTheDocument()
+    expect(screen.queryByText('ebpf')).not.toBeInTheDocument()
+  })
 })

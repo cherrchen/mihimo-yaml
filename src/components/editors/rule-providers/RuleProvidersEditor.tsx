@@ -25,7 +25,7 @@ export function RuleProvidersEditor() {
 
   const addProvider = () => {
     const name = `ruleset-${Object.keys(providers).length + 1}`
-    setProvider(name, { type: 'http', behavior: 'domain', format: 'yaml', url: '', path: '', interval: 86400 })
+    setProvider(name, { type: 'http', behavior: 'domain', format: 'mrs', url: '', path: '', interval: 86400 })
   }
 
   const applyTemplate = (tpl: MetaRuleSetTemplate) => {
@@ -104,7 +104,7 @@ export function RuleProvidersEditor() {
                   value={provider.format || ''}
                   onChange={(v) => setProvider(name, { ...provider, format: v })}
                   options={RULE_PROVIDER_FORMATS}
-                  placeholder="yaml"
+                  placeholder="mrs"
                 />
               </FieldWrapper>
 
@@ -134,7 +134,7 @@ export function RuleProvidersEditor() {
                 <TextField
                   value={provider.path || ''}
                   onChange={(v) => setProvider(name, { ...provider, path: v })}
-                  placeholder="./ruleset/xxx.yaml"
+                  placeholder="./ruleset/xxx.mrs"
                 />
               </FieldWrapper>
 

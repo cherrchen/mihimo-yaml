@@ -76,9 +76,9 @@ export const CN_DIRECT_TEMPLATE: MihomoConfig = {
     cn: {
       type: 'http',
       behavior: 'domain',
-      format: 'yaml',
-      url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/cn.yaml',
-      path: './ruleset/cn.yaml',
+      format: 'mrs',
+      url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/cn.mrs',
+      path: './ruleset/cn.mrs',
       interval: 86400,
     },
   },

@@ -1,7 +1,7 @@
 import { useState, useId, useMemo } from 'react'
 import { useConfigStore } from '@/store/config-store'
 import { TextField } from '@/components/editors/shared/fields'
-import { Plus, Trash2, AlertTriangle, GripVertical } from 'lucide-react'
+import { Plus, Trash2, AlertTriangle, GripVertical, Search } from 'lucide-react'
 import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -10,8 +10,8 @@ import { parseRule, buildRuleString } from '@/lib/rule-parser'
 
 const RULE_TARGETS = ['DIRECT', 'REJECT', 'REJECT-DROP', 'COMPATIBLE', 'PASS']
 
-function SortableRuleItem({ id, className = '', onClick, children }: { id: string; className?: string; onClick?: () => void; children: React.ReactNode }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+function SortableRuleItem({ id, className = '', onClick, dragDisabled = false, children }: { id: string; className?: string; onClick?: () => void; dragDisabled?: boolean; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, disabled: dragDisabled })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -22,7 +22,13 @@ function SortableRuleItem({ id, className = '', onClick, children }: { id: strin
   return (
     <div ref={setNodeRef} style={style} className={`border-b border-border last:border-b-0 ${className}`}>
       <div onClick={onClick} className="flex items-center gap-2 px-2 py-1.5 hover:bg-accent cursor-pointer">
-        <button {...attributes} {...listeners} className="shrink-0 cursor-grab touch-none">
+        <button
+          {...attributes}
+          {...listeners}
+          disabled={dragDisabled}
+          aria-label={dragDisabled ? '搜索时不可排序' : '拖拽排序'}
+          className={`shrink-0 touch-none ${dragDisabled ? 'cursor-default opacity-40' : 'cursor-grab'}`}
+        >
           <GripVertical className="size-3 text-muted-foreground" />
         </button>
         {children}
@@ -35,8 +41,9 @@ export function RulesEditor() {
   const config = useConfigStore((s) => s.config)
   const updateConfig = useConfigStore((s) => s.updateConfig)
   const [editingIdx, setEditingIdx] = useState<number>(-1)
+  const [search, setSearch] = useState('')
 
-  const rules = config.rules || []
+  const rules = useMemo(() => config.rules || [], [config.rules])
   const ruleProviders = Object.keys(config['rule-providers'] || {})
   const subRules = Object.keys(config['sub-rules'] || {})
   const proxyNames = (config.proxies || []).map((p) => p.name)
@@ -44,10 +51,18 @@ export function RulesEditor() {
   const allTargets = [...RULE_TARGETS, ...proxyNames, ...groupNames]
 
   const idPrefix = useId()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const ids = useMemo(() => rules.map((_, i) => `${idPrefix}-${i}`), [config.rules, idPrefix])
+  const ids = useMemo(() => rules.map((_, i) => `${idPrefix}-${i}`), [rules, idPrefix])
+  const normalizedSearch = search.trim().toLowerCase()
+  const filteredRules = useMemo(
+    () => rules
+      .map((rule, idx) => ({ rule, idx }))
+      .filter(({ rule }) => !normalizedSearch || rule.toLowerCase().includes(normalizedSearch)),
+    [rules, normalizedSearch],
+  )
+  const visibleIds = filteredRules.map(({ idx }) => ids[idx])
 
   const handleDragEnd = (event: DragEndEvent) => {
+    if (normalizedSearch) return
     const { active, over } = event
     if (over && active.id !== over.id) {
       const oldIndex = ids.indexOf(active.id as string)
@@ -72,6 +87,11 @@ export function RulesEditor() {
     setEditingIdx(afterIdx + 1)
   }
 
+  const showNewRule = (afterIdx: number) => {
+    setSearch('')
+    addRule(afterIdx)
+  }
+
   const removeRule = (idx: number) => {
     setRules((rs) => rs.filter((_, i) => i !== idx))
     setEditingIdx(-1)
@@ -90,17 +110,28 @@ export function RulesEditor() {
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold">路由规则</h2>
         <button
-          onClick={() => addRule(rules.length - 1)}
+          onClick={() => showNewRule(rules.length - 1)}
           className="flex items-center gap-1 px-2 py-1 rounded bg-primary text-primary-foreground text-xs"
         >
           <Plus className="size-3.5" /> 添加规则
         </button>
       </div>
 
+      <div className="relative mb-3">
+        <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+        <input
+          type="search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="搜索规则关键词..."
+          className="h-8 w-full rounded-md border border-input bg-background pl-8 pr-3 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+        />
+      </div>
+
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+        <SortableContext items={visibleIds} strategy={verticalListSortingStrategy}>
           <div className="space-y-0.5 border border-border rounded-md">
-            {rules.map((rule, i) => {
+            {filteredRules.map(({ rule, idx: i }) => {
               const { type, payload, target, extra } = parseRule(rule)
               const isMatchAfter = i > 0 && parseRule(rules[i - 1]).type === 'MATCH'
               const editing = editingIdx === i
@@ -187,13 +218,17 @@ export function RulesEditor() {
                         </div>
 
                         <div className="flex items-center gap-1">
-                          <button onClick={() => addRule(i)} className="px-2 py-0.5 text-xs rounded hover:bg-accent">
+                          <button onClick={() => showNewRule(i)} className="px-2 py-0.5 text-xs rounded hover:bg-accent">
                             <Plus className="size-3 inline mr-1" />在此之后插入
                           </button>
                           <button onClick={() => setEditingIdx(-1)} className="px-2 py-0.5 text-xs rounded hover:bg-accent">
                             完成
                           </button>
-                          <button onClick={() => removeRule(i)} className="p-0.5 hover:text-destructive">
+                          <button
+                            onClick={() => removeRule(i)}
+                            aria-label={`删除规则 ${i + 1}`}
+                            className="p-0.5 hover:text-destructive"
+                          >
                             <Trash2 className="size-3.5" />
                           </button>
                         </div>
@@ -204,7 +239,13 @@ export function RulesEditor() {
               }
 
               return (
-                <SortableRuleItem key={ids[i]} id={ids[i]} className={isMatchAfter ? 'bg-yellow-500/5' : ''} onClick={() => setEditingIdx(i)}>
+                <SortableRuleItem
+                  key={ids[i]}
+                  id={ids[i]}
+                  className={isMatchAfter ? 'bg-yellow-500/5' : ''}
+                  onClick={() => setEditingIdx(i)}
+                  dragDisabled={Boolean(normalizedSearch)}
+                >
                   <span className="text-[10px] w-8 shrink-0 text-muted-foreground">{i + 1}</span>
                   <span className="text-xs font-mono font-medium text-primary">{type}</span>
                   <span className="text-xs flex-1 truncate">{payload || ''}</span>
@@ -213,6 +254,7 @@ export function RulesEditor() {
                   {isMatchAfter && <AlertTriangle className="size-3 text-yellow-500 shrink-0" />}
                   <button
                     onClick={(e) => { e.stopPropagation(); removeRule(i) }}
+                    aria-label={`删除规则 ${i + 1}`}
                     className="p-0.5 hover:text-destructive"
                   >
                     <Trash2 className="size-3" />
@@ -224,6 +266,11 @@ export function RulesEditor() {
             {rules.length === 0 && (
               <div className="p-4 text-xs text-muted-foreground text-center">
                 暂无规则。点击上方按钮添加第一条规则。
+              </div>
+            )}
+            {rules.length > 0 && filteredRules.length === 0 && (
+              <div className="p-4 text-xs text-muted-foreground text-center">
+                没有找到匹配“{search.trim()}”的规则。
               </div>
             )}
           </div>

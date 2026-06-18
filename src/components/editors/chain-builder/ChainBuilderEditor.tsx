@@ -54,7 +54,7 @@ export function ChainBuilderEditor() {
           </ReactFlow>
         ) : (
           <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
-            暂无代理节点，请在"代理节点"页面添加节点并配置 dialer-proxy
+            暂无 dialer-proxy 或 relay 链路
           </div>
         )}
       </div>
