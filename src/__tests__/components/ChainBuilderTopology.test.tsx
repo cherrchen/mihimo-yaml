@@ -29,7 +29,7 @@ describe('ChainBuilder topology', () => {
 
     expect(topology.initialNodes.map((node) => node.id)).toEqual(['A', 'B'])
     expect(topology.initialEdges).toEqual([
-      expect.objectContaining({ source: 'A', target: 'B', label: 'dialer' }),
+      expect.objectContaining({ source: 'B', target: 'A', label: 'dialer' }),
     ])
   })
 
@@ -47,8 +47,8 @@ describe('ChainBuilder topology', () => {
 
     expect(topology.initialNodes.map((node) => node.id)).toEqual(['entry', 'middle', 'exit'])
     expect(topology.initialEdges).toEqual([
-      expect.objectContaining({ source: 'entry', target: 'middle', label: 'dialer' }),
-      expect.objectContaining({ source: 'middle', target: 'exit', label: 'dialer' }),
+      expect.objectContaining({ source: 'middle', target: 'entry', label: 'dialer' }),
+      expect.objectContaining({ source: 'exit', target: 'middle', label: 'dialer' }),
     ])
   })
 
@@ -68,7 +68,7 @@ describe('ChainBuilder topology', () => {
 
     expect(topology.initialNodes.map((node) => node.id)).toEqual(['relay-a', 'relay-b'])
     expect(topology.initialEdges).toEqual([
-      expect.objectContaining({ source: 'relay-a', target: 'relay-b', label: 'relay:relay-chain' }),
+      expect.objectContaining({ source: 'relay-b', target: 'relay-a', label: 'relay:relay-chain' }),
     ])
   })
 
@@ -88,7 +88,7 @@ describe('ChainBuilder topology', () => {
     expect(topology.initialNodes.map((node) => node.id)).toEqual(['client', 'Dialer in'])
     expect(topology.initialNodes.find((node) => node.id === 'Dialer in')?.data.label).toBe('[group:select] Dialer in')
     expect(topology.initialEdges).toEqual([
-      expect.objectContaining({ source: 'client', target: 'Dialer in', label: 'dialer' }),
+      expect.objectContaining({ source: 'Dialer in', target: 'client', label: 'dialer' }),
     ])
   })
 
@@ -110,7 +110,7 @@ describe('ChainBuilder topology', () => {
 
     expect(topology.initialNodes.map((node) => node.id)).toEqual(['Airport', 'Dialer in'])
     expect(topology.initialEdges).toEqual([
-      expect.objectContaining({ source: 'Airport', target: 'Dialer in', label: 'dialer override' }),
+      expect.objectContaining({ source: 'Dialer in', target: 'Airport', label: 'dialer override' }),
     ])
   })
 })

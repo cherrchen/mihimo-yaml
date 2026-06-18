@@ -109,7 +109,7 @@ export function ChainBuilderEditor() {
               const chain = buildDialerChain(config, source.name)
               return (
                 <div key={source.key} className="flex items-center gap-1 text-xs">
-                  {chain.map((node, i) => (
+                  {[...chain].reverse().map((node, i) => (
                     <span key={i} className="flex items-center gap-1">
                       <code className="bg-muted px-1 rounded text-[10px]">{node}</code>
                       {i < chain.length - 1 && <ArrowRight className="size-3 text-muted-foreground" />}

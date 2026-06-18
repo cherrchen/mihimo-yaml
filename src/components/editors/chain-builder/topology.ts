@@ -122,8 +122,8 @@ export function buildChainTopology(config: MihomoConfig): { initialNodes: Node[]
     if (!dialerProxy || !nodeIds.has(proxy.name) || !nodeIds.has(dialerProxy)) return
     initialEdges.push({
       id: `dialer-${proxy.name}-${dialerProxy}`,
-      source: proxy.name,
-      target: dialerProxy,
+      source: dialerProxy,
+      target: proxy.name,
       animated: true,
       label: 'dialer',
       style: { stroke: '#6366f1', strokeWidth: 2 },
@@ -135,8 +135,8 @@ export function buildChainTopology(config: MihomoConfig): { initialNodes: Node[]
     if (!dialerProxy || !nodeIds.has(name) || !nodeIds.has(dialerProxy)) return
     initialEdges.push({
       id: `provider-dialer-${name}-${dialerProxy}`,
-      source: name,
-      target: dialerProxy,
+      source: dialerProxy,
+      target: name,
       animated: true,
       label: 'dialer override',
       style: { stroke: '#8b5cf6', strokeWidth: 2 },
@@ -146,8 +146,8 @@ export function buildChainTopology(config: MihomoConfig): { initialNodes: Node[]
   groups.forEach((group) => {
     if (group.type !== 'relay' || !group.proxies) return
     for (let index = 0; index < group.proxies.length - 1; index++) {
-      const source = group.proxies[index]
-      const target = group.proxies[index + 1]
+      const target = group.proxies[index]
+      const source = group.proxies[index + 1]
       if (!nodeIds.has(source) || !nodeIds.has(target)) continue
       initialEdges.push({
         id: `relay-${group.name}-${index}`,
