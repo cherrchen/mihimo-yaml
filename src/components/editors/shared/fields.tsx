@@ -52,10 +52,11 @@ interface SelectFieldProps {
   onChange: (value: string) => void
   options: readonly string[]
   placeholder?: string
+  emptyPlaceholder?: string
   disabled?: boolean
 }
 
-export function SelectField({ value, onChange, options, placeholder, disabled }: SelectFieldProps) {
+export function SelectField({ value, onChange, options, placeholder, emptyPlaceholder, disabled }: SelectFieldProps) {
   return (
     <select
       value={value}
@@ -63,7 +64,8 @@ export function SelectField({ value, onChange, options, placeholder, disabled }:
       disabled={disabled}
       className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
     >
-      {placeholder && <option value="">{placeholder}</option>}
+      {emptyPlaceholder && <option value="" disabled hidden>{emptyPlaceholder}</option>}
+      {!emptyPlaceholder && placeholder && <option value="">{placeholder}</option>}
       {options.map((opt) => (
         <option key={opt} value={opt}>{opt}</option>
       ))}
