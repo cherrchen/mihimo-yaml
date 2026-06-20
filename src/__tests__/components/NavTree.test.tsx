@@ -19,6 +19,13 @@ describe('NavTree component', () => {
     expect(screen.getByText('通用')).toBeInTheDocument()
   })
 
+  it('should use the global settings label for the general child page', () => {
+    useUiStore.setState({ activeSection: 'general' })
+    render(<NavTree />)
+
+    expect(screen.getByText('全局设置')).toBeInTheDocument()
+  })
+
   it('should render search input', () => {
     render(<NavTree />)
     const input = screen.getByPlaceholderText('搜索配置项...')

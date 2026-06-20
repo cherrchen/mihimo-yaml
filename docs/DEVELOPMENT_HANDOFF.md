@@ -823,7 +823,8 @@ npm run lint
 12. `src/components/preview/YamlDiff.tsx` — YAML diff 组件
 13. `src/App.tsx` — 路由和编辑器分发（18 个配置编辑器 + 链路构建器）
 14. `docs/specs/` — 各模块当前行为、API、依赖和测试索引
-15. `docs/DEVELOPMENT_HANDOFF.md` — 本文档
+15. `docs/EDITOR_COMPONENT_GUIDE.md` — 编辑器共享分组、字段帮助、下拉空值和迁移规范
+16. `docs/DEVELOPMENT_HANDOFF.md` — 本文档
 
 ### 开发流程要求
 
