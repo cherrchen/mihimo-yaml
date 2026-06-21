@@ -12,7 +12,58 @@ import { defaultRangeExtractor, useVirtualizer, type VirtualItem } from '@tansta
 const RULE_TARGETS = ['DIRECT', 'REJECT', 'REJECT-DROP', 'COMPATIBLE', 'PASS']
 const VIRTUALIZE_THRESHOLD = 200
 
-function SortableRuleItem({ id, className = '', onClick, dragDisabled = false, children }: { id: string; className?: string; onClick?: () => void; dragDisabled?: boolean; children: React.ReactNode }) {
+function RuleRowFrame({
+  isLast,
+  className = '',
+  rowRef,
+  style,
+  children,
+}: {
+  isLast: boolean
+  className?: string
+  rowRef?: React.Ref<HTMLDivElement>
+  style?: React.CSSProperties
+  children: React.ReactNode
+}) {
+  return (
+    <div
+      ref={rowRef}
+      style={style}
+      data-rule-row
+      className={`${isLast ? '' : 'border-b border-border'} ${className}`}
+    >
+      {children}
+    </div>
+  )
+}
+
+function VirtualRuleSlot({
+  virtualRow,
+  isLast,
+  measureElement,
+  children,
+}: {
+  virtualRow?: VirtualItem
+  isLast: boolean
+  measureElement: React.Ref<HTMLDivElement>
+  children: React.ReactNode
+}) {
+  if (!virtualRow) return children
+
+  return (
+    <div
+      ref={measureElement}
+      data-index={virtualRow.index}
+      data-rule-virtual-slot
+      className={`absolute left-0 top-0 w-full ${isLast ? '' : 'pb-0.5'}`}
+      style={{ transform: `translateY(${virtualRow.start}px)` }}
+    >
+      {children}
+    </div>
+  )
+}
+
+function SortableRuleItem({ id, isLast, className = '', onClick, dragDisabled = false, children }: { id: string; isLast: boolean; className?: string; onClick?: () => void; dragDisabled?: boolean; children: React.ReactNode }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, disabled: dragDisabled })
 
   const style = {
@@ -22,7 +73,7 @@ function SortableRuleItem({ id, className = '', onClick, dragDisabled = false, c
   }
 
   return (
-    <div ref={setNodeRef} style={style} className={`border-b border-border last:border-b-0 ${className}`}>
+    <RuleRowFrame isLast={isLast} rowRef={setNodeRef} style={style} className={className}>
       <div onClick={onClick} className="flex items-center gap-2 px-2 py-1.5 hover:bg-accent cursor-pointer">
         <button
           {...attributes}
@@ -35,7 +86,7 @@ function SortableRuleItem({ id, className = '', onClick, dragDisabled = false, c
         </button>
         {children}
       </div>
-    </div>
+    </RuleRowFrame>
   )
 }
 
@@ -89,12 +140,13 @@ export function RulesEditor() {
     }
   }, [editingVirtualIndex, shouldVirtualize, virtualizer])
 
-  const renderedRules: Array<{ rule: string; idx: number; virtualRow?: VirtualItem }> = shouldVirtualize
+  const renderedRules: Array<{ rule: string; idx: number; listIndex: number; virtualRow?: VirtualItem }> = shouldVirtualize
     ? virtualizer.getVirtualItems().map((virtualRow) => ({
         ...filteredRules[virtualRow.index],
+        listIndex: virtualRow.index,
         virtualRow,
       }))
-    : filteredRules
+    : filteredRules.map((item, listIndex) => ({ ...item, listIndex }))
 
   const handleDragStart = (event: DragStartEvent) => {
     setDraggedIdx(ids.indexOf(event.active.id as string))
@@ -183,14 +235,15 @@ export function RulesEditor() {
               className={shouldVirtualize ? 'relative w-full' : undefined}
               style={shouldVirtualize ? { height: virtualizer.getTotalSize() } : undefined}
             >
-            {renderedRules.map(({ rule, idx: i, virtualRow }) => {
+            {renderedRules.map(({ rule, idx: i, listIndex, virtualRow }) => {
               const { type, payload, target, extra } = parseRule(rule)
               const isMatchAfter = i > 0 && parseRule(rules[i - 1]).type === 'MATCH'
               const editing = editingIdx === i
+              const isLast = listIndex === filteredRules.length - 1
 
               if (editing) {
                 const editor = (
-                  <div key={i} className={`border-b border-border last:border-b-0 ${isMatchAfter ? 'bg-yellow-500/5' : ''}`}>
+                  <RuleRowFrame key={i} isLast={isLast} className={isMatchAfter ? 'bg-yellow-500/5' : ''}>
                     <div className="px-2 py-2 space-y-2">
                       <div className="grid grid-cols-4 gap-1">
                         <div>
@@ -286,20 +339,18 @@ export function RulesEditor() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </RuleRowFrame>
                 )
 
-                if (!virtualRow) return editor
                 return (
-                  <div
-                    key={virtualRow.key}
-                    ref={virtualizer.measureElement}
-                    data-index={virtualRow.index}
-                    className="absolute left-0 top-0 w-full pb-0.5"
-                    style={{ transform: `translateY(${virtualRow.start}px)` }}
+                  <VirtualRuleSlot
+                    key={virtualRow?.key ?? i}
+                    virtualRow={virtualRow}
+                    isLast={isLast}
+                    measureElement={virtualizer.measureElement}
                   >
                     {editor}
-                  </div>
+                  </VirtualRuleSlot>
                 )
               }
 
@@ -307,6 +358,7 @@ export function RulesEditor() {
                 <SortableRuleItem
                   key={ids[i]}
                   id={ids[i]}
+                  isLast={isLast}
                   className={isMatchAfter ? 'bg-yellow-500/5' : ''}
                   onClick={() => setEditingIdx(i)}
                   dragDisabled={Boolean(normalizedSearch)}
@@ -327,17 +379,15 @@ export function RulesEditor() {
                 </SortableRuleItem>
               )
 
-              if (!virtualRow) return collapsed
               return (
-                <div
-                  key={virtualRow.key}
-                  ref={virtualizer.measureElement}
-                  data-index={virtualRow.index}
-                  className="absolute left-0 top-0 w-full pb-0.5"
-                  style={{ transform: `translateY(${virtualRow.start}px)` }}
+                <VirtualRuleSlot
+                  key={virtualRow?.key ?? ids[i]}
+                  virtualRow={virtualRow}
+                  isLast={isLast}
+                  measureElement={virtualizer.measureElement}
                 >
                   {collapsed}
-                </div>
+                </VirtualRuleSlot>
               )
             })}
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { yaml as yamlLang } from '@codemirror/lang-yaml'
+import type { Extension } from '@codemirror/state'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import type { IntegrityIssue } from '@/engine/integrity'
@@ -11,39 +12,18 @@ import { cn } from '@/lib/utils'
 import { YamlDiff } from './YamlDiff'
 
 const YAML_EXTENSIONS = [yamlLang()]
+const PLAIN_TEXT_EXTENSIONS: Extension[] = []
 const VIRTUALIZE_THRESHOLD = 200
 const LARGE_YAML_LINE_THRESHOLD = 5_000
 
-function VirtualizedYaml({ lines }: { lines: string[] }) {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  // TanStack Virtual intentionally exposes mutable measurement methods.
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const virtualizer = useVirtualizer({
-    count: lines.length,
-    getScrollElement: () => scrollRef.current,
-    estimateSize: () => 20,
-    overscan: 20,
-  })
+function countYamlLines(value: string) {
+  if (!value) return 0
 
-  return (
-    <div ref={scrollRef} className="h-full overflow-auto bg-background font-mono text-xs">
-      <div className="relative min-w-full" style={{ height: virtualizer.getTotalSize() }}>
-        {virtualizer.getVirtualItems().map((virtualRow) => (
-          <div
-            key={virtualRow.key}
-            data-testid="yaml-virtual-row"
-            className="absolute left-0 top-0 flex min-w-full whitespace-pre leading-5"
-            style={{ transform: `translateY(${virtualRow.start}px)` }}
-          >
-            <span className="sticky left-0 w-14 shrink-0 select-none border-r border-border bg-muted/40 pr-2 text-right text-muted-foreground">
-              {virtualRow.index + 1}
-            </span>
-            <span className="pl-3 pr-4">{lines[virtualRow.index] || ' '}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
+  let count = 1
+  for (let index = 0; index < value.length; index += 1) {
+    if (value.charCodeAt(index) === 10) count += 1
+  }
+  return count
 }
 
 function IssueCard({ issue }: { issue: IntegrityIssue }) {
@@ -122,8 +102,9 @@ export function YamlPreview() {
     prevYamlRef.current = yaml
   }, [yaml])
 
-  const yamlLines = useMemo(() => yaml ? yaml.split('\n') : [], [yaml])
-  const stats = { lines: yamlLines.length, characters: yaml.length }
+  const yamlLineCount = useMemo(() => countYamlLines(yaml), [yaml])
+  const isLargeYaml = yamlLineCount > LARGE_YAML_LINE_THRESHOLD
+  const stats = { lines: yamlLineCount, characters: yaml.length }
 
   const issues = integrityReport?.issues ?? []
   const tabs = [
@@ -161,19 +142,15 @@ export function YamlPreview() {
 
         <div className="flex-1 min-h-0 overflow-hidden yaml-preview">
           {previewMode === 'yaml' && (
-            yamlLines.length > LARGE_YAML_LINE_THRESHOLD ? (
-              <VirtualizedYaml lines={yamlLines} />
-            ) : (
-              <CodeMirror
-                value={yaml}
-                extensions={YAML_EXTENSIONS}
-                theme={theme === 'dark' ? oneDark : undefined}
-                readOnly
-                basicSetup={{ lineNumbers: true, foldGutter: true }}
-                className="h-full text-xs"
-                style={{ height: '100%' }}
-              />
-            )
+            <CodeMirror
+              value={yaml}
+              extensions={isLargeYaml ? PLAIN_TEXT_EXTENSIONS : YAML_EXTENSIONS}
+              theme={theme === 'dark' ? oneDark : undefined}
+              readOnly
+              basicSetup={{ lineNumbers: true, foldGutter: true }}
+              className="h-full text-xs"
+              style={{ height: '100%' }}
+            />
           )}
 
           {previewMode === 'issues' && <IssuesList issues={issues} />}
