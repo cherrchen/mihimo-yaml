@@ -1,4 +1,5 @@
 import type { MihomoConfig, DnsConfig } from '@/schema/model'
+import { getEffectiveConfig } from '@/lib/effective-config'
 
 export interface CompatibilityIssue {
   field: string
@@ -66,7 +67,7 @@ const STASH_REMOVE_FIELDS_WITHOUT_SUB_RULES = new Set(
  */
 export function generateStashReport(config: MihomoConfig): CompatibilityReport {
   const issues: CompatibilityIssue[] = []
-  const transformed = JSON.parse(JSON.stringify(config)) as MihomoConfig
+  const transformed = JSON.parse(JSON.stringify(getEffectiveConfig(config))) as MihomoConfig
 
   // Check sub-rules before it gets removed
   if (transformed['sub-rules']) {
@@ -217,11 +218,12 @@ function transformDnsForStash(dns: DnsConfig): CompatibilityIssue[] {
  */
 export function generateMihomoReport(config: MihomoConfig): CompatibilityReport {
   const issues: CompatibilityIssue[] = []
+  const effectiveConfig = getEffectiveConfig(config)
 
   // Check deprecated fields
   const deprecatedFields = ['global-client-fingerprint']
   for (const key of deprecatedFields) {
-    if (key in config) {
+    if (key in effectiveConfig) {
       issues.push({
         field: key,
         path: key,
@@ -235,7 +237,7 @@ export function generateMihomoReport(config: MihomoConfig): CompatibilityReport 
   return {
     mode: 'mihomo',
     issues,
-    transformedConfig: JSON.parse(JSON.stringify(config)),
+    transformedConfig: JSON.parse(JSON.stringify(effectiveConfig)),
     summary: { removed: 0, warnings: issues.length, errors: 0, transformed: 0 },
   }
 }

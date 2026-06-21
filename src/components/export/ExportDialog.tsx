@@ -6,6 +6,7 @@ import { stringifyYamlOrdered } from '@/schema/yaml'
 import { generateMihomoReport, generateStashReport } from '@/compatibility/stash'
 import { getMultiServerEntries, resolveSingleServerDns, applyManualDnsChoices } from '@/compatibility/dns-strategy'
 import type { DnsStrategyAction } from '@/compatibility/dns-strategy'
+import { getEffectiveConfig } from '@/lib/effective-config'
 import { CompatibilityReport } from './CompatibilityReport'
 import { DnsStrategyDialog } from './DnsStrategyDialog'
 
@@ -21,23 +22,24 @@ export function ExportDialog({ open, onClose, mode }: ExportDialogProps) {
   const [copied, setCopied] = useState(false)
   const [showDnsDialog, setShowDnsDialog] = useState(false)
   const [pendingAction, setPendingAction] = useState<'download' | 'copy' | null>(null)
+  const effectiveConfig = useMemo(() => getEffectiveConfig(config), [config])
 
   const report = useMemo(() => {
-    if (mode === 'mihomo') return generateMihomoReport(config)
-    return generateStashReport(config)
-  }, [config, mode])
+    if (mode === 'mihomo') return generateMihomoReport(effectiveConfig)
+    return generateStashReport(effectiveConfig)
+  }, [effectiveConfig, mode])
 
   const yaml = useMemo(() => {
     if (mode === 'stash') {
       return stringifyYamlOrdered(report.transformedConfig)
     }
-    return stringifyYamlOrdered(config)
-  }, [config, report, mode])
+    return stringifyYamlOrdered(effectiveConfig)
+  }, [effectiveConfig, report, mode])
 
   const dnsChoices = useMemo(() => {
     if (mode !== 'stash') return []
-    return getMultiServerEntries(config.dns)
-  }, [config.dns, mode])
+    return getMultiServerEntries(effectiveConfig.dns)
+  }, [effectiveConfig.dns, mode])
 
   const handleDownload = () => {
     downloadBlob(yaml)

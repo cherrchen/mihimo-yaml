@@ -7,7 +7,7 @@ Manages outbound proxy nodes — the individual proxy servers that groups and ru
 - `src/components/editors/proxies/ProxiesEditor.tsx`
 
 ## UI 结构
-List/detail split layout with deferred search. The left list shows index/name/type and switches to fixed-height virtual rows above 200 matches; the right pane shows the selected proxy detail form. Type-specific fields are rendered through `TypeSpecificFields`; duplicate and delete actions are preserved.
+Shared list/detail split layout with deferred search. The left pane uses 30% width with a 14rem minimum, shows index/name/type, and switches to fixed-height virtual rows above 200 matches; the right pane shows the centered selected proxy detail form. Type-specific fields are rendered through `TypeSpecificFields`; duplicate and delete actions are preserved.
 
 ## 配置字段
 - `proxies[]` (top-level array)

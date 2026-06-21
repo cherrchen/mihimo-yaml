@@ -7,6 +7,7 @@ import { SensitiveField } from '@/components/editors/shared/SensitiveField'
 import type { ProxyConfig } from '@/schema/model'
 import { PROXY_TYPES, IP_VERSIONS, NETWORK_TYPES } from '@/lib/constants'
 import { useVirtualizer } from '@tanstack/react-virtual'
+import { SplitEditorDetailPane, SplitEditorLayout, SplitEditorListPane } from '@/components/editors/shared/SplitEditorLayout'
 
 const EMPTY_PROXIES: ProxyConfig[] = []
 const VIRTUALIZE_THRESHOLD = 200
@@ -94,9 +95,9 @@ export function ProxiesEditor() {
   }
 
   return (
-    <div className="p-6 flex h-full">
+    <SplitEditorLayout>
       {/* Left: Proxy List */}
-      <div className="w-64 flex-shrink-0 border-r border-border pr-3 flex flex-col">
+      <SplitEditorListPane>
         <div className="relative mb-2">
           <Search className="size-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
@@ -143,10 +144,10 @@ export function ProxiesEditor() {
           ))}
           </div>
         </div>
-      </div>
+      </SplitEditorListPane>
 
       {/* Right: Editor */}
-      <div className="flex-1 pl-4 overflow-y-auto">
+      <SplitEditorDetailPane>
         {selectedIdx >= 0 && proxies[selectedIdx] ? (
           <ProxyDetailEditor
             proxy={proxies[selectedIdx]}
@@ -157,8 +158,8 @@ export function ProxiesEditor() {
         ) : (
           <p className="text-xs text-muted-foreground p-8 text-center">选择一个节点或添加新节点开始编辑</p>
         )}
-      </div>
-    </div>
+      </SplitEditorDetailPane>
+    </SplitEditorLayout>
   )
 }
 

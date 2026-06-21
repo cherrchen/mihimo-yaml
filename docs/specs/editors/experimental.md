@@ -7,7 +7,7 @@ Configures experimental/advanced QUIC and dialer options.
 - `src/components/editors/experimental/ExperimentalEditor.tsx`
 
 ## UI 结构
-页面标题与 NavTree 统一为 **Experimental**。三个布尔字段位于常显的 **实验性网络选项** 分组，字段帮助通过中文 Tooltip 展示；窄屏单列、`md` 及以上双列。
+页面标题与 NavTree 统一为 **实验Experimental**，并作为点击“高级”时的默认页面。三个布尔字段位于常显的 **实验性网络选项** 分组，字段帮助通过中文 Tooltip 展示；窄屏单列、`md` 及以上双列。
 
 ## 配置字段
 - `experimental.quic-go-disable-gso`

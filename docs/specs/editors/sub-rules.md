@@ -7,7 +7,7 @@ Configures named sub-rule groups — collections of match rules referenced by `S
 - `src/components/editors/sub-rules/SubRulesEditor.tsx`
 
 ## UI 结构
-Sidebar + detail layout. Left sidebar lists all sub-rule names with rule counts; clicking one selects it. Right detail panel shows the selected sub-rule's rule list — each rule is a row with: index, type dropdown, payload text input, target text input, and delete button. Bottom button appends a new default rule. A delete button removes the entire sub-rule group.
+Shared sidebar + detail layout. The left pane uses 30% width with a 14rem minimum and lists all sub-rule names with rule counts; clicking one selects it. The remaining centered detail pane shows the selected sub-rule's rule rows. Bottom button appends a new default rule, and the header delete button removes the entire group.
 
 ## 配置字段
 - `sub-rules` (`Record<string, string[]>`) — keyed by sub-rule name, each value is an array of comma-delimited rule strings (`TYPE,payload,target`)

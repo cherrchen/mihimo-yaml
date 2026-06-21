@@ -8,6 +8,7 @@ import { Plus, Trash2, GripVertical } from 'lucide-react'
 import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { Switch } from '@/components/ui/switch'
 
 const FIELD_GRID_CLASS = 'grid grid-cols-1 gap-4 md:grid-cols-2'
 
@@ -16,6 +17,7 @@ export function DnsEditor() {
   const updateConfig = useConfigStore((s) => s.updateConfig)
 
   const dns = config.dns || {}
+  const dnsEnabled = dns.enable === true
   const setDns = (key: string, value: unknown) => {
     updateConfig((draft) => {
       if (!draft.dns) draft.dns = {}
@@ -25,23 +27,41 @@ export function DnsEditor() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5 p-4 sm:p-6">
-      <h2 className="text-sm font-semibold">DNS</h2>
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="text-sm font-semibold">DNS</h2>
+        <label className="flex items-center gap-2 text-xs font-medium" htmlFor="dns-enabled">
+          启用 DNS
+          <Switch
+            id="dns-enabled"
+            checked={dnsEnabled}
+            onCheckedChange={(checked) => setDns('enable', checked)}
+            aria-label="启用 DNS"
+          />
+        </label>
+      </div>
 
-      <EditorSection title="解析与上游" description="启用 DNS 解析并配置默认和主要上游服务器。">
+      <fieldset
+        disabled={!dnsEnabled}
+        aria-disabled={!dnsEnabled}
+        className="m-0 min-w-0 space-y-5 border-0 p-0 transition-opacity disabled:opacity-50"
+      >
+      <EditorSection title="解析与上游" description="配置增强解析模式与 DNS 上游服务器。">
         <div className={FIELD_GRID_CLASS}>
-          <FieldWrapper label="启用 DNS" help="启用 mihomo 内置 DNS 模块。" yamlKey="dns.enable" defaultValue={false}>
-            <BoolField value={dns.enable ?? false} onChange={(v) => setDns('enable', v)} />
-          </FieldWrapper>
           <FieldWrapper label="增强模式" help="选择域名解析的增强方式；fake-ip 会为域名分配虚拟地址。" yamlKey="dns.enhanced-mode" defaultValue="redir-host" stashSupport={false}>
             <SelectField value={dns['enhanced-mode'] || ''} onChange={(v) => setDns('enhanced-mode', v)} options={DNS_ENHANCED_MODES} emptyPlaceholder="未设置" />
           </FieldWrapper>
         </div>
-        <div className="mt-4 space-y-4">
+        <div data-dns-primary-servers className="mt-4 grid grid-cols-1 items-start gap-4 md:grid-cols-2">
           <FieldWrapper label="默认 DNS 服务器" help="用于解析其他 DNS 服务器域名，仅应填写 IP 地址。" yamlKey="dns.default-nameserver" example="223.5.5.5, 119.29.29.29">
             <StringListEditor value={dns['default-nameserver'] || []} onChange={(v) => setDns('default-nameserver', v)} placeholder="223.5.5.5" />
           </FieldWrapper>
           <FieldWrapper label="主要 DNS 服务器" help="配置处理普通域名请求的主要上游服务器。" yamlKey="dns.nameserver" example="https://doh.pub/dns-query">
             <StringListEditor value={dns.nameserver || []} onChange={(v) => setDns('nameserver', v)} placeholder="https://doh.pub/dns-query" />
+          </FieldWrapper>
+        </div>
+        <div className="mt-4">
+          <FieldWrapper label="备用 DNS 服务器" help="主要解析结果不满足过滤条件时使用这些备用上游。" yamlKey="dns.fallback" example="https://dns.cloudflare.com/dns-query" stashSupport={false}>
+            <StringListEditor value={dns.fallback || []} onChange={(v) => setDns('fallback', v)} placeholder="https://dns.cloudflare.com/dns-query" />
           </FieldWrapper>
         </div>
       </EditorSection>
@@ -79,11 +99,8 @@ export function DnsEditor() {
         </EditorSection>
       )}
 
-      <EditorSection title="分流 DNS" description="为备用、代理节点和直连流量指定独立上游。" collapsible defaultOpen={false} stashSupport={false}>
+      <EditorSection title="分流 DNS" description="为代理节点和直连流量指定独立上游。" collapsible defaultOpen={false} stashSupport={false}>
         <div className="space-y-4">
-          <FieldWrapper label="备用 DNS 服务器" help="主要解析结果不满足过滤条件时使用这些备用上游。" yamlKey="dns.fallback" example="https://dns.cloudflare.com/dns-query">
-            <StringListEditor value={dns.fallback || []} onChange={(v) => setDns('fallback', v)} placeholder="https://dns.cloudflare.com/dns-query" />
-          </FieldWrapper>
           <FieldWrapper label="代理节点 DNS" help="专门用于解析代理服务器自身的域名。" yamlKey="dns.proxy-server-nameserver" example="https://doh.pub/dns-query">
             <StringListEditor value={dns['proxy-server-nameserver'] || []} onChange={(v) => setDns('proxy-server-nameserver', v)} placeholder="https://doh.pub/dns-query" />
           </FieldWrapper>
@@ -117,6 +134,7 @@ export function DnsEditor() {
           </div>
         </EditorSection>
       )}
+      </fieldset>
     </div>
   )
 }

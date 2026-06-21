@@ -1,3 +1,5 @@
+import { Switch } from '@/components/ui/switch'
+
 interface TextFieldProps {
   value: string
   onChange: (value: string) => void
@@ -77,16 +79,16 @@ interface BoolFieldProps {
   value: boolean
   onChange: (value: boolean) => void
   disabled?: boolean
+  ariaLabel?: string
 }
 
-export function BoolField({ value, onChange, disabled }: BoolFieldProps) {
+export function BoolField({ value, onChange, disabled, ariaLabel }: BoolFieldProps) {
   return (
-    <input
-      type="checkbox"
+    <Switch
       checked={value}
-      onChange={(e) => onChange(e.target.checked)}
+      onCheckedChange={onChange}
       disabled={disabled}
-      className="size-4 rounded border-input"
+      aria-label={ariaLabel}
     />
   )
 }

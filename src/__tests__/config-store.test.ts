@@ -140,6 +140,26 @@ describe('Config store', () => {
     expect(state.integrityReport!.issues.some((i) => i.type === 'dangling-ref')).toBe(true)
   })
 
+  it('should exclude disabled DNS and its imported validation errors from explicit checks', () => {
+    useConfigStore.setState({
+      config: {
+        mode: 'rule',
+        dns: { enable: false, nameserver: ['https://disabled.example/dns-query'] },
+        _validationErrors: [
+          { path: 'dns.nameserver', message: 'invalid DNS server' },
+          { path: 'mode', message: 'invalid mode' },
+        ],
+      },
+    })
+
+    useConfigStore.getState().runValidation()
+
+    const state = useConfigStore.getState()
+    expect(state.integrityReport?.issues.some((issue) => issue.path === 'dns.nameserver')).toBe(false)
+    expect(state.integrityReport?.issues.some((issue) => issue.path === 'mode')).toBe(true)
+    expect(state.config.dns?.nameserver).toEqual(['https://disabled.example/dns-query'])
+  })
+
   it('should structurally share untouched config sections and history snapshots', () => {
     useConfigStore.getState().setConfig({
       mode: 'rule',

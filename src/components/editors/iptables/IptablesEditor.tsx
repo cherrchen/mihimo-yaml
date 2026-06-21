@@ -20,7 +20,7 @@ export function IptablesEditor() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5 p-4 sm:p-6">
-      <h2 className="text-sm font-semibold">iptables</h2>
+      <h2 className="text-sm font-semibold">Linux iptables设置</h2>
       <EditorSection title="透明代理转发" description="配置 Linux iptables 入站转发、DNS 重定向和绕过地址。" stashSupport={false}>
         <div className={FIELD_GRID_CLASS}>
         <FieldWrapper label="启用 iptables" help="启用 mihomo 管理的 iptables 透明代理规则。" yamlKey="iptables.enable" defaultValue={false}>

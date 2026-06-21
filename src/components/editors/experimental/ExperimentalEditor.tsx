@@ -19,7 +19,7 @@ export function ExperimentalEditor() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5 p-4 sm:p-6">
-      <h2 className="text-sm font-semibold">Experimental</h2>
+      <h2 className="text-sm font-semibold">实验Experimental</h2>
       <EditorSection title="实验性网络选项" description="调整 QUIC 与 IP4P 的底层网络行为。">
         <div className={FIELD_GRID_CLASS}>
         <FieldWrapper label="禁用 QUIC GSO" help="关闭 QUIC 的 Generic Segmentation Offload；仅在兼容性问题排查时启用。" yamlKey="experimental.quic-go-disable-gso" defaultValue={false}>

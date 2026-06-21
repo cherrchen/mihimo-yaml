@@ -28,6 +28,8 @@ export function stringifyYaml(config: MihomoConfig): string
 export function stringifyYamlOrdered(config: MihomoConfig): string
 ```
 
+两种序列化入口都会先取得有效配置：当 `dns.enable !== true` 时，完整 `dns` 对象不会写入 YAML；编辑器 Store 中的原始 DNS 值不受影响。
+
 | `cloneConfig` | `function` | Deep clones a `MihomoConfig` via JSON serialization |
 
 ```typescript

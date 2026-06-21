@@ -9,6 +9,7 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from '@dnd-kit/utilities'
 import type { ProxyGroupConfig } from '@/schema/model'
 import { PROXY_GROUP_TYPES, LOAD_BALANCE_STRATEGIES } from '@/lib/constants'
+import { SplitEditorDetailPane, SplitEditorLayout, SplitEditorListPane } from '@/components/editors/shared/SplitEditorLayout'
 
 export function ProxyGroupsEditor() {
   const config = useConfigStore((s) => s.config)
@@ -67,8 +68,8 @@ export function ProxyGroupsEditor() {
   }
 
   return (
-    <div className="p-6 flex h-full">
-      <div className="w-64 flex-shrink-0 border-r border-border pr-3 flex flex-col">
+    <SplitEditorLayout>
+      <SplitEditorListPane>
         <div className="relative mb-2">
           <Search className="size-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
@@ -94,9 +95,9 @@ export function ProxyGroupsEditor() {
             </div>
           ))}
         </div>
-      </div>
+      </SplitEditorListPane>
 
-      <div className="flex-1 pl-4 overflow-y-auto max-w-lg mx-auto">
+      <SplitEditorDetailPane>
         {selectedIdx >= 0 && groups[selectedIdx] ? (
           <GroupDetailEditor
             group={groups[selectedIdx]}
@@ -108,8 +109,8 @@ export function ProxyGroupsEditor() {
         ) : (
           <p className="text-xs text-muted-foreground p-8 text-center">选择或添加一个代理组</p>
         )}
-      </div>
-    </div>
+      </SplitEditorDetailPane>
+    </SplitEditorLayout>
   )
 }
 

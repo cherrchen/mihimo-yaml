@@ -6,6 +6,7 @@ import { SensitiveField } from '@/components/editors/shared/SensitiveField'
 import { LISTENER_TYPES } from '@/lib/constants'
 import { Plus, Trash2 } from 'lucide-react'
 import type { ListenerConfig } from '@/schema/model'
+import { SplitEditorDetailPane, SplitEditorLayout, SplitEditorListPane } from '@/components/editors/shared/SplitEditorLayout'
 
 export function InboundsEditor() {
   const config = useConfigStore((s) => s.config)
@@ -26,8 +27,8 @@ export function InboundsEditor() {
   }
 
   return (
-    <div className="p-6 flex h-full">
-      <div className="w-56 flex-shrink-0 border-r border-border pr-3 flex flex-col">
+    <SplitEditorLayout>
+      <SplitEditorListPane>
         <button onClick={addListener} className="mb-2 flex items-center gap-1 px-2 py-1 rounded bg-primary text-primary-foreground text-xs">
           <Plus className="size-3.5" /> 添加 Inbound
         </button>
@@ -45,9 +46,9 @@ export function InboundsEditor() {
             </div>
           ))}
         </div>
-      </div>
+      </SplitEditorListPane>
 
-      <div className="flex-1 pl-4 overflow-y-auto max-w-lg mx-auto">
+      <SplitEditorDetailPane>
         {selectedIdx >= 0 && listeners[selectedIdx] ? (
           <ListenerDetailEditor
             listener={listeners[selectedIdx]}
@@ -60,8 +61,8 @@ export function InboundsEditor() {
         ) : (
           <p className="text-xs text-muted-foreground p-8 text-center">选择或添加 Inbound</p>
         )}
-      </div>
-    </div>
+      </SplitEditorDetailPane>
+    </SplitEditorLayout>
   )
 }
 

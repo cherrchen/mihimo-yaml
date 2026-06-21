@@ -6,6 +6,7 @@ import type {
 } from '@/lib/config-derivation-types'
 import type { MihomoConfig } from '@/schema/model'
 import { stringifyYamlOrdered } from '@/schema/yaml'
+import { getEffectiveConfig } from '@/lib/effective-config'
 
 interface PendingRequest {
   resolve: (result: DerivedConfig) => void
@@ -20,9 +21,10 @@ let cachedConfig: MihomoConfig | null = null
 let cachedResult: Promise<DerivedConfig> | null = null
 
 export function deriveConfigSync(config: MihomoConfig): DerivedConfig {
+  const effectiveConfig = getEffectiveConfig(config)
   return {
-    yaml: stringifyYamlOrdered(config),
-    integrityReport: runIntegrityCheck(config),
+    yaml: stringifyYamlOrdered(effectiveConfig),
+    integrityReport: runIntegrityCheck(effectiveConfig),
   }
 }
 
