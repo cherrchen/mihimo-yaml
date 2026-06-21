@@ -1,7 +1,7 @@
 import { useConfigStore } from '@/store/config-store'
 import { EditorSection } from '@/components/editors/shared/EditorSection'
 import { FieldWrapper } from '@/components/editors/shared/FieldWrapper'
-import { SelectField, NumberField, TextField } from '@/components/editors/shared/fields'
+import { BoolField, SelectField, NumberField, TextField } from '@/components/editors/shared/fields'
 import { SensitiveField } from '@/components/editors/shared/SensitiveField'
 import { MODES, LOG_LEVELS, FIND_PROCESS_MODES, GEODATA_LOADERS } from '@/lib/constants'
 
@@ -72,12 +72,7 @@ export function GeneralEditor() {
             stashSupport={false}
           >
             <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={config.ipv6 ?? true}
-                onChange={(e) => set('ipv6', e.target.checked)}
-                className="size-4 rounded border-input"
-              />
+              <BoolField value={config.ipv6 ?? true} onChange={(value) => set('ipv6', value)} ariaLabel="IPv6" />
               <span className="text-xs text-muted-foreground">{config.ipv6 !== false ? '已启用' : '已禁用'}</span>
             </div>
           </FieldWrapper>
@@ -138,12 +133,7 @@ export function GeneralEditor() {
             yamlKey="disable-keep-alive"
             defaultValue={false}
           >
-            <input
-              type="checkbox"
-              checked={config['disable-keep-alive'] || false}
-              onChange={(e) => set('disable-keep-alive', e.target.checked)}
-              className="size-4 rounded border-input"
-            />
+            <BoolField value={config['disable-keep-alive'] || false} onChange={(value) => set('disable-keep-alive', value)} ariaLabel="禁用 Keep Alive" />
           </FieldWrapper>
 
           <FieldWrapper
@@ -152,12 +142,7 @@ export function GeneralEditor() {
             yamlKey="tcp-concurrent"
             defaultValue={false}
           >
-            <input
-              type="checkbox"
-              checked={config['tcp-concurrent'] || false}
-              onChange={(e) => set('tcp-concurrent', e.target.checked)}
-              className="size-4 rounded border-input"
-            />
+            <BoolField value={config['tcp-concurrent'] || false} onChange={(value) => set('tcp-concurrent', value)} ariaLabel="TCP 并发连接" />
           </FieldWrapper>
 
           <FieldWrapper
@@ -166,12 +151,7 @@ export function GeneralEditor() {
             yamlKey="unified-delay"
             defaultValue={false}
           >
-            <input
-              type="checkbox"
-              checked={config['unified-delay'] || false}
-              onChange={(e) => set('unified-delay', e.target.checked)}
-              className="size-4 rounded border-input"
-            />
+            <BoolField value={config['unified-delay'] || false} onChange={(value) => set('unified-delay', value)} ariaLabel="统一延迟" />
           </FieldWrapper>
         </div>
       </EditorSection>
@@ -254,12 +234,7 @@ export function GeneralEditor() {
             defaultValue={false}
           >
             <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={config['geodata-mode'] || false}
-                onChange={(e) => set('geodata-mode', e.target.checked)}
-                className="size-4 rounded border-input"
-              />
+              <BoolField value={config['geodata-mode'] || false} onChange={(value) => set('geodata-mode', value)} ariaLabel="GeoData 格式" />
               <span className="text-xs text-muted-foreground">{config['geodata-mode'] ? 'dat 格式' : 'mmdb 格式'}</span>
             </div>
           </FieldWrapper>
@@ -284,12 +259,7 @@ export function GeneralEditor() {
             yamlKey="geo-auto-update"
             defaultValue={false}
           >
-            <input
-              type="checkbox"
-              checked={config['geo-auto-update'] || false}
-              onChange={(e) => set('geo-auto-update', e.target.checked)}
-              className="size-4 rounded border-input"
-            />
+            <BoolField value={config['geo-auto-update'] || false} onChange={(value) => set('geo-auto-update', value)} ariaLabel="自动更新 GEO" />
           </FieldWrapper>
 
           <FieldWrapper
@@ -322,12 +292,7 @@ export function GeneralEditor() {
             yamlKey="profile.store-selected"
             defaultValue
           >
-            <input
-              type="checkbox"
-              checked={config.profile?.['store-selected'] ?? true}
-              onChange={(e) => set('profile.store-selected', e.target.checked)}
-              className="size-4 rounded border-input"
-            />
+            <BoolField value={config.profile?.['store-selected'] ?? true} onChange={(value) => set('profile.store-selected', value)} ariaLabel="持久化选中组" />
           </FieldWrapper>
 
           <FieldWrapper
@@ -336,12 +301,7 @@ export function GeneralEditor() {
             yamlKey="profile.store-fake-ip"
             defaultValue={false}
           >
-            <input
-              type="checkbox"
-              checked={config.profile?.['store-fake-ip'] || false}
-              onChange={(e) => set('profile.store-fake-ip', e.target.checked)}
-              className="size-4 rounded border-input"
-            />
+            <BoolField value={config.profile?.['store-fake-ip'] || false} onChange={(value) => set('profile.store-fake-ip', value)} ariaLabel="持久化 Fake IP" />
           </FieldWrapper>
         </div>
       </EditorSection>

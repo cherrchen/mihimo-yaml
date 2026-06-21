@@ -3,6 +3,10 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DnsEditor } from '@/components/editors/dns/DnsEditor'
 import { SubRulesEditor } from '@/components/editors/sub-rules/SubRulesEditor'
+import { InboundsEditor } from '@/components/editors/inbounds/InboundsEditor'
+import { ProxiesEditor } from '@/components/editors/proxies/ProxiesEditor'
+import { ProxyProvidersEditor } from '@/components/editors/proxy-providers/ProxyProvidersEditor'
+import { ProxyGroupsEditor } from '@/components/editors/proxy-groups/ProxyGroupsEditor'
 import { useConfigStore } from '@/store/config-store'
 
 describe('Editor row layouts', () => {
@@ -51,4 +55,14 @@ describe('Editor row layouts', () => {
     expect(row).toHaveClass('grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]')
     expect(payloadInput).not.toHaveClass('w-24')
   })
+
+  it.each([InboundsEditor, ProxiesEditor, ProxyProvidersEditor, ProxyGroupsEditor, SubRulesEditor])(
+    'should use the shared percentage-based list pane',
+    (Editor) => {
+      render(<Editor />)
+
+      const pane = document.querySelector('[data-editor-list-pane]')
+      expect(pane).toHaveClass('w-[30%]', 'min-w-56')
+    },
+  )
 })

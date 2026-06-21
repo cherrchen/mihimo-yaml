@@ -2,6 +2,7 @@ import YAML from 'yaml'
 import type { MihomoConfig } from './model'
 import { extractUnknownFields, injectUnknownFields } from './unknown-fields'
 import { validateConfig } from './validation'
+import { getEffectiveConfig } from '@/lib/effective-config'
 
 const KNOWN_TOP_KEYS = new Set([
   'mode', 'log-level', 'allow-lan', 'bind-address', 'lan-allowed-ips',
@@ -52,7 +53,7 @@ export function parseYaml(yamlString: string): MihomoConfig {
 }
 
 export function stringifyYaml(config: MihomoConfig): string {
-  const { _unknownFields, ...known } = config
+  const { _unknownFields, ...known } = getEffectiveConfig(config)
   const output: Record<string, unknown> = { ...known }
 
   delete (output as Record<string, unknown>)._unknownFields
@@ -111,7 +112,7 @@ const SECTION_ORDER: Array<{ key: string; priority: number }> = [
  * Returns a YAML string with sections in recommended order.
  */
 export function stringifyYamlOrdered(config: MihomoConfig): string {
-  const { _unknownFields, ...known } = config
+  const { _unknownFields, ...known } = getEffectiveConfig(config)
 
   const orderMap = new Map<number, Array<[string, unknown]>>()
   const unattached: Array<[string, unknown]> = []

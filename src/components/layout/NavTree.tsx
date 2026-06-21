@@ -68,10 +68,10 @@ const NAV_ITEMS: NavItem[] = [
     label: '高级',
     icon: SlidersHorizontal,
     children: [
-      { id: 'iptables', label: 'iptables', icon: Network },
-      { id: 'ebpf', label: 'ebpf', icon: Network },
-      { id: 'experimental', label: 'Experimental', icon: FlaskConical },
+      { id: 'experimental', label: '实验Experimental', icon: FlaskConical },
       { id: 'clash-for-android', label: 'Clash for Android', icon: Settings },
+      { id: 'iptables', label: 'Linux iptables设置', icon: Network },
+      { id: 'ebpf', label: 'Linux eBPF转发设置', icon: Network },
     ],
   },
 ]

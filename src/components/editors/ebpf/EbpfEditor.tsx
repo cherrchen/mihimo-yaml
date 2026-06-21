@@ -20,7 +20,7 @@ export function EbpfEditor() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5 p-4 sm:p-6">
-      <h2 className="text-sm font-semibold">ebpf</h2>
+      <h2 className="text-sm font-semibold">Linux eBPF转发设置</h2>
       <EditorSection title="eBPF 转发" description="启用 Linux eBPF 包转发并设置 BPF 文件系统位置。" stashSupport={false}>
         <div className={FIELD_GRID_CLASS}>
         <FieldWrapper label="启用 eBPF" help="启用 mihomo 的 Linux eBPF 转发功能。" yamlKey="ebpf.enable" defaultValue={false}>

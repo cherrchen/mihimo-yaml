@@ -7,7 +7,7 @@ Configures mihomo listener (inbound) entries. The type selector exposes all 19 v
 - `src/components/editors/inbounds/InboundsEditor.tsx`
 
 ## UI 结构
-List/detail split layout. Left sidebar lists all listeners with name and `type:port` summary; right pane shows a detail form for the selected listener. An "Add" button creates a default HTTP listener on port 8080. Fields are shown/hidden based on the selected listener type.
+Shared list/detail split layout. The left pane uses 30% width with a 14rem minimum and lists all listeners with name and `type:port` summary; the right pane shows a centered detail form for the selected listener. An "Add" button creates a default HTTP listener on port 8080. Fields are shown/hidden based on the selected listener type.
 
 ## 配置字段
 - `listeners[]` (top-level array)

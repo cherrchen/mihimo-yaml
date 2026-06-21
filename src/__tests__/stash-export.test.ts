@@ -3,6 +3,20 @@ import { generateStashReport } from '@/compatibility/stash'
 import { parseYaml } from '@/schema/yaml'
 
 describe('Stash compatibility export', () => {
+  it('should ignore the complete DNS section when its master switch is off', () => {
+    const report = generateStashReport({
+      mode: 'rule',
+      dns: {
+        enable: false,
+        fallback: ['1.1.1.1'],
+        nameserver: ['https://disabled.example/dns-query'],
+      },
+    })
+
+    expect(report.transformedConfig.dns).toBeUndefined()
+    expect(report.issues.some((issue) => issue.path.startsWith('dns.'))).toBe(false)
+  })
+
   it('should remove mihomo-only top-level fields', () => {
     const input = `mode: rule
 ipv6: true

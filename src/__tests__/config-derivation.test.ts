@@ -19,6 +19,17 @@ describe('config derivation', () => {
     expect(result.integrityReport.valid).toBe(true)
   })
 
+  it('should derive YAML from the effective config when DNS is disabled', () => {
+    const result = deriveConfigSync({
+      mode: 'rule',
+      dns: { enable: false, nameserver: ['https://disabled.example/dns-query'] },
+      rules: ['MATCH,DIRECT'],
+    })
+
+    expect(result.yaml).not.toContain('dns:')
+    expect(result.yaml).not.toContain('disabled.example')
+  })
+
   it('should fall back when Worker is unavailable and cache the current snapshot', async () => {
     vi.stubGlobal('Worker', undefined)
     const config = { mode: 'rule', rules: ['MATCH,DIRECT'] }

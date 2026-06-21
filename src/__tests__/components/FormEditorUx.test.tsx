@@ -23,9 +23,9 @@ const EDITORS: Array<[string, ComponentType, string]> = [
   ['规则 Provider', RuleProvidersEditor, 'Provider 列表'],
   ['隧道', TunnelsEditor, '端口转发'],
   ['NTP', NtpEditor, '同步服务'],
-  ['Experimental', ExperimentalEditor, '实验性网络选项'],
-  ['iptables', IptablesEditor, '透明代理转发'],
-  ['ebpf', EbpfEditor, 'eBPF 转发'],
+  ['实验Experimental', ExperimentalEditor, '实验性网络选项'],
+  ['Linux iptables设置', IptablesEditor, '透明代理转发'],
+  ['Linux eBPF转发设置', EbpfEditor, 'eBPF 转发'],
   ['Clash for Android', ClashForAndroidEditor, 'Android 客户端行为'],
 ]
 
@@ -70,7 +70,7 @@ describe('migrated editor UX', () => {
     useConfigStore.setState({
       config: {
         mode: 'rule',
-        dns: { 'enhanced-mode': 'fake-ip', fallback: ['1.1.1.1'] },
+        dns: { enable: true, 'enhanced-mode': 'fake-ip', fallback: ['1.1.1.1'] },
         proxies: [],
         rules: ['MATCH,DIRECT'],
       },
@@ -85,6 +85,46 @@ describe('migrated editor UX', () => {
     expect(emptyOption).toHaveTextContent('未设置')
     expect(emptyOption.disabled).toBe(true)
     expect(emptyOption.hidden).toBe(true)
+  })
+
+  it('uses a master DNS switch that disables output controls without deleting values', async () => {
+    const user = userEvent.setup()
+    useConfigStore.setState({
+      config: {
+        mode: 'rule',
+        dns: { enable: true, nameserver: ['https://doh.pub/dns-query'] },
+        proxies: [],
+        rules: ['MATCH,DIRECT'],
+      },
+    })
+    render(<DnsEditor />)
+
+    const toggle = screen.getByRole('switch', { name: '启用 DNS' })
+    const fieldset = document.querySelector('fieldset') as HTMLFieldSetElement
+    expect(toggle).toBeChecked()
+    expect(fieldset.disabled).toBe(false)
+
+    await user.click(toggle)
+
+    expect(toggle).not.toBeChecked()
+    expect(fieldset.disabled).toBe(true)
+    expect(useConfigStore.getState().config.dns?.nameserver).toEqual(['https://doh.pub/dns-query'])
+
+    await user.click(toggle)
+    expect(useConfigStore.getState().config.dns).toMatchObject({
+      enable: true,
+      nameserver: ['https://doh.pub/dns-query'],
+    })
+  })
+
+  it('lays out default and primary DNS equally above the full-width fallback field', () => {
+    useConfigStore.setState({ config: { mode: 'rule', dns: { enable: true } } })
+    render(<DnsEditor />)
+
+    const serverGrid = document.querySelector('[data-dns-primary-servers]')
+    expect(serverGrid).toHaveClass('grid-cols-1', 'md:grid-cols-2')
+    expect(screen.getByText('备用 DNS 服务器')).toBeInTheDocument()
+    expect(screen.getByText('备用 DNS 服务器').parentElement).toHaveTextContent('仅 mihomo')
   })
 
   it('provides Chinese field help with YAML metadata', async () => {
@@ -112,6 +152,8 @@ describe('migrated editor UX', () => {
 
     await user.click(screen.getByRole('button', { name: '添加第一条记录' }))
     expect(useConfigStore.getState().config.hosts).toEqual({ '': '' })
+    expect(document.querySelector('[data-hosts-list]')).toBeInTheDocument()
+    expect(document.querySelectorAll('[data-host-row]')).toHaveLength(1)
 
     await user.click(screen.getByRole('button', { name: '删除 Hosts 条目 1' }))
     expect(useConfigStore.getState().config.hosts).toEqual({})

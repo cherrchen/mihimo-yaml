@@ -7,7 +7,7 @@ Manages proxy providers — remote or local sources that supply proxy node lists
 - `src/components/editors/proxy-providers/ProxyProvidersEditor.tsx`
 
 ## UI 结构
-List/detail split layout. Left sidebar lists all providers by name and type. Right pane shows a detail form with: type/interval, URL field with a built-in fetch-and-preview button (for HTTP providers), advanced fields (path, download proxy, size limit, filters, exclude type), a health-check sub-form (enable, URL, interval, lazy), and an override sub-form (name prefix/suffix, UDP, TFO, skip cert verify, dialer proxy, IP version).
+Shared list/detail split layout. The left pane uses 30% width with a 14rem minimum and lists all providers by name and type. The centered right pane shows a detail form with type/interval, URL fetch-and-preview, advanced fields, health checks, and node overrides.
 
 ## 配置字段
 - `proxy-providers` (top-level map, keyed by provider name)

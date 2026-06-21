@@ -43,6 +43,7 @@ Configures core Mihomo/YAML top-level settings: mode, logging, external controll
 - `profile.store-fake-ip`
 
 ## 使用组件
+- `BoolField`（所有布尔字段统一渲染为 shadcn Switch）
 - `EditorSection`
 - `FieldWrapper`
 - `SelectField`

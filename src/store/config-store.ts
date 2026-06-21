@@ -7,6 +7,7 @@ import type { IntegrityReport } from '@/engine/integrity'
 import { runIntegrityCheck } from '@/engine/integrity'
 import type { CompatibilityReport } from '@/compatibility/stash'
 import { generateMihomoReport } from '@/compatibility/stash'
+import { getEffectiveConfig } from '@/lib/effective-config'
 
 setAutoFreeze(false)
 
@@ -177,7 +178,7 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
 
   runValidation: () => {
     const config = get().config
-    set({ integrityReport: runIntegrityCheck(config) })
+    set({ integrityReport: runIntegrityCheck(getEffectiveConfig(config)) })
   },
 
   runCompatibility: () => {

@@ -8,6 +8,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { RULE_TYPES } from '@/lib/constants'
 import { parseRule, buildRuleString } from '@/lib/rule-parser'
 import { defaultRangeExtractor, useVirtualizer, type VirtualItem } from '@tanstack/react-virtual'
+import { EditorList, EditorListRow } from '@/components/editors/shared/EditorList'
 
 const RULE_TARGETS = ['DIRECT', 'REJECT', 'REJECT-DROP', 'COMPATIBLE', 'PASS']
 const VIRTUALIZE_THRESHOLD = 200
@@ -26,14 +27,15 @@ function RuleRowFrame({
   children: React.ReactNode
 }) {
   return (
-    <div
+    <EditorListRow
       ref={rowRef}
       style={style}
       data-rule-row
-      className={`${isLast ? '' : 'border-b border-border'} ${className}`}
+      isLast={isLast}
+      className={className}
     >
       {children}
-    </div>
+    </EditorListRow>
   )
 }
 
@@ -227,9 +229,9 @@ export function RulesEditor() {
         onDragEnd={handleDragEnd}
       >
         <SortableContext items={visibleIds} strategy={verticalListSortingStrategy}>
-          <div
+          <EditorList
             ref={shouldVirtualize ? scrollRef : undefined}
-            className={`border border-border rounded-md ${shouldVirtualize ? 'h-[calc(100vh-11rem)] overflow-y-auto' : 'space-y-0.5'}`}
+            className={shouldVirtualize ? 'h-[calc(100vh-11rem)] overflow-y-auto' : 'space-y-0.5'}
           >
             <div
               className={shouldVirtualize ? 'relative w-full' : undefined}
@@ -402,7 +404,7 @@ export function RulesEditor() {
               </div>
             )}
             </div>
-          </div>
+          </EditorList>
         </SortableContext>
       </DndContext>
     </div>

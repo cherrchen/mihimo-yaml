@@ -92,6 +92,18 @@ describe('GeneralEditor component', () => {
     expect(useConfigStore.getState().config.mode).toBe('global')
   })
 
+  it('should render and update boolean settings through switches', async () => {
+    const user = userEvent.setup()
+    render(<GeneralEditor />)
+
+    const ipv6 = screen.getByRole('switch', { name: 'IPv6' })
+    expect(ipv6).toBeChecked()
+    expect(document.querySelector('input[type="checkbox"]')).not.toBeInTheDocument()
+
+    await user.click(ipv6)
+    expect(useConfigStore.getState().config.ipv6).toBe(false)
+  })
+
   it('should use a responsive one-to-two column field grid', () => {
     render(<GeneralEditor />)
 
