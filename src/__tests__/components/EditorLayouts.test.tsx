@@ -28,13 +28,16 @@ describe('Editor row layouts', () => {
   })
 
   it('should give both NameServer Policy inputs equal flexible columns', () => {
+    const user = userEvent.setup()
     render(<DnsEditor />)
 
-    const domainInput = screen.getByDisplayValue('geosite:cn')
-    const row = domainInput.parentElement
+    return user.click(screen.getByRole('button', { name: /域名策略/ })).then(() => {
+      const domainInput = screen.getByDisplayValue('geosite:cn')
+      const row = domainInput.parentElement
 
-    expect(row).toHaveClass('grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]')
-    expect(domainInput).not.toHaveClass('w-32')
+      expect(row).toHaveClass('grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]')
+      expect(domainInput).not.toHaveClass('w-32')
+    })
   })
 
   it('should give all three sub-rule controls equal flexible columns', async () => {

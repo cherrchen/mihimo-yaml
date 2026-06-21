@@ -1,12 +1,15 @@
 import { useId, useMemo } from 'react'
 import { useConfigStore } from '@/store/config-store'
+import { EditorSection } from '@/components/editors/shared/EditorSection'
 import { FieldWrapper } from '@/components/editors/shared/FieldWrapper'
-import { TextField, NumberField } from '@/components/editors/shared/fields'
+import { BoolField, NumberField, SelectField, TextField } from '@/components/editors/shared/fields'
 import { DNS_ENHANCED_MODES, DNS_CACHE_ALGORITHMS, DNS_FAKE_IP_FILTER_MODES } from '@/lib/constants'
 import { Plus, Trash2, GripVertical } from 'lucide-react'
 import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+
+const FIELD_GRID_CLASS = 'grid grid-cols-1 gap-4 md:grid-cols-2'
 
 export function DnsEditor() {
   const config = useConfigStore((s) => s.config)
@@ -21,207 +24,98 @@ export function DnsEditor() {
   }
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-4">
-      <h2 className="text-sm font-semibold">DNS 配置</h2>
+    <div className="mx-auto max-w-3xl space-y-5 p-4 sm:p-6">
+      <h2 className="text-sm font-semibold">DNS</h2>
 
-      <div className="grid grid-cols-2 gap-3">
-        <FieldWrapper label="启用 DNS" description="dns.enable">
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={dns.enable ?? false}
-              onChange={(e) => setDns('enable', e.target.checked)}
-              className="size-4 rounded border-input"
-            />
-          </div>
-        </FieldWrapper>
+      <EditorSection title="解析与上游" description="启用 DNS 解析并配置默认和主要上游服务器。">
+        <div className={FIELD_GRID_CLASS}>
+          <FieldWrapper label="启用 DNS" help="启用 mihomo 内置 DNS 模块。" yamlKey="dns.enable" defaultValue={false}>
+            <BoolField value={dns.enable ?? false} onChange={(v) => setDns('enable', v)} />
+          </FieldWrapper>
+          <FieldWrapper label="增强模式" help="选择域名解析的增强方式；fake-ip 会为域名分配虚拟地址。" yamlKey="dns.enhanced-mode" defaultValue="redir-host" stashSupport={false}>
+            <SelectField value={dns['enhanced-mode'] || ''} onChange={(v) => setDns('enhanced-mode', v)} options={DNS_ENHANCED_MODES} emptyPlaceholder="未设置" />
+          </FieldWrapper>
+        </div>
+        <div className="mt-4 space-y-4">
+          <FieldWrapper label="默认 DNS 服务器" help="用于解析其他 DNS 服务器域名，仅应填写 IP 地址。" yamlKey="dns.default-nameserver" example="223.5.5.5, 119.29.29.29">
+            <StringListEditor value={dns['default-nameserver'] || []} onChange={(v) => setDns('default-nameserver', v)} placeholder="223.5.5.5" />
+          </FieldWrapper>
+          <FieldWrapper label="主要 DNS 服务器" help="配置处理普通域名请求的主要上游服务器。" yamlKey="dns.nameserver" example="https://doh.pub/dns-query">
+            <StringListEditor value={dns.nameserver || []} onChange={(v) => setDns('nameserver', v)} placeholder="https://doh.pub/dns-query" />
+          </FieldWrapper>
+        </div>
+      </EditorSection>
 
-        <FieldWrapper label="增强模式" description="dns.enhanced-mode" stashSupport={false}>
-          <select
-            value={dns['enhanced-mode'] || ''}
-            onChange={(e) => setDns('enhanced-mode', e.target.value)}
-            className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
-          >
-            <option value="">选择模式</option>
-            {DNS_ENHANCED_MODES.map((m) => (
-              <option key={m} value={m}>{m}</option>
-            ))}
-          </select>
-        </FieldWrapper>
+      <EditorSection title="监听与缓存" description="配置 DNS 服务监听、地址族和缓存协议偏好。" collapsible defaultOpen={false}>
+        <div className={FIELD_GRID_CLASS}>
+          <FieldWrapper label="DNS 监听地址" help="设置 DNS 服务的本地监听地址和端口。" yamlKey="dns.listen" example="0.0.0.0:53">
+            <TextField value={dns.listen || ''} onChange={(v) => setDns('listen', v)} placeholder="0.0.0.0:53" />
+          </FieldWrapper>
+          <FieldWrapper label="IPv6 解析" help="允许返回 AAAA 记录并解析 IPv6 地址。" yamlKey="dns.ipv6" defaultValue={false} stashSupport={false}>
+            <BoolField value={dns.ipv6 ?? false} onChange={(v) => setDns('ipv6', v)} />
+          </FieldWrapper>
+          <FieldWrapper label="缓存算法" help="选择 DNS 缓存淘汰算法。" yamlKey="dns.cache-algorithm" defaultValue="lru" stashSupport={false}>
+            <SelectField value={dns['cache-algorithm'] || ''} onChange={(v) => setDns('cache-algorithm', v)} options={DNS_CACHE_ALGORITHMS} emptyPlaceholder="未设置" />
+          </FieldWrapper>
+          <FieldWrapper label="优先 HTTP/3" help="访问支持 HTTP/3 的 DoH 上游时优先使用 H3。" yamlKey="dns.prefer-h3" defaultValue={false}>
+            <BoolField value={dns['prefer-h3'] ?? false} onChange={(v) => setDns('prefer-h3', v)} />
+          </FieldWrapper>
+        </div>
+      </EditorSection>
 
-        <FieldWrapper label="DNS 监听" description="dns.listen" example="0.0.0.0:53">
-          <TextField
-            value={dns.listen || ''}
-            onChange={(v) => setDns('listen', v)}
-            placeholder="0.0.0.0:53"
-          />
-        </FieldWrapper>
-
-        <FieldWrapper label="IPv6 解析" description="dns.ipv6 (AAAA 记录)" stashSupport={false}>
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={dns.ipv6 ?? false}
-              onChange={(e) => setDns('ipv6', e.target.checked)}
-              className="size-4 rounded border-input"
-            />
-          </div>
-        </FieldWrapper>
-
-        <FieldWrapper label="缓存算法" description="dns.cache-algorithm" advanced>
-          <select
-            value={dns['cache-algorithm'] || ''}
-            onChange={(e) => setDns('cache-algorithm', e.target.value)}
-            className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
-          >
-            <option value="">lru</option>
-            {DNS_CACHE_ALGORITHMS.map((a) => (
-              <option key={a} value={a}>{a}</option>
-            ))}
-          </select>
-        </FieldWrapper>
-
-        <FieldWrapper label="Prefer HTTP/3" description="dns.prefer-h3 (DOH 优先 H3)" advanced>
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={dns['prefer-h3'] ?? false}
-              onChange={(e) => setDns('prefer-h3', e.target.checked)}
-              className="size-4 rounded border-input"
-            />
-          </div>
-        </FieldWrapper>
-
-        {dns['enhanced-mode'] === 'fake-ip' && (
-          <>
-            <FieldWrapper label="Fake IP 范围" description="dns.fake-ip-range" stashSupport={false}>
-              <TextField
-                value={dns['fake-ip-range'] || '198.18.0.1/16'}
-                onChange={(v) => setDns('fake-ip-range', v)}
-                placeholder="198.18.0.1/16"
-              />
+      {dns['enhanced-mode'] === 'fake-ip' && (
+        <EditorSection title="Fake IP" description="配置虚拟地址范围、有效期和过滤模式。" collapsible defaultOpen={false} stashSupport={false}>
+          <div className={FIELD_GRID_CLASS}>
+            <FieldWrapper label="Fake IP 范围" help="设置为域名分配虚拟 IPv4 地址的 CIDR。" yamlKey="dns.fake-ip-range" defaultValue="198.18.0.1/16">
+              <TextField value={dns['fake-ip-range'] || '198.18.0.1/16'} onChange={(v) => setDns('fake-ip-range', v)} placeholder="198.18.0.1/16" />
             </FieldWrapper>
-
-            <FieldWrapper label="Fake IP TTL" description="dns.fake-ip-ttl" advanced>
-              <NumberField
-                value={dns['fake-ip-ttl']}
-                onChange={(v) => setDns('fake-ip-ttl', v)}
-                placeholder="1"
-              />
+            <FieldWrapper label="Fake IP TTL" help="设置 Fake IP 映射的有效时间。" yamlKey="dns.fake-ip-ttl" defaultValue={1}>
+              <NumberField value={dns['fake-ip-ttl']} onChange={(v) => setDns('fake-ip-ttl', v)} placeholder="1" />
             </FieldWrapper>
-
-            <FieldWrapper label="Fake IP 过滤模式" description="dns.fake-ip-filter-mode" advanced stashSupport={false}>
-              <select
-                value={dns['fake-ip-filter-mode'] || ''}
-                onChange={(e) => setDns('fake-ip-filter-mode', e.target.value)}
-                className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
-              >
-                <option value="">选择模式</option>
-                {DNS_FAKE_IP_FILTER_MODES.map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
+            <FieldWrapper label="Fake IP 过滤模式" help="决定过滤列表按黑名单、白名单或规则方式工作。" yamlKey="dns.fake-ip-filter-mode" defaultValue="blacklist">
+              <SelectField value={dns['fake-ip-filter-mode'] || ''} onChange={(v) => setDns('fake-ip-filter-mode', v)} options={DNS_FAKE_IP_FILTER_MODES} emptyPlaceholder="未设置" />
             </FieldWrapper>
-          </>
-        )}
-      </div>
+          </div>
+        </EditorSection>
+      )}
 
-      {/* Nameservers */}
-      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">DNS 服务器</h3>
+      <EditorSection title="分流 DNS" description="为备用、代理节点和直连流量指定独立上游。" collapsible defaultOpen={false} stashSupport={false}>
+        <div className="space-y-4">
+          <FieldWrapper label="备用 DNS 服务器" help="主要解析结果不满足过滤条件时使用这些备用上游。" yamlKey="dns.fallback" example="https://dns.cloudflare.com/dns-query">
+            <StringListEditor value={dns.fallback || []} onChange={(v) => setDns('fallback', v)} placeholder="https://dns.cloudflare.com/dns-query" />
+          </FieldWrapper>
+          <FieldWrapper label="代理节点 DNS" help="专门用于解析代理服务器自身的域名。" yamlKey="dns.proxy-server-nameserver" example="https://doh.pub/dns-query">
+            <StringListEditor value={dns['proxy-server-nameserver'] || []} onChange={(v) => setDns('proxy-server-nameserver', v)} placeholder="https://doh.pub/dns-query" />
+          </FieldWrapper>
+          <FieldWrapper label="直连 DNS 服务器" help="为直连流量指定独立的 DNS 上游。" yamlKey="dns.direct-nameserver" example="223.5.5.5">
+            <StringListEditor value={dns['direct-nameserver'] || []} onChange={(v) => setDns('direct-nameserver', v)} placeholder="223.5.5.5" />
+          </FieldWrapper>
+        </div>
+      </EditorSection>
 
-      <FieldWrapper label="默认 DNS 服务器" description="dns.default-nameserver (仅 IP)" example="223.5.5.5, 119.29.29.29">
-        <StringListEditor
-          value={dns['default-nameserver'] || []}
-          onChange={(v) => setDns('default-nameserver', v)}
-          placeholder="223.5.5.5"
-        />
-      </FieldWrapper>
+      <EditorSection title="域名策略" description="按域名或规则集选择指定的 DNS 上游。" collapsible defaultOpen={false}>
+        <FieldWrapper label="域名 DNS 策略" help="为匹配的域名指定一个或多个 DNS 服务器。" yamlKey="dns.nameserver-policy" example="geosite:cn → 223.5.5.5">
+          <NameserverPolicyEditor value={dns['nameserver-policy'] || {}} onChange={(v) => setDns('nameserver-policy', v)} />
+        </FieldWrapper>
+      </EditorSection>
 
-      <FieldWrapper label="NameServer" description="dns.nameserver" example="https://doh.pub/dns-query">
-        <StringListEditor
-          value={dns.nameserver || []}
-          onChange={(v) => setDns('nameserver', v)}
-          placeholder="https://doh.pub/dns-query"
-        />
-      </FieldWrapper>
-
-      <FieldWrapper label="Fallback" description="dns.fallback (国外 DNS)" stashSupport={false}>
-        <StringListEditor
-          value={dns.fallback || []}
-          onChange={(v) => setDns('fallback', v)}
-          placeholder="https://dns.cloudflare.com/dns-query"
-        />
-      </FieldWrapper>
-
-      <FieldWrapper label="代理 DNS 服务器" description="dns.proxy-server-nameserver" advanced stashSupport={false}>
-        <StringListEditor
-          value={dns['proxy-server-nameserver'] || []}
-          onChange={(v) => setDns('proxy-server-nameserver', v)}
-          placeholder="https://doh.pub/dns-query"
-        />
-      </FieldWrapper>
-
-      <FieldWrapper label="直连 DNS 服务器" description="dns.direct-nameserver" advanced stashSupport={false}>
-        <StringListEditor
-          value={dns['direct-nameserver'] || []}
-          onChange={(v) => setDns('direct-nameserver', v)}
-          placeholder="223.5.5.5"
-        />
-      </FieldWrapper>
-
-      {/* Nameserver Policy */}
-      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">DNS 策略</h3>
-      <FieldWrapper label="NameServer Policy" description="dns.nameserver-policy (按域名的 DNS 策略)">
-        <NameserverPolicyEditor
-          value={dns['nameserver-policy'] || {}}
-          onChange={(v) => setDns('nameserver-policy', v)}
-        />
-      </FieldWrapper>
-
-      {/* Fallback Filter */}
       {dns.fallback && dns.fallback.length > 0 && (
-        <>
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Fallback 过滤</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <FieldWrapper label="GeoIP 过滤" description="fallback-filter.geoip" stashSupport={false}>
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={dns['fallback-filter']?.geoip ?? true}
-                  onChange={(e) => {
-                    setDns('fallback-filter', { ...dns['fallback-filter'], geoip: e.target.checked })
-                  }}
-                  className="size-4 rounded border-input"
-                />
-              </div>
+        <EditorSection title="Fallback 过滤" description="定义何时改用备用 DNS 的地理和域名条件。" collapsible defaultOpen={false} stashSupport={false}>
+          <div className={FIELD_GRID_CLASS}>
+            <FieldWrapper label="GeoIP 过滤" help="根据解析结果的 GeoIP 归属判断是否使用备用 DNS。" yamlKey="dns.fallback-filter.geoip" defaultValue>
+              <BoolField value={dns['fallback-filter']?.geoip ?? true} onChange={(v) => setDns('fallback-filter', { ...dns['fallback-filter'], geoip: v })} />
             </FieldWrapper>
-
-            <FieldWrapper label="GeoIP 国家代码" description="fallback-filter.geoip-code" stashSupport={false}>
-              <TextField
-                value={dns['fallback-filter']?.['geoip-code'] || 'CN'}
-                onChange={(v) => {
-                  setDns('fallback-filter', { ...dns['fallback-filter'], 'geoip-code': v })
-                }}
-              />
+            <FieldWrapper label="GeoIP 国家代码" help="指定被视为本地解析结果的国家或地区代码。" yamlKey="dns.fallback-filter.geoip-code" defaultValue="CN">
+              <TextField value={dns['fallback-filter']?.['geoip-code'] || 'CN'} onChange={(v) => setDns('fallback-filter', { ...dns['fallback-filter'], 'geoip-code': v })} />
+            </FieldWrapper>
+            <FieldWrapper label="污染 GeoSite 分类" help="这些 GeoSite 分类匹配时使用备用 DNS。" yamlKey="dns.fallback-filter.geosite" example="gfw">
+              <StringListEditor value={dns['fallback-filter']?.geosite || []} onChange={(v) => setDns('fallback-filter', { ...dns['fallback-filter'], geosite: v })} placeholder="gfw" />
+            </FieldWrapper>
+            <FieldWrapper label="污染域名" help="这些域名匹配时使用备用 DNS。" yamlKey="dns.fallback-filter.domain" example="example.com">
+              <StringListEditor value={dns['fallback-filter']?.domain || []} onChange={(v) => setDns('fallback-filter', { ...dns['fallback-filter'], domain: v })} placeholder="example.com" />
             </FieldWrapper>
           </div>
-
-          <FieldWrapper label="污染 GeoSite 分类" description="fallback-filter.geosite" advanced stashSupport={false}>
-            <StringListEditor
-              value={dns['fallback-filter']?.geosite || []}
-              onChange={(v) => setDns('fallback-filter', { ...dns['fallback-filter'], geosite: v })}
-              placeholder="gfw"
-            />
-          </FieldWrapper>
-
-          <FieldWrapper label="污染域名" description="fallback-filter.domain" advanced stashSupport={false}>
-            <StringListEditor
-              value={dns['fallback-filter']?.domain || []}
-              onChange={(v) => setDns('fallback-filter', { ...dns['fallback-filter'], domain: v })}
-              placeholder="example.com"
-            />
-          </FieldWrapper>
-        </>
+        </EditorSection>
       )}
     </div>
   )
@@ -252,7 +146,7 @@ function SortableItem({
 
   return (
     <div ref={setNodeRef} style={style} className="flex items-center gap-1">
-      <button {...attributes} {...listeners} className="shrink-0 cursor-grab touch-none">
+      <button type="button" aria-label="拖动调整 DNS 服务器顺序" {...attributes} {...listeners} className="shrink-0 cursor-grab touch-none rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
         <GripVertical className="size-3 text-muted-foreground" />
       </button>
       <TextField
@@ -261,7 +155,7 @@ function SortableItem({
         placeholder={placeholder}
         className="flex-1"
       />
-      <button onClick={onDelete} className="text-muted-foreground hover:text-destructive">
+      <button type="button" aria-label="删除 DNS 服务器" onClick={onDelete} className="rounded text-muted-foreground hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
         <Trash2 className="size-3.5" />
       </button>
     </div>
@@ -308,6 +202,7 @@ function StringListEditor({
             />
           ))}
           <button
+            type="button"
             onClick={() => onChange([...value, ''])}
             className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
           >
@@ -356,6 +251,8 @@ function NameserverPolicyEditor({
             className="flex-1"
           />
           <button
+            type="button"
+            aria-label="删除 DNS 策略"
             onClick={() => {
               const next = { ...value }
               delete next[domain]
@@ -368,6 +265,7 @@ function NameserverPolicyEditor({
         </div>
       ))}
       <button
+        type="button"
         onClick={() => onChange({ ...value, '': '' })}
         className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >

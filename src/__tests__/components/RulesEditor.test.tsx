@@ -57,6 +57,14 @@ describe('RulesEditor component', () => {
     expect(screen.getByText('没有找到匹配“not-present”的规则。')).toBeInTheDocument()
   })
 
+  it('should keep a divider between every rule row', () => {
+    render(<RulesEditor />)
+
+    for (const button of screen.getAllByLabelText(/^删除规则/)) {
+      expect(button.closest('.border-b')).toHaveClass('border-border')
+    }
+  })
+
   it('should virtualize 50,000 rules and preserve original indexes when searching', async () => {
     const rules = Array.from(
       { length: 49_999 },
@@ -78,6 +86,8 @@ describe('RulesEditor component', () => {
     })
 
     expect(await screen.findByText('rule-49998.example')).toBeInTheDocument()
-    expect(screen.getByLabelText('删除规则 49999')).toBeInTheDocument()
+    const deleteButton = screen.getByLabelText('删除规则 49999')
+    expect(deleteButton).toBeInTheDocument()
+    expect(deleteButton.closest('.border-b')).toHaveClass('border-border')
   })
 })

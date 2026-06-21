@@ -7,7 +7,7 @@ Configures the TUN virtual network interface for transparent proxy — device na
 - `src/components/editors/tun/TunEditor.tsx`
 
 ## UI 结构
-Two-column grid form with header. Advanced fields (GSO, GSO max size, endpoint-independent NAT, route-exclude-address) are collapsed by default behind a chevron toggle in `FieldWrapper`.
+页面标题与 NavTree 统一为 **TUN**。**启用与路由**常显；**DNS 与路由范围**、**Linux 重定向**、**性能与 NAT**通过 `EditorSection` 整组默认折叠，不再逐字段折叠。整页标记为仅 mihomo，字段帮助使用中文 Tooltip。字段网格在窄屏为单列，`md` 及以上为双列。
 
 ## 配置字段
 - `tun.enable` (`boolean`)
@@ -27,6 +27,7 @@ Two-column grid form with header. Advanced fields (GSO, GSO max size, endpoint-i
 
 ## 使用组件
 - `FieldWrapper`
+- `EditorSection`
 - `TextField`
 - `NumberField`
 - `BoolField`
@@ -34,7 +35,7 @@ Two-column grid form with header. Advanced fields (GSO, GSO max size, endpoint-i
 - `TUN_STACKS` from `@/lib/constants`
 
 ## 关联引擎
-None.
+- `src/__tests__/components/FormEditorUx.test.tsx`（标题、分组、Tooltip、空值下拉和响应式布局）
 
 ## 关联测试
 None.

@@ -1,4 +1,5 @@
 import { useConfigStore } from '@/store/config-store'
+import { EditorSection } from '@/components/editors/shared/EditorSection'
 import { TextField } from '@/components/editors/shared/fields'
 import { Plus, Trash2 } from 'lucide-react'
 
@@ -27,17 +28,25 @@ export function HostsEditor() {
   }
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-3">
+    <div className="mx-auto max-w-3xl space-y-5 p-4 sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold">Hosts</h2>
-        <button onClick={addEntry} className="flex items-center gap-1 px-2 py-1 rounded bg-primary text-primary-foreground text-xs">
+        <button type="button" onClick={addEntry} className="flex items-center gap-1 rounded bg-primary px-2 py-1 text-xs text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
           <Plus className="size-3.5" /> 添加
         </button>
       </div>
 
-      <div className="space-y-1">
+      <EditorSection title="静态解析" description="将域名固定解析到一个或多个 IP 地址。">
+        {Object.keys(hosts).length > 0 && (
+          <div className="mb-1 hidden grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto] gap-2 px-2 text-[10px] text-muted-foreground sm:grid">
+            <span>域名</span>
+            <span>IP 地址</span>
+            <span className="sr-only">操作</span>
+          </div>
+        )}
+        <div className="space-y-2">
         {Object.entries(hosts).map(([domain, ip], i) => (
-          <div key={i} className="flex items-center gap-1">
+          <div key={i} className="grid grid-cols-1 gap-2 rounded-md border border-border/70 p-2 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto] sm:items-center">
             <TextField
               value={domain}
               onChange={(v) => {
@@ -45,7 +54,6 @@ export function HostsEditor() {
                 setEntry(v, ip)
               }}
               placeholder="domain.com"
-              className="w-40"
             />
             <TextField
               value={typeof ip === 'string' ? ip : ip.join(', ')}
@@ -54,14 +62,22 @@ export function HostsEditor() {
                 setEntry(domain, commaParts.length <= 1 ? v : commaParts)
               }}
               placeholder="127.0.0.1"
-              className="flex-1"
             />
-            <button onClick={() => setEntry(domain, undefined)} className="text-muted-foreground hover:text-destructive">
+            <button type="button" aria-label={`删除 Hosts 条目 ${domain || i + 1}`} onClick={() => setEntry(domain, undefined)} className="justify-self-end rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
               <Trash2 className="size-3.5" />
             </button>
           </div>
         ))}
-      </div>
+        {Object.keys(hosts).length === 0 && (
+          <div className="rounded-md border border-dashed border-border p-6 text-center">
+            <p className="text-xs text-muted-foreground">暂无静态解析条目</p>
+            <button type="button" onClick={addEntry} className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+              <Plus className="size-3" /> 添加第一条记录
+            </button>
+          </div>
+        )}
+        </div>
+      </EditorSection>
     </div>
   )
 }

@@ -7,7 +7,7 @@ Configures domain sniffing settings for detecting real target domains from TLS/H
 - `src/components/editors/sniffer/SnifferEditor.tsx`
 
 ## UI 结构
-Two-column grid form. Each field is wrapped in `FieldWrapper` with a label and description. Boolean fields are checkboxes; comma-separated list fields are text inputs split/joined automatically.
+页面标题与 NavTree 统一为 **Sniffer**。**基本嗅探**常显；**协议与端口**、**域名例外**整组默认折叠。整页标记为仅 mihomo，字段帮助通过中文 Tooltip 展示；逗号分隔列表的读写行为保持不变。字段网格在窄屏为单列，`md` 及以上为双列。
 
 ## 配置字段
 - `sniffer.enable` (`boolean`) — master enable switch
@@ -21,11 +21,12 @@ Two-column grid form. Each field is wrapped in `FieldWrapper` with a label and d
 
 ## 使用组件
 - `FieldWrapper`
+- `EditorSection`
 - `TextField`
 - `BoolField`
 
 ## 关联引擎
-None.
+- `src/__tests__/components/FormEditorUx.test.tsx`（标题、分组、折叠和响应式布局）
 
 ## 关联测试
 None.

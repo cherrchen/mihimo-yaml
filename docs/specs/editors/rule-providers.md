@@ -8,7 +8,7 @@ Manages rule providers — remote or local rule sets (domain, IPCIDR, classical)
 - `src/components/editors/rule-providers/templates.ts`
 
 ## UI 结构
-Single-page flat list layout. Top section shows a MetaCubeX rule set template picker (3-column grid, scrollable) with 32 pre-configured templates spanning geo/geosite, geo/geoip, geo-lite, and ASN categories. An "Add" button creates a blank provider. Each provider renders as a card with: type/behavior/format selects, interval, URL (for HTTP type), and advanced fields (local path, download proxy). Each card has its own delete button.
+页面标题与 NavTree 统一为 **规则 Provider**。标题下方保留原有常驻的 MetaCubeX 规则集模板边框卡片和三列模板网格；其后是 **Provider 列表**，包含新增入口、响应式 Provider 卡片和空状态。卡片常显类型、规则行为、文件格式和 HTTP URL，更新间隔、本地路径及下载代理统一收进默认关闭的 **存储与更新** 区域。
 
 ## 配置字段
 - `rule-providers` (top-level map, keyed by provider name)
@@ -22,6 +22,7 @@ Single-page flat list layout. Top section shows a MetaCubeX rule set template pi
 
 ## 使用组件
 - `FieldWrapper`
+- `EditorSection`
 - `TextField`, `NumberField`, `SelectField`
 
 ## 关联引擎
@@ -32,3 +33,4 @@ Single-page flat list layout. Top section shows a MetaCubeX rule set template pi
 ## 关联测试
 - `src/__tests__/components/RuleProvidersEditor.test.tsx` — component integration tests
 - `src/__tests__/rule-provider-templates.test.ts` — template data tests
+- `src/__tests__/components/FormEditorUx.test.tsx` — 模板卡片位置、模板应用、空状态和响应式布局

@@ -9,6 +9,12 @@
 - 列表、表格、拓扑图等专用编辑器可复用字段帮助，但不强制使用 `EditorSection`。
 - 当前参考实现为 `src/components/editors/general/GeneralEditor.tsx`。
 
+## 已迁移页面
+
+- 字段表单：General、DNS、TUN、Sniffer、NTP、Experimental、iptables、ebpf、Clash for Android。
+- 轻量列表/卡片：Hosts、Tunnels、Rule Providers。
+- Inbounds、Proxies、Proxy Providers、Proxy Groups、Rules、Sub Rules 和 Chain Builder 仍使用各自的专用布局，不属于本轮迁移范围。
+
 ## 组件位置
 
 | 组件 | 路径 | 职责 |
@@ -117,6 +123,14 @@ export function ExampleEditor() {
   )
 }
 ```
+
+## 轻量列表与卡片
+
+- 页面仍使用唯一核心 `EditorSection` 提供任务说明和适用范围，但列表行或卡片不强制再嵌套 `EditorSection`。
+- 空列表必须提供说明和直接创建第一项的入口，不能只显示静态占位文字。
+- 列表行与卡片字段在窄屏纵向排列，`md` 及以上再恢复多列；文本容器使用 `min-w-0`，避免长域名、URL 或路径造成横向溢出。
+- 图标按钮必须设置 `type="button"` 和可访问名称，并保留键盘焦点样式。
+- 卡片中的低频字段应整组折叠。原生 `details/summary` 可用于卡片内部的小型分组，页面级分组仍优先使用 `EditorSection`。
 
 ## 迁移步骤
 

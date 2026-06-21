@@ -7,7 +7,7 @@ Configures the built-in NTP time synchronization client.
 - `src/components/editors/ntp/NtpEditor.tsx`
 
 ## UI 结构
-Simple single-page form layout with a heading and a 2-column grid of form fields.
+页面标题与 NavTree 统一为 **NTP**。**同步服务**常显；**系统与路由**默认折叠。字段帮助通过中文 Tooltip 展示，字段网格在窄屏为单列、`md` 及以上为双列。
 
 ## 配置字段
 - `ntp` (top-level object)
@@ -20,10 +20,11 @@ Simple single-page form layout with a heading and a 2-column grid of form fields
 
 ## 使用组件
 - `FieldWrapper`
+- `EditorSection`
 - `TextField`, `NumberField`, `BoolField`
 
 ## 关联引擎
 (No dedicated engine module)
 
 ## 关联测试
-(No component-specific tests)
+- `src/__tests__/components/FormEditorUx.test.tsx`
