@@ -57,6 +57,28 @@ describe('RulesEditor component', () => {
     expect(screen.getByText('没有找到匹配“not-present”的规则。')).toBeInTheDocument()
   })
 
+  it('should keep a divider between every rule row', () => {
+    const { container } = render(<RulesEditor />)
+
+    const rows = container.querySelectorAll('[data-rule-row]')
+    expect(rows).toHaveLength(3)
+    expect(rows[0]).toHaveClass('border-b', 'border-border')
+    expect(rows[1]).toHaveClass('border-b', 'border-border')
+    expect(rows[2]).not.toHaveClass('border-b')
+    expect(container.querySelector('[class*="last:border-b-0"]')).not.toBeInTheDocument()
+  })
+
+  it('should use the same divider frame for an expanded rule', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<RulesEditor />)
+
+    await user.click(screen.getByText('google.com'))
+
+    const rows = container.querySelectorAll('[data-rule-row]')
+    expect(rows[1]).toHaveClass('border-b', 'border-border')
+    expect(rows[1]).toHaveTextContent('额外参数')
+  })
+
   it('should virtualize 50,000 rules and preserve original indexes when searching', async () => {
     const rules = Array.from(
       { length: 49_999 },
@@ -70,14 +92,20 @@ describe('RulesEditor component', () => {
       historyIndex: -1,
     }))
 
-    render(<RulesEditor />)
+    const { container } = render(<RulesEditor />)
     expect(screen.queryAllByLabelText(/^删除规则/).length).toBeLessThan(100)
+    expect(container.querySelectorAll('[data-rule-virtual-slot]').length).toBeLessThan(100)
+    for (const row of container.querySelectorAll('[data-rule-row]')) {
+      expect(row).toHaveClass('border-b', 'border-border')
+    }
 
     fireEvent.change(screen.getByPlaceholderText('搜索规则关键词...'), {
       target: { value: 'rule-49998.example' },
     })
 
     expect(await screen.findByText('rule-49998.example')).toBeInTheDocument()
-    expect(screen.getByLabelText('删除规则 49999')).toBeInTheDocument()
+    const deleteButton = screen.getByLabelText('删除规则 49999')
+    expect(deleteButton).toBeInTheDocument()
+    expect(deleteButton.closest('[data-rule-row]')).not.toHaveClass('border-b')
   })
 })

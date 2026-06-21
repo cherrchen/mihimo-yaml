@@ -1,3 +1,5 @@
+import { Switch } from '@/components/ui/switch'
+
 interface TextFieldProps {
   value: string
   onChange: (value: string) => void
@@ -52,10 +54,11 @@ interface SelectFieldProps {
   onChange: (value: string) => void
   options: readonly string[]
   placeholder?: string
+  emptyPlaceholder?: string
   disabled?: boolean
 }
 
-export function SelectField({ value, onChange, options, placeholder, disabled }: SelectFieldProps) {
+export function SelectField({ value, onChange, options, placeholder, emptyPlaceholder, disabled }: SelectFieldProps) {
   return (
     <select
       value={value}
@@ -63,7 +66,8 @@ export function SelectField({ value, onChange, options, placeholder, disabled }:
       disabled={disabled}
       className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
     >
-      {placeholder && <option value="">{placeholder}</option>}
+      {emptyPlaceholder && <option value="" disabled hidden>{emptyPlaceholder}</option>}
+      {!emptyPlaceholder && placeholder && <option value="">{placeholder}</option>}
       {options.map((opt) => (
         <option key={opt} value={opt}>{opt}</option>
       ))}
@@ -75,16 +79,16 @@ interface BoolFieldProps {
   value: boolean
   onChange: (value: boolean) => void
   disabled?: boolean
+  ariaLabel?: string
 }
 
-export function BoolField({ value, onChange, disabled }: BoolFieldProps) {
+export function BoolField({ value, onChange, disabled, ariaLabel }: BoolFieldProps) {
   return (
-    <input
-      type="checkbox"
+    <Switch
       checked={value}
-      onChange={(e) => onChange(e.target.checked)}
+      onCheckedChange={onChange}
       disabled={disabled}
-      className="size-4 rounded border-input"
+      aria-label={ariaLabel}
     />
   )
 }

@@ -19,6 +19,13 @@ describe('NavTree component', () => {
     expect(screen.getByText('通用')).toBeInTheDocument()
   })
 
+  it('should use the global settings label for the general child page', () => {
+    useUiStore.setState({ activeSection: 'general' })
+    render(<NavTree />)
+
+    expect(screen.getByText('全局设置')).toBeInTheDocument()
+  })
+
   it('should render search input', () => {
     render(<NavTree />)
     const input = screen.getByPlaceholderText('搜索配置项...')
@@ -59,14 +66,15 @@ describe('NavTree component', () => {
     const user = userEvent.setup()
     render(<NavTree />)
 
-    expect(screen.queryByText('iptables')).not.toBeInTheDocument()
+    expect(screen.queryByText('Linux iptables设置')).not.toBeInTheDocument()
     await user.click(screen.getByText('高级'))
 
     expect(useUiStore.getState().activeSection).toBe('experimental')
-    expect(screen.getByText('iptables')).toBeInTheDocument()
-    expect(screen.getByText('ebpf')).toBeInTheDocument()
-    expect(screen.getByText('Experimental')).toBeInTheDocument()
-    expect(screen.getByText('Clash for Android')).toBeInTheDocument()
+    const labels = ['实验Experimental', 'Clash for Android', 'Linux iptables设置', 'Linux eBPF转发设置']
+    const elements = labels.map((label) => screen.getByText(label))
+    for (let i = 0; i < elements.length - 1; i++) {
+      expect(elements[i].compareDocumentPosition(elements[i + 1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    }
   })
 
   it('should expose matching advanced children through search', async () => {
@@ -76,7 +84,7 @@ describe('NavTree component', () => {
     await user.type(screen.getByPlaceholderText('搜索配置项...'), 'iptables')
 
     expect(screen.getByText('高级')).toBeInTheDocument()
-    expect(screen.getByText('iptables')).toBeInTheDocument()
-    expect(screen.queryByText('ebpf')).not.toBeInTheDocument()
+    expect(screen.getByText('Linux iptables设置')).toBeInTheDocument()
+    expect(screen.queryByText('Linux eBPF转发设置')).not.toBeInTheDocument()
   })
 })

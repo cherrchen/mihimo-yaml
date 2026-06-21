@@ -9,7 +9,7 @@ Configures routing rules as a comma-separated string array — each rule defines
 - `src/lib/constants.ts` (RULE_TYPES)
 
 ## UI 结构
-Sortable list with search bar. Lists over 200 matches use `@tanstack/react-virtual` with dynamic row measurement and overscan; the editing and active drag rows remain mounted. Search scans the complete rule set through a deferred query and preserves original indexes for edit/delete. Collapsed rows show index/type/payload/target; clicking expands the inline edit form. Drag-and-drop, insert-after, and delete remain available.
+Sortable list with search bar. Collapsed, expanded, and sortable rows share the file-local `RuleRowFrame`, which explicitly suppresses the divider only for the final filtered row. Virtual positioning and measurement are isolated in `VirtualRuleSlot`, so the extra wrapper does not change row borders or spacing. Lists over 200 matches use `@tanstack/react-virtual` with dynamic row measurement and overscan; the editing and active drag rows remain mounted. Search scans the complete rule set through a deferred query and preserves original indexes for edit/delete. Collapsed rows show index/type/payload/target; clicking expands the inline edit form. Drag-and-drop, insert-after, and delete remain available.
 
 ## 配置字段
 - `rules` (`string[]`) — each string is comma-delimited: `TYPE,payload,target[,extra...]`
@@ -33,4 +33,4 @@ Sortable list with search bar. Lists over 200 matches use `@tanstack/react-virtu
 - `src/__tests__/rule-parser.test.ts`
 - `src/__tests__/rule-validator.test.ts`
 
-The component and validator suites include a 50,000-rule regression case.
+The component suite covers shared row-frame dividers in regular, expanded, filtered, and virtualized states. The component and validator suites include a 50,000-rule regression case.

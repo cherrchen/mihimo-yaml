@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseYaml, stringifyYaml } from '@/schema/yaml'
+import { parseYaml, stringifyYaml, stringifyYamlOrdered } from '@/schema/yaml'
 
 describe('YAML parse/stringify round-trip', () => {
   it('should parse and stringify minimal config', () => {
@@ -55,6 +55,25 @@ rules:
     const output = stringifyYaml(config)
     expect(output).toContain('https://doh.pub/dns-query')
     expect(output).toContain('gfw')
+  })
+
+  it('should omit disabled or implicitly disabled DNS without deleting editor values', () => {
+    const disabledConfig = {
+      mode: 'rule' as const,
+      dns: { enable: false, nameserver: ['https://disabled.example/dns-query'] },
+    }
+    const implicitConfig = {
+      mode: 'rule' as const,
+      dns: { nameserver: ['https://implicit.example/dns-query'] },
+    }
+
+    expect(stringifyYaml(disabledConfig)).not.toContain('dns:')
+    expect(stringifyYamlOrdered(disabledConfig)).not.toContain('disabled.example')
+    expect(stringifyYamlOrdered(implicitConfig)).not.toContain('dns:')
+    expect(disabledConfig.dns.nameserver).toEqual(['https://disabled.example/dns-query'])
+
+    disabledConfig.dns.enable = true
+    expect(stringifyYamlOrdered(disabledConfig)).toContain('https://disabled.example/dns-query')
   })
 
   it('should preserve proxy with all common fields', () => {

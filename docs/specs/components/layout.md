@@ -30,7 +30,7 @@
 
 `NavTree` 垂直布局：
 - **顶部**：搜索输入框，实时过滤导航项（匹配标签名含子项展开）
-- **中部**：导航列表，每项带图标和标签。`proxies` 和 `rules` 项显示动态计数徽章。有 `children` 的项（通用/入站/高级）在激活或搜索时展开子项
+- **中部**：导航列表，每项带图标和标签。`proxies` 和 `rules` 项显示动态计数徽章。有 `children` 的项（通用/入站/高级）在激活或搜索时展开子项；高级点击默认进入“实验Experimental”，子项顺序为“实验Experimental”→“Clash for Android”→“Linux iptables设置”→“Linux eBPF转发设置”
 - **底部**：固定位置的"设置"和"About / 关于"链接
 
 ## 依赖
@@ -41,4 +41,4 @@
 - **工具**: `cn` from `@/lib/utils`
 
 ## 关联测试
-- `src/__tests__/components/NavTree.test.tsx` — 测试导航树渲染、搜索过滤、子项展开、平台编辑器分组
+- `src/__tests__/components/NavTree.test.tsx` — 测试导航树渲染、搜索过滤、子项展开、平台编辑器分组和“全局设置”命名

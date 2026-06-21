@@ -3,6 +3,7 @@ import { useConfigStore } from '@/store/config-store'
 import { TextField } from '@/components/editors/shared/fields'
 import { Plus, Trash2 } from 'lucide-react'
 import { RULE_TYPES } from '@/lib/constants'
+import { SplitEditorDetailPane, SplitEditorLayout, SplitEditorListPane } from '@/components/editors/shared/SplitEditorLayout'
 
 export function SubRulesEditor() {
   const config = useConfigStore((s) => s.config)
@@ -29,8 +30,8 @@ export function SubRulesEditor() {
   }
 
   return (
-    <div className="p-6 flex h-full">
-      <div className="w-48 flex-shrink-0 border-r border-border pr-3 flex flex-col">
+    <SplitEditorLayout>
+      <SplitEditorListPane>
         <button onClick={addSubRule} className="mb-2 flex items-center gap-1 px-2 py-1 rounded bg-primary text-primary-foreground text-xs">
           <Plus className="size-3.5" /> 添加子规则
         </button>
@@ -50,9 +51,9 @@ export function SubRulesEditor() {
             </div>
           ))}
         </div>
-      </div>
+      </SplitEditorListPane>
 
-      <div className="flex-1 pl-4 overflow-y-auto max-w-lg">
+      <SplitEditorDetailPane>
         {selectedName && subRules[selectedName] ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -120,7 +121,7 @@ export function SubRulesEditor() {
         ) : (
           <p className="text-xs text-muted-foreground p-8 text-center">选择或添加子规则</p>
         )}
-      </div>
-    </div>
+      </SplitEditorDetailPane>
+    </SplitEditorLayout>
   )
 }

@@ -15,7 +15,7 @@
 
 ## UI 结构
 `YamlPreview` 占据侧边面板全高，采用 flex 纵向布局：
-- **标签栏**：四个标签页 — "YAML"（≤5000 行使用 CodeMirror，超长文档使用带行号的虚拟列表）、"问题"（超过 200 项时虚拟化）、"对比"、"兼容性"
+- **标签栏**：四个标签页 — "YAML"（所有文档共用 CodeMirror；≤5000 行启用 YAML 语法扩展，超长文档使用纯文本扩展并依靠 CodeMirror 的视口渲染控制 DOM）、"问题"（超过 200 项时虚拟化）、"对比"、"兼容性"
 - **内容区**：根据 `previewMode` 切换渲染对应视图
 - **底部状态栏**：显示派生中的状态，完成后显示当前 YAML 的行数和字符数
 
@@ -25,11 +25,11 @@
 
 ## 依赖
 - **状态管理**: `useConfigStore` (configYaml, integrityReport, derivationPending), `useUiStore` (previewMode, setPreviewMode, theme)
-- **第三方库**: `@tanstack/react-virtual`, `@uiw/react-codemirror`, CodeMirror YAML/theme packages, `diff`
+- **第三方库**: `@tanstack/react-virtual`（问题列表）, `@uiw/react-codemirror`, CodeMirror YAML/theme packages, `diff`
 - **UI 组件**: `Badge` from `@/components/ui/badge`
 - **工具**: `cn` from `@/lib/utils`
 
 ## 关联测试
 - `src/__tests__/components/YamlDiff.test.tsx` — 测试相同文本无差异、新增行显示、删除行显示、变更计数、空文本处理
-- `src/__tests__/components/YamlPreview.test.tsx` — 测试超长 YAML 和问题列表的有界虚拟渲染
+- `src/__tests__/components/YamlPreview.test.tsx` — 测试普通/超长 YAML 共用 CodeMirror、超长文档 DOM 有界，以及问题列表虚拟化
 - `src/__tests__/yaml-diff.test.ts` — 测试 diffLines 工具函数的增加/删除/修改/空文本/多段 YAML 等场景

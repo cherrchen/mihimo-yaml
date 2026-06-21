@@ -43,7 +43,7 @@ Zustand store managing the active mihomo config, structurally shared undo/redo h
 | `canUndo` | `() => boolean` | Returns true when historyIndex > 0 |
 | `canRedo` | `() => boolean` | Returns true when not at end of history |
 | `saveToHistory` | `(snapshot?: MihomoConfig) => void` | Pushes a snapshot onto the history stack (truncates redo) |
-| `runValidation` | `() => void` | Re-runs integrity check on the current config |
+| `runValidation` | `() => void` | Re-runs integrity check on the effective config, excluding disabled DNS |
 | `runCompatibility` | `() => void` | Re-runs mihomo compatibility report |
 | `applyDerivedResult` | `(snapshot, yaml, report) => void` | Applies worker output only when `snapshot` is still current |
 | `failDerivedResult` | `(snapshot) => void` | Clears pending state only for the current snapshot |

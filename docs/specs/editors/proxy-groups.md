@@ -10,7 +10,7 @@ Manages proxy groups — routing policies that select or chain proxies (select, 
 
 ## UI 结构
 Two views toggled via toolbar buttons:
-- **List view**: Left sidebar with search, "Add", "Topology" buttons, and scrollable group list. Right pane shows the selected group's detail form with a drag-and-drop proxy member list (powered by `@dnd-kit`), type-specific fields (health check for url-test/fallback/load-balance, strategy for load-balance, relay warnings), and advanced fields (use/providers, disable-udp, empty-fallback, icon, hidden, filter, exclude-filter).
+- **List view**: Shared split layout with a 30%/14rem-minimum left pane containing search, "Add", "Topology" buttons, and a scrollable group list. The remaining centered right pane shows the selected group's detail form with drag-and-drop members, type-specific fields, and advanced fields.
 - **Topology view**: Interactive `@xyflow/react` graph showing proxy groups, proxies, providers, and built-in strategies as nodes with directed edges. Color-coded for normal (green), self-referencing (amber), and cyclic (red). Bottom panel lists detected issues: cycles, self-references, dangling references.
 
 ## 配置字段

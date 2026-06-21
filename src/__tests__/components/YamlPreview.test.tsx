@@ -14,14 +14,25 @@ describe('YamlPreview component', () => {
     })
   })
 
-  it('should use bounded virtual rows for very large YAML documents', () => {
+  it('should use CodeMirror for ordinary YAML documents', () => {
+    useConfigStore.setState({ configYaml: 'mode: rule\nrules:\n  - MATCH,DIRECT' })
+
+    const { container } = render(<YamlPreview />)
+
+    expect(container.querySelector('.cm-editor')).toBeInTheDocument()
+    expect(screen.queryByTestId('yaml-virtual-row')).not.toBeInTheDocument()
+    expect(screen.getByText('3 行')).toBeInTheDocument()
+  })
+
+  it('should use CodeMirror with bounded rendered lines for very large YAML documents', () => {
     const yaml = Array.from({ length: 6_000 }, (_, index) => `rule-${index}: DIRECT`).join('\n')
     useConfigStore.setState({ configYaml: yaml })
 
     const { container } = render(<YamlPreview />)
 
-    expect(container.querySelector('.cm-editor')).not.toBeInTheDocument()
-    expect(screen.queryAllByTestId('yaml-virtual-row').length).toBeLessThan(100)
+    expect(container.querySelector('.cm-editor')).toBeInTheDocument()
+    expect(screen.queryByTestId('yaml-virtual-row')).not.toBeInTheDocument()
+    expect(container.querySelectorAll('.cm-line').length).toBeLessThan(100)
     expect(screen.getByText('6000 行')).toBeInTheDocument()
   })
 
