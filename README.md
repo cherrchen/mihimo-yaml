@@ -59,12 +59,12 @@ React 19 · TypeScript · Vite 8 · Tailwind CSS 4 · Zustand · Dexie · CodeMi
 
 ## License / 协议
 
-本项目基于 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) 协议发布。
+本项目基于 [MIT License](https://opensource.org/licenses/MIT) 协议发布。
 
-- 允许分享和改编
-- 必须署名
-- 不得用于商业用途
-- 修改后的内容需要明确标注变更
+Copyright (c) 2026 cherrchen
+
+- 允许自由使用、复制、修改、合并、发布、分发、再授权及销售
+- 必须保留版权声明和许可声明
 
 ## Attribution / Credits
 
